@@ -39,13 +39,13 @@ public class DocenteService {
         return docenteRepository.findByCargo(cargo);
     }
     
-    public Docente save(Docente docente) {
+    public Docente save(Long idUsuario, Docente docente) {
         // Validar que el usuario exista
-        Usuario usuario = usuarioRepository.findById(docente.getIdDocente())
+        Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         
         // Validar que el usuario no sea ya estudiante, docente o secretaria
-        if (docenteRepository.findByUsuarioId(docente.getIdDocente()).isPresent()) {
+        if (docenteRepository.findByUsuarioId(idUsuario).isPresent()) {
             throw new IllegalArgumentException("El usuario ya es un docente");
         }
         

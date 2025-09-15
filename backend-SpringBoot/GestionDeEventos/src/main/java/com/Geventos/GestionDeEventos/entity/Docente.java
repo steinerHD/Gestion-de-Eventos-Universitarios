@@ -1,5 +1,7 @@
 package com.Geventos.GestionDeEventos.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,5 +27,6 @@ public class Docente {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente")
     @MapsId
+    @JsonBackReference
     private Usuario usuario;
 }
