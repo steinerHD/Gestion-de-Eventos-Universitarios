@@ -1,0 +1,219 @@
+/** Estilos modernos y formales para app.html */
+
+/* Fondo general */                                                
+body {
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #F4FFFD;
+}
+
+/* Botones principales */
+.btn {
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 1.05rem;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  letter-spacing: 0.02em;
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.btn{
+  background-color: #4F5D75; /* color sólido */
+  border: none;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn:hover, .btn:focus {
+  background-color: #3e4a5c; /* un poco más oscuro */
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 93, 117, 0.4);
+}
+
+
+/* Card de formularios */
+.card {
+  border-radius: 1.2rem;
+  box-shadow: 0 10px 34px rgba(30, 64, 175, 0.08), 0 1.5px 4px rgba(0,0,0,0.03);
+  border: none;
+  background: #fff;
+  width: 700px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+
+/* Títulos */
+h3 {
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.01em;
+}
+
+/* Etiquetas de formulario */
+.form-label {
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+/* Inputs */
+.form-control {
+  border-radius: 0.5rem;
+  border: 1.5px solid #cbd5e1;
+  background: #f1f5f9;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+  text-align: center;
+}
+.form-control:focus {
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 2px #2563eb22;
+}
+
+/* Espaciados */
+.mb-3 {
+  margin-bottom: 1.2rem !important;
+}
+.mb-4 {
+  margin-bottom: 2rem !important;
+}
+.mt-5 {
+  margin-top: 3rem !important;
+}
+
+/* Centrado de formularios */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+/* Responsive */
+@media (max-width: 500px) {
+  .card {
+    margin: 0 auto;
+    text-align: center;
+  }
+  .form-control {
+    text-align: center;
+  }
+}
+
+
+/* Sombra sutil al pasar sobre inputs */
+.form-control:hover {
+  box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+}
+
+
+/* Ajuste para el placeholder */
+::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+  font-size: 0.98em;
+}
+
+/* Ajuste visual para los formularios */
+form {
+  margin-top: 0.5rem;
+}
+
+
+/* Ajuste para el contenedor principal */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 6px 32px rgba(30, 64, 175, 0.07);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Centrar títulos y textos */
+h3, label, .form-label, .form-control, .link-signup {
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+
+.logo-img {
+  max-width: 200px;
+  max-height: 200px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.link-signup {
+  color: #176a6a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  display: inline-block;
+}
+
+.link-signup:hover,
+.link-signup:focus {
+  color: #3BE5E6;
+  text-decoration: underline;
+}
+
+.href {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.link-signin {
+  color: #176a6a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  display: inline-block;
+}
+
+.link-signin:hover,
+.link-signin:focus {
+  color: #3BE5E6;
+  text-decoration: underline;
+}
+
+.link-forgetpwd{
+  color: #176a6a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  display: inline-block;
+}
+
+.link-forgetpwd:hover,
+.link-forgetpwd:focus {
+  color: #3BE5E6;
+  text-decoration: underline;
+}
+
+
+
