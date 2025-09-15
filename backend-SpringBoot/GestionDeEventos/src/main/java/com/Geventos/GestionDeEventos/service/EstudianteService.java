@@ -35,24 +35,27 @@ public class EstudianteService {
         return estudianteRepository.findByUsuarioId(idUsuario);
     }
     
-    public Estudiante save(Estudiante estudiante) {
-        // Validar que el usuario exista
-        Usuario usuario = usuarioRepository.findById(estudiante.getIdEstudiante())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-        
-        // Validar que el código estudiantil no exista
-        if (estudianteRepository.existsByCodigoEstudiantil(estudiante.getCodigoEstudiantil())) {
-            throw new IllegalArgumentException("El código estudiantil ya está registrado");
-        }
-        
-        // Validar que el usuario no sea ya estudiante, docente o secretaria
-        if (estudianteRepository.findByUsuarioId(estudiante.getIdEstudiante()).isPresent()) {
-            throw new IllegalArgumentException("El usuario ya es un estudiante");
-        }
-        
-        estudiante.setUsuario(usuario);
-        return estudianteRepository.save(estudiante);
+public Estudiante save(Long idUsuario, Estudiante estudiante) {
+    // Validar que el usuario exista
+    Usuario usuario = usuarioRepository.findById(idUsuario)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+    // Validar que el código estudiantil no exista
+    if (estudianteRepository.existsByCodigoEstudiantil(estudiante.getCodigoEstudiantil())) {
+        throw new IllegalArgumentException("El código estudiantil ya está registrado");
     }
+
+    // Validar que el usuario no sea ya estudiante
+    if (estudianteRepository.findByUsuarioId(idUsuario).isPresent()) {
+        throw new IllegalArgumentException("El usuario ya es un estudiante");
+    }
+
+    // Asociar usuario; MapsId pone la PK igual al id del usuario
+    estudiante.setUsuario(usuario);
+
+    return estudianteRepository.save(estudiante);
+}
+
     
     public Estudiante update(Long id, Estudiante estudiante) {
         Estudiante existingEstudiante = estudianteRepository.findById(id)
