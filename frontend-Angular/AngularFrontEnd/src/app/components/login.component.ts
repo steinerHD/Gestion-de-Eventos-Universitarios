@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';   
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule],
   template: `
     <div class="container mt-5">
       <div class="d-flex justify-content-center mb-4">

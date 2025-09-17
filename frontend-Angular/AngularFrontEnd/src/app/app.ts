@@ -1,19 +1,16 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-import { LoginComponent } from './components/login.component';
-import { HomeComponent } from './components/home.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LoginComponent, HomeComponent, CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
 export class AppComponent {
-  title = 'Gestion de Eventos Universitarios';
+  title = 'Gestión de Eventos Universitarios';
   selectedMenu: 'signin' | 'signup' | 'forgetpassword' = 'signin';
 
   signInForm: FormGroup;
@@ -24,8 +21,6 @@ export class AppComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
-
-
 
     this.signUpForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -45,7 +40,11 @@ export class AppComponent {
   passwordsMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordsMismatch: true };
+
+    if (password !== confirmPassword) {
+      return { passwordsMismatch: true };
+    }
+    return null;
   }
 
   onSignIn() {
@@ -54,6 +53,7 @@ export class AppComponent {
       console.log('Iniciar sesión', this.signInForm.value);
     } else {
       this.signInForm.markAllAsTouched();
+      this.signInForm.markAsDirty();
     }
   }
 
@@ -63,8 +63,7 @@ export class AppComponent {
       console.log('Crear cuenta', this.signUpForm.value);
     } else {
       this.signUpForm.markAllAsTouched();
+      this.signUpForm.markAsDirty();
     }
   }
 }
-
-
