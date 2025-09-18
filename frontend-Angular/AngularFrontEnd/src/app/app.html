@@ -13,9 +13,9 @@
 <main class="main">
   <header>
     <section class="headerSec">
-    <div><img src="../public/Icons/UEventos.png" alt="Logo de U events" ></div>
+    <div><img src="/Icons/UEventos.png" alt="Logo de U events" ></div>
     <div><h1>Nuevo Evento</h1></div>
-    <div><img src="Icons/profile.png" alt="perfil"></div>
+    <div><img src="/Icons/profile.png" alt="perfil"></div>
     </section>
   </header>
   
@@ -36,11 +36,9 @@
       <label for="eventType">Tipo de evento</label>
       <select id="eventType">
         <option>Tipo de evento</option>
+        <option>Academico</option>
+        <option>Ludico</option>
       </select>
-    </div>
-    <div class="input-group">
-      <label for="academicUnit">Unidad academica</label>
-      <input type="text" id="academicUnit" placeholder="Unidad academica">
     </div>
     <div class="input-group">
       <label for="responsibleId">Id del responsable</label>
@@ -53,6 +51,13 @@
       <label for="eventDate">Fecha</label>
       <input type="text" id="eventDate" placeholder="xxxx/xx/xx">
     </div>
+    <div class="input-group">
+      <label for="eventDate">Hora de Inicio</label>
+      <input type="text" id="EVHourIni" placeholder="XX:XX">
+      <label for="eventDate">Hora de Fin</label>
+      <input type="text" id="EVHourFin" placeholder="XX:XX">
+    </div>
+    
     <div class="input-group">
       <div class="label-status">Estado del evento</div>
       <div class="status-button">Borrador</div>
