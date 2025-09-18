@@ -38,7 +38,7 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping
+    @PostMapping("/crear")
     public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario savedUsuario = usuarioService.save(usuario);
@@ -68,12 +68,6 @@ public class UsuarioController {
         }
     }
     
-    @PostMapping("/authenticate")
-    public ResponseEntity<Usuario> authenticate(@RequestBody AuthRequest authRequest) {
-        Optional<Usuario> usuario = usuarioService.authenticate(authRequest.getCorreo(), authRequest.getContrasenaHash());
-        return usuario.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }
     
     @GetMapping("/exists/correo/{correo}")
     public ResponseEntity<Boolean> existsByCorreo(@PathVariable String correo) {
@@ -81,14 +75,4 @@ public class UsuarioController {
         return ResponseEntity.ok(exists);
     }
     
-    // Clase interna para la autenticación
-    public static class AuthRequest {
-        private String correo;
-        private String contrasenaHash;
-        
-        public String getCorreo() { return correo; }
-        public void setCorreo(String correo) { this.correo = correo; }
-        public String getContrasenaHash() { return contrasenaHash; }
-        public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
-    }
 }
