@@ -1,21 +1,12 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-
 <style>
 </style>
 
 <main class="main">
   <header>
     <section class="headerSec">
-    <div><img src="/Icons/UEventos.png" alt="Logo de U events" ></div>
+    <button><img src="/Icons/UEventos.png" alt="Logo de U events" ></button>
     <div><h1>Nuevo Evento</h1></div>
-    <div><img src="/Icons/profile.png" alt="perfil"></div>
+    <button><img src="/Icons/profile.png" alt="perfil"></button>
     </section>
   </header>
   
@@ -85,7 +76,10 @@
         <input type="text" id="externalOrgNit">
       </div>
       <div class="icon-buttons">
-        <button class="icon-button"><img src="Icons/form.png" alt="Listado de organización externa"></button>
+                <button 
+                (click)="openModal()" 
+                class="icon-button">
+                <img src="Icons/form.png" alt="Listado de organización externa"></button>
         <button class="icon-button"><img src="Icons/PlusOrga.png" alt="Agregar organizacion externa"></button>
       </div>
       <div class="checkbox-group">
@@ -97,17 +91,40 @@
 
   <button class="submit-button">Mandar a revisión</button>
 </div>
+        <button 
+          (click)="openModal()" 
+          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+          Abrir Componente de Organización Externa
+        </button>
+@if (isModalOpen()) {
+        <!-- Fondo oscuro (Overlay) -->
+        <div 
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          (click)="closeModal()">
+          
+          <!-- Contenedor de la ventana emergente -->
+          <div 
+            class="bg-white p-2 rounded-lg shadow-xl w-full max-w-lg mx-4 transform transition-transform duration-300 ease-out scale-100"
+            (click)="$event.stopPropagation()">
+            
+            <!-- Aquí se muestra el componente de Organización Externa -->
+            <app-organizacion-externa></app-organizacion-externa>
+            
+            <!-- Botón para cerrar la ventana emergente -->
+            <div class="flex justify-end p-4">
+              <button 
+                (click)="closeModal()" 
+                class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+      <router-outlet></router-outlet>
+    </main>
 
-<router-outlet></router-outlet>
-</main>
 
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
 <router-outlet />
