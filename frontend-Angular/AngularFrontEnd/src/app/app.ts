@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FirstPage } from './first-page/first-page';
+import { OrganizacionExterna } from './organizacion-externa/organizacion-externa';
 import { first } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, FirstPage],
+  imports: [RouterOutlet, CommonModule, OrganizacionExterna],
   templateUrl: './app.html',
   styleUrl: './app.css',
 

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FirstPage } from './first-page';
+import { OrganizacionExterna } from './organizacion-externa';
 
-describe('FirstPage', () => {
-  let component: FirstPage;
-  let fixture: ComponentFixture<FirstPage>;
+describe('OrganizacionExterna', () => {
+  let component: OrganizacionExterna;
+  let fixture: ComponentFixture<OrganizacionExterna>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FirstPage]
+      imports: [OrganizacionExterna]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FirstPage);
+    fixture = TestBed.createComponent(OrganizacionExterna);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
