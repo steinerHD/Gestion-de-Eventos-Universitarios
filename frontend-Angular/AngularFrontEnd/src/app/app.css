@@ -1,4 +1,4 @@
-body {
+.body {
   min-height: 100vh;
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
   margin: 0;
@@ -6,12 +6,94 @@ body {
   background-color: #F4FFFD;
 }
 
+
+.main-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.navbar-custom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #28AFB0;
+  color: #F4FFFD;
+  padding: 0.7rem 2rem;
+  box-shadow: 0 2px 8px rgba(30,64,175,0.08);
+}
+
+.navbar-logo .logo-img {
+  max-width: 48px;
+  max-height: 48px;
+  border-radius: 8px;
+}
+
+.navbar-search {
+  display: flex;
+  align-items: center;
+  background: #F4FFFD;
+  border-radius: 24px;
+  padding: 0.2rem 0.8rem;
+  color: #28AFB0;
+  min-width: 220px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  margin-left: 0.5rem;
+  color: #28AFB0;
+  width: 140px;
+}
+
+.navbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.btn-create {
+  font-weight: 600;
+  border-radius: 1rem;
+  padding: 0.3rem 1rem;
+  color: #28AFB0;
+  background: #F4FFFD;
+  border: none;
+  box-shadow: 0 1px 4px rgba(30,64,175,0.08);
+}
+
+.btn-create:hover {
+  background: #F4FFFD;
+  cursor: pointer;
+}
+
+.navbar-profile .profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F4FFFD;
+  object-fit: cover;
+}
+
+.navbar-clock .clock-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F4FFFD;
+  object-fit: cover;
+}
+
+
+
 .card {
   border-radius: 1.2rem;
   box-shadow: 0 10px 34px rgba(30, 64, 175, 0.08), 0 1.5px 4px rgba(0,0,0,0.03);
   border: none;
-  background: #fff;
-  max-width: 600px;
+  background: #F4FFFD;
+  max-width: 1200px;
   margin: 0 auto;
   text-align: center;
 }
@@ -39,14 +121,14 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   letter-spacing: 0.02em;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background: #3b4658;
+  background: #4F5D75;
 }
 
 .btn-primary:hover, .btn-primary:focus {
   background-color: #4F5D75 !important;
   box-shadow: 0 4px 12px rgba(79, 93, 117, 0.4);
   transform: translateY(-2px);
-  color: #fff !important;
+  color: #F4FFFD !important;
 }
 
 .form-label {
@@ -58,14 +140,15 @@ body {
 
 .form-control {
   border-radius: 0.5rem;
-  background: #f1f5f9;
+  background: #F4FFFD;
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
+  width: 300px;
 }
 
 .form-control:focus {
-  border-color: #2563eb;
-  background: #fff;
+  border-color: #3BE5E6;
+  background: #F4FFFD;
   box-shadow: 0 0 0 2px #2563eb22;
 }
 
@@ -92,7 +175,7 @@ body {
 }
 
 .btn-link {
-  color: #176a6a;
+  color: #28AFB0;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease, text-decoration 0.2s ease;
@@ -105,12 +188,12 @@ body {
 }
 
 .container {
-  max-width: 700px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 6rem 1.5rem;
   border-radius: 1.5rem;
   background: rgba(255,255,255,0.85);
-  box-shadow: 0 6px 32px rgba(30, 64, 175, 0.07);
+  box-shadow: 0 6px 32px rgba(119, 232, 255, 0.279);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -129,3 +212,5 @@ body {
     text-align: center;
   }
 }
+
+

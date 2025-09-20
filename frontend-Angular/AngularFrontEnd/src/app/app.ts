@@ -11,10 +11,11 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   title = 'Gestión de Eventos Universitarios';
-  selectedMenu: 'signin' | 'signup' | 'forgetpassword' = 'signin';
+  selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'menu'= 'signin';
 
   signInForm: FormGroup;
   signUpForm: FormGroup;
+  forgetpasswordForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
     this.signInForm = this.fb.group({
@@ -35,6 +36,10 @@ export class AppComponent {
       ]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordsMatchValidator });
+
+    this.forgetpasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
   passwordsMatchValidator(form: FormGroup) {
@@ -46,11 +51,13 @@ export class AppComponent {
     }
     return null;
   }
+  
 
   onSignIn() {
     if (this.signInForm.valid) {
       alert('Iniciando sesión...');
       console.log('Iniciar sesión', this.signInForm.value);
+      this.selectedMenu = 'menu';
     } else {
       this.signInForm.markAllAsTouched();
       this.signInForm.markAsDirty();
@@ -66,4 +73,9 @@ export class AppComponent {
       this.signUpForm.markAsDirty();
     }
   }
+
+  sendpwd() {
+    alert('La contraseña fue enviada a tu correo institucional.');
+  }
 }
+
