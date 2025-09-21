@@ -59,7 +59,7 @@
     <div class="upload-container">
       <p>Aval (PDF)</p>
       <div class="upload-box">
-        <img src="Icons/plusPDF.png" alt="Subir PDF">
+        <app-avales></app-avales>
       </div>
     </div>
 
@@ -80,7 +80,7 @@
                 (click)="openModal()" 
                 class="icon-button">
                 <img src="Icons/form.png" alt="Listado de organización externa"></button>
-        <button class="icon-button"><img src="Icons/PlusOrga.png" alt="Agregar organizacion externa"></button>
+                <button class="icon-button"><img src="Icons/PlusOrga.png" alt="Agregar organizacion externa"></button>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="externalOrgParticipation">
@@ -91,38 +91,22 @@
 
   <button class="submit-button">Mandar a revisión</button>
 </div>
+  <!-- Modal Overlay y ventana emergente -->
+  <div *ngIf="isModalOpen()" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-window" (click)="$event.stopPropagation()">
+      <app-organizacion-externa></app-organizacion-externa>
+      <div class="flex justify-end p-4">
         <button 
-          (click)="openModal()" 
-          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
-          Abrir Componente de Organización Externa
+          (click)="closeModal()" 
+          class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
+          Cerrar
         </button>
-@if (isModalOpen()) {
-        <!-- Fondo oscuro (Overlay) -->
-        <div 
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          (click)="closeModal()">
-          
-          <!-- Contenedor de la ventana emergente -->
-          <div 
-            class="bg-white p-2 rounded-lg shadow-xl w-full max-w-lg mx-4 transform transition-transform duration-300 ease-out scale-100"
-            (click)="$event.stopPropagation()">
-            
-            <!-- Aquí se muestra el componente de Organización Externa -->
-            <app-organizacion-externa></app-organizacion-externa>
-            
-            <!-- Botón para cerrar la ventana emergente -->
-            <div class="flex justify-end p-4">
-              <button 
-                (click)="closeModal()" 
-                class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-      <router-outlet></router-outlet>
-    </main>
+      </div>
+    </div>
+  </div>
+
+  <router-outlet></router-outlet>
+</main>
 
 
 

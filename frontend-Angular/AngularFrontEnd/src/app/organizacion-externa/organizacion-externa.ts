@@ -7,6 +7,7 @@ import { Component, signal } from '@angular/core';
   styleUrl: './organizacion-externa.css'
 })
 
+
 export class OrganizacionExternaComponent {
   // Datos de ejemplo para la lista de organizaciones
   organizaciones = signal([
