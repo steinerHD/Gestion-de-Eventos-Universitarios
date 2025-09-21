@@ -1,0 +1,39 @@
+<div class="profile">
+  <h2>Perfil</h2>
+
+  <form *ngIf="!isEditing">
+    <p><b>Nombre de usuario:</b> {{ user.nombreUsuario }}</p>
+    <p><b>Email:</b> {{ user.email }}</p>
+    <p><b>Tipo de usuario:</b> {{ user.tipo }}</p>
+    <p *ngIf="user.tipo==='estudiante'"><b>Programa:</b> {{ user.programa }}</p>
+    <p *ngIf="user.tipo==='profesor'"><b>Unidad Académica:</b> {{ user.unidad }}</p>
+    <p *ngIf="user.tipo==='secretario'"><b>Facultad:</b> {{ user.facultad }}</p>
+
+    <button type="button" (click)="enableEdit()">Editar</button>
+  </form>
+
+  <form *ngIf="isEditing">
+    <label>
+      Nombre de usuario:
+      <input [(ngModel)]="editData.nombreUsuario" name="nombreUsuario">
+    </label>
+
+    <ng-container [ngSwitch]="user.tipo">
+      <label *ngSwitchCase="'estudiante'">
+        Programa:
+        <input [(ngModel)]="editData.programa" name="programa">
+      </label>
+      <label *ngSwitchCase="'profesor'">
+        Unidad Académica:
+        <input [(ngModel)]="editData.unidad" name="unidad">
+      </label>
+      <label *ngSwitchCase="'secretario'">
+        Facultad:
+        <input [(ngModel)]="editData.facultad" name="facultad">
+      </label>
+    </ng-container>
+
+    <button type="button" (click)="save()">Guardar</button>
+    <button type="button" (click)="cancel()">Cancelar</button>
+  </form>
+</div>

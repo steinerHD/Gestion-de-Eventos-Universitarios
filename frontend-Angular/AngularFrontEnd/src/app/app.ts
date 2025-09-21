@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { ProfileMenu } from './components/profile-menu/profile-menu';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ProfileMenu],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
@@ -16,6 +16,12 @@ export class AppComponent {
   signInForm: FormGroup;
   signUpForm: FormGroup;
   forgetpasswordForm: FormGroup;
+  showProfileMenu = false;
+
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+  }
+
 
   constructor(private fb: FormBuilder) {
     this.signInForm = this.fb.group({
