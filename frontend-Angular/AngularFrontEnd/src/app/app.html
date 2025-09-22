@@ -1,3 +1,110 @@
+
+<div *ngIf="selectedMenu === 'addevent'" class="container py-5">
+  <main class="main">
+    <nav class="navbar-custom">
+      <div class="navbar-logo">
+        <button (click)="selectedMenu = 'menu'"><img src="assets/images/left.png" alt="Left" class="left" style="max-width:80px; max-height:80px; border-radius:8px;"></button>
+      </div>
+      <div><h1 class="title">Crear Evento</h1></div>
+    </nav>
+  <div class="container">
+    <div class="form-row">
+      <div class="input-group">
+        <label for="eventName">Nombre del evento</label>
+        <input type="text" id="eventName" placeholder="Nombre...">
+      </div>
+      <div class="input-group">
+        <label for="eventLocation">Lugar</label>
+        <input type="text" id="eventLocation" placeholder="Lugar del evento...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-group">
+        <label for="eventType">Tipo de evento</label>
+        <select id="eventType">
+          <option>Tipo de evento</option>
+          <option>Academico</option>
+          <option>Ludico</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="responsibleId">Id del responsable</label>
+        <input type="text" id="responsibleId" placeholder="Identificación del responsable">
+      </div>
+    </div>
+
+    <div class="form-row form-row--last">
+      <div class="input-group">
+    <label for="eventDate">Fecha</label>
+    <input type="text" id="eventDate" placeholder="xxxx/xx/xx">
+      </div>
+      <div class="input-group">
+    <label for="EVHourIni">Hora de Inicio</label>
+    <input type="text" id="EVHourIni" placeholder="XX:XX">
+    <label for="EVHourFin">Hora de Fin</label>
+    <input type="text" id="EVHourFin" placeholder="XX:XX">
+      </div>
+      
+      <div class="input-group">
+        <div class="label-status">Estado del evento</div>
+        <div class="status">Borrador</div>
+      </div>
+    </div>
+
+    <div class="form-grid" id="agregarPDF">
+      <div class="upload-container">
+        <p>Aval (PDF)</p>
+        <div class="upload-box">
+          <app-avales></app-avales>
+        </div>
+      </div>
+
+      <div class="external-org">
+        <div class="external-org-header">
+          <label for="externalOrgName">Organización externa</label>
+        </div>
+        <div class="input-group">
+          <label for="externalOrgName">Nombre:</label>
+          <input type="text" id="externalOrgName">
+        </div>
+        <div class="input-group">
+          <label for="externalOrgNit">Nit:</label>
+          <input type="text" id="externalOrgNit">
+        </div>
+        <div class="icon-buttons">
+                  <button 
+                  (click)="openModal()" 
+                  class="icon-button">
+                  <img src="assests/images/form.png" alt="Listado de organización externa"></button>
+                  <button class="icon-button"><img src="assets/images/plus_square.png" alt="Agregar organizacion externa"></button>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="externalOrgParticipation">
+          <label for="externalOrgParticipation">¿Participa una organización externa?</label>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-button">Mandar a revisión</button>
+  </div>
+    <!-- Modal Overlay y ventana emergente -->
+    <div *ngIf="isModalOpen()" class="modal-overlay" (click)="closeModal()">
+      <div class="modal-window" (click)="$event.stopPropagation()">
+        <app-organizacion-externa></app-organizacion-externa>
+        <div class="flex justify-end p-4">
+          <button 
+            (click)="closeModal()" 
+            class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+
 <div *ngIf="selectedMenu === 'menu'" class="main-navbar">
   <nav class="navbar-custom">
     <div class="navbar-logo">
@@ -11,7 +118,7 @@
       <div class="navbar-clock">
         <img src="assets/images/clock.png" alt="Historial" class="clock-img">
       </div>
-      <button class="btn btn-light btn-create">+ Crear evento</button>
+  <button class="btn btn-light btn-create" (click)="selectedMenu = 'addevent'">+ Crear evento</button>
       <div class="navbar-profile">
         <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
       </div>
@@ -21,7 +128,7 @@
 
 
 <div class="container py-5">
-  <div class="logo-container mb-4 d-flex justify-content-center align-items-center" *ngIf="selectedMenu !== 'menu'">
+  <div class="logo-container mb-4 d-flex justify-content-center align-items-center" *ngIf="selectedMenu !== 'menu' && selectedMenu !== 'addevent'">
     <img src="assets/images/logo.jpg" alt="Logo" class="logo-img img-fluid">
   </div>
 
@@ -230,5 +337,7 @@
           Vuelve al inicio de sesión
         </a></div>
 </div>
+
+
 
 

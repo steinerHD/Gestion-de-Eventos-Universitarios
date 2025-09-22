@@ -1,0 +1,42 @@
+.aval-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra el contenido horizontalmente */
+  gap: 12px;
+}
+
+.aval-upload-btn {
+  background: none;
+  color: #fff;
+  padding: 0; /* Elimina el padding para que el tamaño sea solo el de la imagen */
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.7s;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20%;
+  width: 50px;   /* Tamaño fijo */
+  height: 50px;  /* Tamaño fijo */
+}
+
+.aval-upload-btn img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+}
+
+.aval-upload-btn:hover {
+  background: #34aae6;
+}
+
+.aval-file-box {
+  background: #f8fafc;
+  border: 1px solid #b2dfdb;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  color: #222;
+}

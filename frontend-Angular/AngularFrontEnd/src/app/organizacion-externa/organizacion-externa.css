@@ -1,0 +1,17 @@
+.icon-button {
+  display: flex;
+  gap: 5px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.org-search-icon{
+    width: 20px;
+    margin-left: -30px;
+    cursor: pointer;
+}
+

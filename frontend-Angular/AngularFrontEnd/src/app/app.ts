@@ -1,17 +1,23 @@
-import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { OrganizacionExternaComponent } from './organizacion-externa/organizacion-externa';
+import { AvalesComponent } from './avales/avales';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, OrganizacionExternaComponent, AvalesComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
+
+
 export class AppComponent {
   title = 'Gestión de Eventos Universitarios';
-  selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'menu'= 'signin';
+  selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'menu' | 'addevent' = 'signin';
 
   signInForm: FormGroup;
   signUpForm: FormGroup;
@@ -77,5 +83,19 @@ export class AppComponent {
   sendpwd() {
     alert('La contraseña fue enviada a tu correo institucional.');
   }
+
+  // Señal para gestionar el estado de la ventana emergente.
+  isModalOpen = signal(false);
+
+
+  openModal(): void {
+    this.isModalOpen.set(true);
+  }
+
+  closeModal(): void {
+    this.isModalOpen.set(false);
 }
+}
+
+
 
