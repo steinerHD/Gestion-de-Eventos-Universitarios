@@ -1,12 +1,8 @@
 package com.Geventos.GestionDeEventos.controller;
 
-import com.Geventos.GestionDeEventos.dto.EstudianteRequest;
 import com.Geventos.GestionDeEventos.entity.Estudiante;
-import com.Geventos.GestionDeEventos.entity.Usuario;
-import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.EstudianteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +16,6 @@ import java.util.Optional;
 public class EstudianteController {
 
     private final EstudianteService estudianteService;
-    private final UsuarioRepository usuarioRepository; // para buscar el usuario existente
 
     @GetMapping
     public ResponseEntity<List<Estudiante>> getAllEstudiantes() {
@@ -49,29 +44,6 @@ public class EstudianteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ------------------- POST con DTO -------------------
-    @PostMapping("/evaluar/{idUsuario}")
-    public ResponseEntity<Estudiante> createEstudiante(@PathVariable Long idUsuario,
-            @RequestBody EstudianteRequest request) {
-        try {
-            // Buscar usuario existente
-            Usuario usuario = usuarioRepository.findById(idUsuario)
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
-            // Crear estudiante y asignar relación
-            Estudiante estudiante = new Estudiante();
-            estudiante.setUsuario(usuario);
-            estudiante.setCodigoEstudiantil(request.getCodigoEstudiantil());
-            estudiante.setPrograma(request.getPrograma());
-
-            // Guardar estudiante
-            Estudiante savedEstudiante = estudianteService.save(usuario.getIdUsuario(), estudiante);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedEstudiante);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Estudiante> updateEstudiante(@PathVariable Long id, @RequestBody Estudiante estudiante) {

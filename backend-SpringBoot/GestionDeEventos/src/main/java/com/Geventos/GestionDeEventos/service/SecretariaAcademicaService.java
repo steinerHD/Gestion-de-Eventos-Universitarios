@@ -35,18 +35,34 @@ public class SecretariaAcademicaService {
         return secretariaAcademicaRepository.findByFacultad(facultad);
     }
     
-    public SecretariaAcademica save(SecretariaAcademica secretariaAcademica) {
+    public SecretariaAcademica save(Long idUsuario, String facultad) {
         // Validar que el usuario exista
-        Usuario usuario = usuarioRepository.findById(secretariaAcademica.getIdSecretaria())
+        Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-        
+
         // Validar que el usuario no sea ya estudiante, docente o secretaria
-        if (secretariaAcademicaRepository.findByUsuarioId(secretariaAcademica.getIdSecretaria()).isPresent()) {
+        if (secretariaAcademicaRepository.findByUsuarioId(idUsuario).isPresent()) {
             throw new IllegalArgumentException("El usuario ya es una secretaria académica");
         }
-        
+
+        // Crear nueva secretaria académica sin ID para evitar StaleObjectStateException
+        SecretariaAcademica secretariaAcademica = new SecretariaAcademica();
         secretariaAcademica.setUsuario(usuario);
+        secretariaAcademica.setFacultad(facultad);
+        // No establecer ID - dejar que JPA genere uno nuevo o use @MapsId si está configurado
+        
         return secretariaAcademicaRepository.save(secretariaAcademica);
+    }
+    
+    // Método sobrecargado para compatibilidad con el controlador existente
+    public SecretariaAcademica save(SecretariaAcademica secretariaAcademica) {
+        if (secretariaAcademica.getIdSecretaria() != null) {
+            // Si tiene ID, usar el método específico
+            return save(secretariaAcademica.getIdSecretaria(), secretariaAcademica.getFacultad());
+        } else {
+            // Si no tiene ID, crear nueva
+            return secretariaAcademicaRepository.save(secretariaAcademica);
+        }
     }
     
     public SecretariaAcademica update(Long id, SecretariaAcademica secretariaAcademica) {
