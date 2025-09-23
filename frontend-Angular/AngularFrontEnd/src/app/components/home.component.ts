@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ProfileMenu } from './profile-menu/profile-menu';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, ProfileMenu],
   template: `
     <div class="container mt-5">
       <div class="card p-4 mx-auto" style="max-width: 600px;">
