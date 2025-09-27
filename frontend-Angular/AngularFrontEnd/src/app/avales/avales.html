@@ -1,9 +1,12 @@
 <div class="aval-upload-container">
   <label class="aval-upload-btn">
     <img src="Icons/plusPDF.png" alt="">
-    <input type="file" accept="application/pdf" (change)="onFileSelected($event)" hidden>
+    <input type="file" accept="application/pdf" (change)="onFileSelected($event)" multiple hidden>
   </label>
-  <div *ngIf="selectedFileName" class="aval-file-box">
-    <span>{{ selectedFileName }}</span>
+  <div *ngIf="avales.length > 0" class="aval-file-list">
+    <div *ngFor="let aval of avales; let i = index" class="aval-file-box">
+      <span>{{ aval.name }}</span>
+      <button class="aval-remove-btn" (click)="eliminarAval(i)" title="Eliminar aval">✕</button>
+    </div>
   </div>
 </div>

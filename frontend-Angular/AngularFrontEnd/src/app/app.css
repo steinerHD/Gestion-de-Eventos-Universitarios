@@ -125,7 +125,7 @@ header h1 {
 
 .upload-container {
   border: 2px dashed #b3e5fc;
-  border-radius: var(--border-radius);
+  border-radius: 10%;
   padding: 20px;
   text-align: center;
   background-color: var(--light-blue);
@@ -209,7 +209,6 @@ header h1 {
 }
 
 .external-org {
-  display: flex;
   flex-direction: column; /* Cambia a columna para apilar los elementos */
   gap: 10px;
   border: 1px solid #ccc;

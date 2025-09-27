@@ -80,7 +80,12 @@
                 (click)="openModal()" 
                 class="icon-button">
                 <img src="Icons/form.png" alt="Listado de organización externa"></button>
-                <button class="icon-button"><img src="Icons/PlusOrga.png" alt="Agregar organizacion externa"></button>
+                <a  class="icon-button" 
+                  href="http://localhost:4200/NewOrganExt" 
+                  target="_blank" 
+                  rel="noopener">
+                  <img src="Icons/PlusOrga.png" alt="Agregar organización externa">
+                </a>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="externalOrgParticipation">
@@ -105,10 +110,9 @@
     </div>
   </div>
 
-  <router-outlet></router-outlet>
+
 </main>
 
 
 
-
-<router-outlet />
+<router-outlet></router-outlet>

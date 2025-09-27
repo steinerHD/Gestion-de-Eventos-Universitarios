@@ -9,10 +9,80 @@
   cursor: pointer;
 }
 
-.org-search-icon{
+.org-search-icon, .org-add-icon{
     width: 20px;
     margin-left: -30px;
     cursor: pointer;
+}
+
+.org-search-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.org-search-box {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.org-search-input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border: 1px solid #b2dfdb;
+  border-radius: 999px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.org-search-input:focus {
+  border-color: #28AFB0;
+}
+
+.org-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  opacity: 0.7;
+  background: #e0f7fa;
+  border-radius: 50%;
+  padding: 3px;
+  transition: background 0.2s;
+}
+
+.org-search-icon:hover {
+  background: #b2dfdb;
+}
+
+.org-add-btn {
+  background: #28AFB0;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
+}
+
+.org-add-btn:hover {
+  background: #1e8e90;
+  transform: scale(1.08);
+}
+
+.org-add-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 

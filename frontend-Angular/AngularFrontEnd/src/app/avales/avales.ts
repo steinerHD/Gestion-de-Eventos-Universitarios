@@ -9,15 +9,20 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./avales.css'] // Usa styleUrls (arreglo), no styleUrl
 })
 export class Avales {
-  selectedFileName: string | null = null;
+  avales: { name: string }[] = [];
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFileName = input.files[0].name;
-    } else {
-      this.selectedFileName = null;
+      for (let i = 0; i < input.files.length; i++) {
+        this.avales.push({ name: input.files[i].name });
+      }
+      input.value = ''; // Limpia el input para permitir subir el mismo archivo de nuevo si se desea
     }
+  }
+
+  eliminarAval(index: number) {
+    this.avales.splice(index, 1);
   }
 }
 
