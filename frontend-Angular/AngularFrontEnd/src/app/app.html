@@ -182,6 +182,7 @@
   }
 </style>
 
+<<<<<<< Updated upstream
 <main class="main">
   <div class="content">
     <div class="left-side">
@@ -340,3 +341,336 @@
 
 
 <router-outlet />
+=======
+<!-- Menú principal -->
+<div *ngIf="selectedMenu === 'menu'" class="main-navbar">
+  <nav class="navbar-custom">
+    <div class="navbar-logo">
+      <img src="assets/images/logo_inv.png" alt="Logo" class="logo-img" style="max-width:112px; max-height:112px; border-radius:8px;">
+    </div>
+    <div class="navbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" class="search-input" placeholder="Buscar evento...">
+    </div>
+    <div class="navbar-icons">
+      <div class="navbar-clock">
+        <img src="assets/images/clock.png" alt="Historial" class="clock-img">
+      </div>
+      <button class="btn btn-light btn-create" (click)="selectedMenu = 'addevent'">+ Crear evento</button>
+      <div class="navbar-profile">
+        <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
+      </div>
+    </div>
+  </nav>
+</div>
+
+<!-- Formulario de nuevo evento -->
+<div *ngIf="selectedMenu === 'addevent'" class="container py-5">
+  <main class="main">
+    <header>
+      <section class="headerSec">
+        <button><img src="/Icons/UEventos.png" alt="Logo de U events"></button>
+        <div><h1>Nuevo Evento</h1></div>
+        <button><img src="/Icons/profile.png" alt="perfil"></button>
+      </section>
+    </header>
+    <div class="container">
+      <div class="form-row">
+        <div class="input-group">
+          <label for="eventName">Nombre del evento</label>
+          <input type="text" id="eventName" placeholder="Nombre...">
+        </div>
+        <div class="input-group">
+          <label for="eventLocation">Lugar</label>
+          <input type="text" id="eventLocation" placeholder="Lugar del evento...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="input-group">
+          <label for="eventType">Tipo de evento</label>
+          <select id="eventType">
+            <option>Tipo de evento</option>
+            <option>Academico</option>
+            <option>Ludico</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="responsibleId">Id del responsable</label>
+          <input type="text" id="responsibleId" placeholder="Identificación del responsable">
+        </div>
+      </div>
+      <div class="form-row form-row--last">
+        <div class="input-group">
+          <label for="eventDate">Fecha</label>
+          <input type="text" id="eventDate" placeholder="xxxx/xx/xx">
+        </div>
+        <div class="input-group">
+          <label for="EVHourIni">Hora de Inicio</label>
+          <input type="text" id="EVHourIni" placeholder="XX:XX">
+          <label for="EVHourFin">Hora de Fin</label>
+          <input type="text" id="EVHourFin" placeholder="XX:XX">
+        </div>
+        <div class="input-group">
+          <div class="label-status">Estado del evento</div>
+          <div class="status">Borrador</div>
+        </div>
+      </div>
+      <div class="form-grid" id="agregarPDF">
+        <div class="upload-container">
+          <p>Aval (PDF)</p>
+          <div class="upload-box">
+            <app-avales></app-avales>
+          </div>
+        </div>
+        <div class="external-org">
+          <div class="external-org-header">
+            <label for="externalOrgName">Organización externa</label>
+          </div>
+          <div class="input-group">
+            <label for="externalOrgName">Nombre:</label>
+            <input type="text" id="externalOrgName">
+          </div>
+          <div class="input-group">
+            <label for="externalOrgNit">Nit:</label>
+            <input type="text" id="externalOrgNit">
+          </div>
+          <div class="icon-buttons">
+            <button (click)="openModal()" class="icon-button">
+              <img src="Icons/form.png" alt="Listado de organización externa">
+            </button>
+            <a class="icon-button" href="http://localhost:4200/NewOrganExt" target="_blank" rel="noopener">
+              <img src="Icons/PlusOrga.png" alt="Agregar organización externa">
+            </a>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="externalOrgParticipation">
+            <label for="externalOrgParticipation">¿Participa una organización externa?</label>
+          </div>
+        </div>
+      </div>
+      <button class="submit-button">Mandar a revisión</button>
+    </div>
+    <!-- Modal Overlay y ventana emergente -->
+    <div *ngIf="isModalOpen()" class="modal-overlay" (click)="closeModal()">
+      <div class="modal-window" (click)="$event.stopPropagation()">
+        <app-organizacion-externa></app-organizacion-externa>
+        <div class="flex justify-end p-4">
+          <button (click)="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Logo central y formularios de autenticación -->
+<div class="container py-5">
+  <div class="logo-container mb-4 d-flex justify-content-center align-items-center" *ngIf="selectedMenu !== 'menu' && selectedMenu !== 'addevent'">
+    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img img-fluid">
+  </div>
+
+  <!-- Formulario de inicio de sesión -->
+  <div *ngIf="selectedMenu === 'signin'" class="card p-4 mx-auto">
+    <h3 class="mb-3 text-center">Inicio de sesión</h3>
+    <form [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+      <div class="mb-3">
+        <label for="signinEmail" class="form-label">Correo institucional</label>
+        <input
+          type="email"
+          class="form-control"
+          [ngClass]="{'is-invalid': signInForm.get('email')?.invalid && (signInForm.get('email')?.dirty || signInForm.get('email')?.touched)}"
+          id="signinEmail"
+          placeholder="Escribe tu correo institucional"
+          formControlName="email"
+          required>
+        <div *ngIf="signInForm.get('email')?.invalid && (signInForm.get('email')?.dirty || signInForm.get('email')?.touched)" class="invalid-feedback d-block">
+          El correo es obligatorio y debe ser válido.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="signinPassword" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': signInForm.get('password')?.invalid && (signInForm.get('password')?.dirty || signInForm.get('password')?.touched)}"
+          id="signinPassword"
+          placeholder="Escribe tu contraseña"
+          formControlName="password"
+          required>
+        <div *ngIf="signInForm.get('password')?.invalid && (signInForm.get('password')?.dirty || signInForm.get('password')?.touched)" class="invalid-feedback d-block">
+          La contraseña es obligatoria.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mb-4">Iniciar sesión</button>
+    </form>
+  </div>
+  <div class="text-center mt-3" *ngIf="selectedMenu === 'signin'">
+    <a (click)="selectedMenu = 'signup'" class="btn btn-link p-0" role="button" style="color:#176a6a; font-weight:600;">
+      ¿Aún no tienes cuenta? Créala aquí
+    </a>
+  </div>
+  <div class="text-center mt-2" *ngIf="selectedMenu === 'signin'">
+    <a (click)="selectedMenu = 'forgetpassword'" class="btn btn-link p-0" role="button" style="color:#176a6a; font-weight:600;">
+      ¿Se te olvidó tu contraseña?
+    </a>
+  </div>
+
+  <!-- Formulario de registro -->
+  <div *ngIf="selectedMenu === 'signup'" class="card p-4 mx-auto">
+    <h3 class="mb-3 text-center">Registro</h3>
+    <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
+      <div class="mb-3">
+        <label for="signupName" class="form-label">Nombre Completo</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('name')?.invalid && (signUpForm.get('name')?.dirty || signUpForm.get('name')?.touched)}"
+          id="signupName"
+          placeholder="Escribe tu nombre completo"
+          formControlName="name"
+          required>
+        <div *ngIf="signUpForm.get('name')?.invalid && (signUpForm.get('name')?.dirty || signUpForm.get('name')?.touched)" class="invalid-feedback d-block">
+          El nombre es obligatorio.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="signupEmail" class="form-label">Correo institucional</label>
+        <input
+          type="email"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('email')?.invalid && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)}"
+          id="signupEmail"
+          placeholder="Escribe tu correo institucional"
+          formControlName="email"
+          required>
+        <div *ngIf="signUpForm.get('email')?.invalid && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)" class="invalid-feedback d-block">
+          El correo es obligatorio y debe ser válido.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="signupUserType" class="form-label">Tipo de usuario</label>
+        <select
+          class="form-select"
+          [ngClass]="{'is-invalid': signUpForm.get('userType')?.invalid && (signUpForm.get('userType')?.dirty || signUpForm.get('userType')?.touched)}"
+          id="signupUserType"
+          formControlName="userType"
+          required
+          aria-describedby="userTypeHelp">
+          <option value="" disabled>Selecciona el tipo de usuario</option>
+          <option value="docente">Docente</option>
+          <option value="estudiante">Estudiante</option>
+          <option value="secretaria">Secretaría</option>
+        </select>
+        <div *ngIf="signUpForm.get('userType')?.invalid && (signUpForm.get('userType')?.dirty || signUpForm.get('userType')?.touched)" class="invalid-feedback d-block">
+          El tipo de usuario es obligatorio.
+        </div>
+      </div>
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'docente'">
+        <label for="signupAcademic" class="form-label">Unidad académica</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('academicUnit')?.invalid && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)}"
+          id="signupAcademic"
+          placeholder="Escribe tu unidad académica"
+          formControlName="academicUnit"
+          required>
+        <div *ngIf="signUpForm.get('academicUnit')?.invalid && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)" class="invalid-feedback d-block">
+          La unidad académica es obligatoria.
+        </div>
+      </div>
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'estudiante'">
+        <label for="signupProgram" class="form-label">Programa</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)}"
+          id="signupProgram"
+          placeholder="Escribe tu programa"
+          formControlName="program"
+          required>
+        <div *ngIf="signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)" class="invalid-feedback d-block">
+          El programa es obligatorio.
+        </div>
+      </div>
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'secretaria'">
+        <label for="signupFaculty" class="form-label">Facultad</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('faculty')?.invalid && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)}"
+          id="signupFaculty"
+          placeholder="Escribe tu facultad"
+          formControlName="faculty"
+          required>
+        <div *ngIf="signUpForm.get('faculty')?.invalid && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)" class="invalid-feedback d-block">
+          La facultad es obligatoria.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="signupPassword" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('password')?.invalid && (signUpForm.get('password')?.dirty || signUpForm.get('password')?.touched)}"
+          id="signupPassword"
+          placeholder="Escribe tu contraseña"
+          formControlName="password"
+          required>
+        <div *ngIf="signUpForm.get('password')?.invalid && (signUpForm.get('password')?.dirty || signUpForm.get('password')?.touched)" class="invalid-feedback d-block">
+          La contraseña es obligatoria, debe tener al menos 6 caracteres, una mayúscula y un número.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="signupConfirmPassword" class="form-label">Confirma tu contraseña</label>
+        <input
+          type="password"
+          class="form-control"
+          [ngClass]="{'is-invalid': (signUpForm.errors?.['passwordsMismatch']) && (signUpForm.get('confirmPassword')?.dirty || signUpForm.get('confirmPassword')?.touched)}"
+          id="signupConfirmPassword"
+          placeholder="Escribe tu contraseña de nuevo"
+          formControlName="confirmPassword"
+          required>
+        <div *ngIf="(signUpForm.errors?.['passwordsMismatch']) && (signUpForm.get('confirmPassword')?.dirty || signUpForm.get('confirmPassword')?.touched)" class="invalid-feedback d-block">
+          Las contraseñas deben coincidir.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mb-4">Crear cuenta</button>
+    </form>
+  </div>
+  <div class="text-center mt-3" *ngIf="selectedMenu === 'signup'">
+    <a (click)="selectedMenu = 'signin'" class="btn btn-link p-0" role="button" style="color:#176a6a; font-weight:600;">
+      ¿Ya tienes cuenta? Inicia sesión aquí
+    </a>
+  </div>
+
+  <!-- Formulario de recuperación de contraseña -->
+  <div *ngIf="selectedMenu === 'forgetpassword'" class="card p-4 mx-auto">
+    <h3 class="mb-3 text-center">Recupera tu contraseña</h3>
+    <form [formGroup]="forgetpasswordForm" (ngSubmit)="sendpwd()">
+      <div class="mb-3">
+        <label for="forgetEmail" class="form-label">Escribe tu correo institucional</label>
+        <input
+          type="email"
+          class="form-control"
+          [ngClass]="{'is-invalid': forgetpasswordForm.get('email')?.invalid && (forgetpasswordForm.get('email')?.dirty || forgetpasswordForm.get('email')?.touched)}"
+          id="forgetEmail"
+          placeholder="Escribe tu correo institucional"
+          formControlName="email"
+          required>
+        <div *ngIf="forgetpasswordForm.get('email')?.invalid && (forgetpasswordForm.get('email')?.dirty || forgetpasswordForm.get('email')?.touched)" class="invalid-feedback d-block">
+          El correo es obligatorio y debe ser válido.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mb-4">Enviar contraseña</button>
+    </form>
+  </div>
+  <div class="text-center mt-3" *ngIf="selectedMenu === 'forgetpassword'">
+    <a (click)="selectedMenu = 'signin'" class="btn btn-link p-0" role="button" style="color:#176a6a; font-weight:600;">
+      Vuelve al inicio de sesión
+    </a>
+  </div>
+</div>
+>>>>>>> Stashed changes
