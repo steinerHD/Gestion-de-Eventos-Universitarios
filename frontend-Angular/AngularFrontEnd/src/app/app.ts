@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { RouterOutlet } from '@angular/router';
 import { ProfileMenu } from './components/profile-menu/profile-menu';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ProfileMenu],
+  imports: [CommonModule, ReactiveFormsModule, RouterOutlet, ProfileMenu],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

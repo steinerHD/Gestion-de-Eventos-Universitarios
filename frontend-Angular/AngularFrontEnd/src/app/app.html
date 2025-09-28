@@ -156,7 +156,7 @@
         required>
       <div *ngIf="signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)" class="invalid-feedback d-block">
         El programa es obligatorio.
-      </div>
+        </div>
     </div>
       <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'secretaria'">
       <label for="signupFaculty" class="form-label">Facultad</label>
@@ -237,5 +237,6 @@
           Vuelve al inicio de sesión
         </a></div>
 </div>
+<router-outlet></router-outlet>
 
 
