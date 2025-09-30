@@ -1,33 +1,25 @@
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { RouterOutlet } from '@angular/router'; 
-import { OrganizacionExternaComponent } from './organizacion-externa/organizacion-externa';
-import { Avales } from './avales/avales';
-import { first } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AvalesComponent } from './components/avales/avales';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
   standalone: true,
-  imports: [RouterOutlet, CommonModule, ReactiveFormsModule, OrganizacionExternaComponent, Avales],
+  imports: [CommonModule, ReactiveFormsModule, AvalesComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
   styleUrls: ['./app.css']
 })
-export class App {
-  protected readonly title = signal('AngularFrontEnd');
-}
-
-
 export class AppComponent {
   title = 'Gestión de Eventos Universitarios';
-  selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'menu' | 'addevent' = 'signin';
+  selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'addevent' | 'menu' = 'signin';
 
   signInForm: FormGroup;
   signUpForm: FormGroup;
-  forgetpasswordForm: FormGroup;
+  forgetPasswordForm: FormGroup;
+
+  // Señal para manejar modal
+  isModalOpen = signal(false);
 
   constructor(private fb: FormBuilder) {
     this.signInForm = this.fb.group({
@@ -49,21 +41,16 @@ export class AppComponent {
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordsMatchValidator });
 
-    this.forgetpasswordForm = this.fb.group({
+    this.forgetPasswordForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
   }
 
-  passwordsMatchValidator(form: FormGroup) {
+  private passwordsMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-
-    if (password !== confirmPassword) {
-      return { passwordsMismatch: true };
-    }
-    return null;
+    return password === confirmPassword ? null : { passwordsMismatch: true };
   }
-  
 
   onSignIn() {
     if (this.signInForm.valid) {
@@ -72,7 +59,6 @@ export class AppComponent {
       this.selectedMenu = 'menu';
     } else {
       this.signInForm.markAllAsTouched();
-      this.signInForm.markAsDirty();
     }
   }
 
@@ -80,19 +66,20 @@ export class AppComponent {
     if (this.signUpForm.valid) {
       alert('Creando cuenta...');
       console.log('Crear cuenta', this.signUpForm.value);
+      this.selectedMenu = 'signin';
     } else {
       this.signUpForm.markAllAsTouched();
-      this.signUpForm.markAsDirty();
     }
   }
 
-  sendpwd() {
-    alert('La contraseña fue enviada a tu correo institucional.');
+  sendPwd() {
+    if (this.forgetPasswordForm.valid) {
+      alert('La contraseña fue enviada a tu correo institucional.');
+      this.selectedMenu = 'signin';
+    } else {
+      this.forgetPasswordForm.markAllAsTouched();
+    }
   }
-
-  // Señal para gestionar el estado de la ventana emergente.
-  isModalOpen = signal(false);
-
 
   openModal(): void {
     this.isModalOpen.set(true);
@@ -100,8 +87,5 @@ export class AppComponent {
 
   closeModal(): void {
     this.isModalOpen.set(false);
+  }
 }
-}
-
-
-

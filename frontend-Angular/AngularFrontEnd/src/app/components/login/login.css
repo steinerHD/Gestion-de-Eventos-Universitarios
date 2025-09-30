@@ -1,0 +1,21 @@
+.login-container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.menu-switch {
+  display: flex;
+  justify-content: center;
+}
+
+.form-card {
+  max-width: 400px;
+}
+
+button {
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  opacity: 0.9;
+}
