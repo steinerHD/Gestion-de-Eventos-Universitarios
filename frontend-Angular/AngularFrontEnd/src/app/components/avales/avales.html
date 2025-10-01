@@ -1,9 +1,0 @@
-<div class="aval-upload-container">
-  <label class="aval-upload-btn">
-    <img src="assets/images/plus_square.png" alt="">
-    <input type="file" accept="application/pdf" (change)="onFileSelected($event)" hidden>
-  </label>
-  <div *ngIf="selectedFileName" class="aval-file-box">
-    <span>{{ selectedFileName }}</span>
-  </div>
-</div>

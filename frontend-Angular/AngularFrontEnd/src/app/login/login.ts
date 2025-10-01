@@ -1,17 +1,15 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { AddEvent } from './add-event/add-event';
+
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterOutlet],
-  templateUrl:'./app.html',  
-  styleUrls: ['./app.css'],
+  selector: 'app-login',
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './login.html',
+  styleUrl: './login.css'
 })
-export class AppComponent {
+export class Login {
   title = 'Gestión de Eventos Universitarios';
   selectedMenu: 'signin' | 'signup' | 'forgetpassword' | 'addevent' | 'menu' = 'signin';
 
@@ -54,19 +52,9 @@ export class AppComponent {
     if (this.signInForm.valid) {
       alert('Iniciando sesión...');
       console.log('Iniciar sesión', this.signInForm.value);
-      this.selectedMenu = 'menu';
+
     } else {
       this.signInForm.markAllAsTouched();
-    }
-  }
-
-  onSignUp() {
-    if (this.signUpForm.valid) {
-      alert('Creando cuenta...');
-      console.log('Crear cuenta', this.signUpForm.value);
-      this.selectedMenu = 'signin';
-    } else {
-      this.signUpForm.markAllAsTouched();
     }
   }
 
@@ -81,3 +69,5 @@ export class AppComponent {
 
 
 }
+
+
