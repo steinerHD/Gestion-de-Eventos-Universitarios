@@ -1,0 +1,44 @@
+package com.Geventos.GestionDeEventos.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Entity
+@Table(name = "participacion_organizacion")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@IdClass(ParticipacionOrganizacionId.class)
+public class ParticipacionOrganizacion implements Serializable {
+    
+    @Id
+    @Column(name = "id_evento")
+    private Long idEvento;
+    
+    @Id
+    @Column(name = "id_organizacion")
+    private Long idOrganizacion;
+    
+    @Lob
+    @Column(name = "certificado_pdf", nullable = false)
+    private byte[] certificadoPdf;
+    
+    @Column(name = "representante_diferente")
+    private Boolean representanteDiferente = false;
+    
+    @Column(name = "nombre_representante_diferente", length = 150)
+    private String nombreRepresentanteDiferente;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evento", insertable = false, updatable = false)
+    private Evento evento;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_organizacion", insertable = false, updatable = false)
+    private OrganizacionExterna organizacion;
+}
+
