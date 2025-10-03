@@ -1,0 +1,29 @@
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { EventEmitter, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-forgetpassword',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './forgetpassword.html',
+  styleUrls: ['./forgetpassword.css']
+})
+export class ForgetPasswordComponent {
+  forgetPasswordForm: FormGroup;
+
+  @Output() goSignin = new EventEmitter<void>();
+
+  constructor(private fb: FormBuilder) {
+    this.forgetPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
+  sendPwd() {
+    if (this.forgetPasswordForm.valid) {
+      console.log('Recuperación de contraseña enviada a:', this.forgetPasswordForm.value.email);
+    }
+  }
+}

@@ -94,17 +94,8 @@ body {
   border: none;
   background: #F4FFFD;
   max-width: 1200px;
-  /* Ajustamos el ancho máximo para que no sea tan grande en pantallas anchas */
-  max-width: 450px;
-  margin: 0 auto; /* Mantenemos el centrado horizontal de la tarjeta */
-  /* Eliminamos text-align: center para tener más control sobre los elementos internos */
-}
-
-/* Centramos todo el contenido del formulario */
-.card form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .logo-container {
@@ -146,20 +137,13 @@ body {
   margin-bottom: 0.3rem;
   text-align: center;
 }
-.mb-3 {
-  /* Usamos flexbox para alinear los elementos del formulario */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.2rem !important;
-}
 
 .form-control {
   border-radius: 0.5rem;
   background: #F4FFFD;
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
-  width: 320px; /* Ancho base para los campos de texto */
+  width: 300px;
 }
 
 .form-control:focus {
@@ -174,6 +158,10 @@ body {
   font-size: 0.98em;
 }
 
+.mb-3 {
+  margin-bottom: 1.2rem !important;
+}
+
 .mb-4 {
   margin-bottom: 2rem !important;
 }
@@ -184,12 +172,6 @@ body {
 
 .text-center {
   text-align: center !important;
-}
-
-/* Hacemos que el botón tenga el mismo ancho que los inputs */
-.btn-primary.w-100 {
-  width: 320px !important; /* Usamos !important para sobreescribir w-100 si es necesario */
-  max-width: 100%;
 }
 
 .btn-link {
@@ -217,8 +199,6 @@ body {
   flex-direction: column;
   justify-content: center;
 }
-
-
 
 @media (max-width: 700px) {
   .card {
@@ -507,3 +487,8 @@ label, p, .label-status, .status {
   display: flex;
   flex-direction: column;
 }
+
+
+
+
+

@@ -1,0 +1,45 @@
+<div class="logo-container mb-4 d-flex justify-content-center align-items-center">
+  <img src="assets/images/logo.jpg" alt="Logo" class="logo-img img-fluid">
+</div>
+  
+  <div class="card p-4 mx-auto">
+  <h3 class="mb-3 text-center">Inicio de sesión</h3>
+  <form [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+    <div class="mb-3">
+      <label for="signinEmail" class="form-label">Correo institucional</label>
+      <input type="email" class="form-control" id="signinEmail"
+             placeholder="Escribe tu correo institucional"
+             formControlName="email"
+             [ngClass]="{'is-invalid': signInForm.get('email')?.invalid && signInForm.get('email')?.touched}" />
+      <div *ngIf="signInForm.get('email')?.invalid && signInForm.get('email')?.touched"
+           class="invalid-feedback d-block">
+        El correo es obligatorio y debe ser válido.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="signinPassword" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="signinPassword"
+             placeholder="Escribe tu contraseña"
+             formControlName="password"
+             [ngClass]="{'is-invalid': signInForm.get('password')?.invalid && signInForm.get('password')?.touched}" />
+      <div *ngIf="signInForm.get('password')?.invalid && signInForm.get('password')?.touched"
+           class="invalid-feedback d-block">
+        La contraseña es obligatoria.
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mb-4">Iniciar sesión</button>
+  </form>
+
+  <div class="text-center mt-3">
+    <a routerLink="/signup" class="btn btn-link p-0" style="color:#176a6a; font-weight:600;">
+      ¿Aún no tienes cuenta? Créala aquí
+    </a>
+  </div>
+  <div class="text-center mt-2">
+    <a routerLink="/forgetpassword" class="btn btn-link p-0" style="color:#176a6a; font-weight:600;">
+      ¿Se te olvidó tu contraseña?
+    </a>
+  </div>
+</div>
