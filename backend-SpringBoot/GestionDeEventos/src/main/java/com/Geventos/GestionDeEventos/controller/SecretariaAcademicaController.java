@@ -3,7 +3,6 @@ package com.Geventos.GestionDeEventos.controller;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,16 +41,6 @@ public class SecretariaAcademicaController {
     public ResponseEntity<List<SecretariaAcademica>> getSecretariasAcademicasByFacultad(@PathVariable String facultad) {
         List<SecretariaAcademica> secretarias = secretariaAcademicaService.findByFacultad(facultad);
         return ResponseEntity.ok(secretarias);
-    }
-    
-    @PostMapping
-    public ResponseEntity<SecretariaAcademica> createSecretariaAcademica(@RequestBody SecretariaAcademica secretariaAcademica) {
-        try {
-            SecretariaAcademica savedSecretaria = secretariaAcademicaService.save(secretariaAcademica);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedSecretaria);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
     }
     
     @PutMapping("/{id}")
