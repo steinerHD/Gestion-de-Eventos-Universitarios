@@ -1,22 +1,34 @@
 <div class="main-navbar">
-<nav class="navbar-custom">
+  <nav class="navbar-custom">
     <div class="navbar-logo">
-    <img src="assets/images/logo_inv.png" alt="Logo" class="logo-img"/>
+      <img src="assets/images/logo_inv.png" alt="Logo" class="logo-img"/>
     </div>
 
     <div class="navbar-search">
-    <i class="fas fa-search"></i>
-    <input type="text" class="search-input" placeholder="Buscar evento..." />
+      <i class="fas fa-search"></i>
+      <input type="text" class="search-input" placeholder="Buscar evento..." (input)="searchEvents($event.target.value)" />/>
     </div>
 
     <div class="navbar-icons">
-    <div class="navbar-clock">
+      <div class="navbar-clock">
         <img src="assets/images/clock.png" alt="Historial" class="clock-img" />
-    </div>
-    <button class="btn btn-light btn-create" routerLink="/addevent">+ Crear evento</button>
-    <div class="navbar-profile">
+      </div>
+      <button class="btn btn-light btn-create" routerLink="/add-event">+ Crear evento</button>
+      <div class="navbar-profile">
         <img src="assets/images/profile.png" alt="Perfil" class="profile-img" routerLink="/profile-menu" />
+      </div>
     </div>
-    </div>
-</nav>
+  </nav>
+</div>
+
+<div class="events-container">
+  <h2>Eventos</h2>
+  <div *ngIf="events.length === 0">
+    <p>No hay eventos disponibles.</p>
+  </div>
+  <div *ngFor="let event of events" class="event-card">
+    <h3>{{ event.title }}</h3>
+    <p><strong>Fecha:</strong> {{ event.date }}</p>
+    <p><strong>Descripción:</strong> {{ event.description }}</p>
+  </div>
 </div>

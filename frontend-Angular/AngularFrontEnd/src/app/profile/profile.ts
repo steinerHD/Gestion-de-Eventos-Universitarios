@@ -1,45 +1,60 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service'; // Adjust path based on location
-import { FormsModule } from '@angular/forms'; // For ngModel (if needed for editing)
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Add FormsModule for editing
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
 export class ProfileComponent implements OnInit {
-  userData: any = {
-    nombre: 'Pepito Alberto Diaz Castillo',
-    tipoUsuario: 'Estudiante',
-    rolCuenta: 'Estudiante',
-    email: 'Pepito@U.edu.co',
-    facultad: 'Ingeniería',
-    codigoEstudiantil: 'I0000000'
-  };
-  isEditing = false; // Track edit mode
+  profileForm: FormGroup;
+  isEditing = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private fb: FormBuilder, private authService: AuthService) {
+    this.profileForm = this.fb.group({
+      nombre: ['', Validators.required],
+      tipoUsuario: ['', Validators.required],
+      rolCuenta: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      facultad: ['', Validators.required],
+      codigoEstudiantil: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
-    // Fetch real user data from AuthService or API
     this.loadUserData();
   }
 
   loadUserData(): void {
-    // Placeholder: Replace with real AuthService call
-    // Example: this.authService.getUserProfile().subscribe(data => this.userData = data);
-    console.log('Cargando datos del usuario:', this.userData);
+    this.authService.getUserProfile().subscribe({
+      next: (data) => {
+        this.profileForm.patchValue(data);
+        console.log('Datos del usuario cargados:', data);
+      },
+      error: (error) => console.error('Error al cargar datos:', error)
+    });
   }
 
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
-    if (!this.isEditing) {
-      // Save changes (placeholder)
-      console.log('Guardando cambios:', this.userData);
-      // Example: this.authService.updateUserProfile(this.userData).subscribe();
+    if (!this.isEditing && this.profileForm.valid) {
+      this.authService.updateUserProfile(this.profileForm.value).subscribe({
+        next: (data) => {
+          this.profileForm.patchValue(data);
+          console.log('Cambios guardados:', data);
+        },
+        error: (error) => console.error('Error al guardar cambios:', error)
+      });
     }
   }
+
+  cancelEdit(): void {
+    this.isEditing = false;
+    this.loadUserData(); // Reset form to original data
+  }
+  
 }

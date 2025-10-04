@@ -1,11 +1,35 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { EventService } from '../services/event.service';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  standalone: true,
+  imports: [RouterLink],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrls: ['./home.css']
 })
-export class Home {
+export class HomeComponent implements OnInit {
+  events: any[] = [];
 
+  constructor(private eventService: EventService) {}
+
+  ngOnInit(): void {
+    this.loadEvents();
+  }
+
+  loadEvents(): void {
+    this.eventService.getEvents().subscribe({
+      next: (events) => {
+        this.events = events;
+        console.log('Eventos cargados:', events);
+      },
+      error: (error: Error) => console.error('Error al cargar eventos:', error)
+    });
+  }
+
+  searchEvents(query: string): void {
+  this.eventService.searchEvents(query).subscribe(events => this.events = events);
+  }
+  
 }
