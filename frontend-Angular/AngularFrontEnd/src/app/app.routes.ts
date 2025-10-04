@@ -6,6 +6,7 @@ import { ForgetPasswordComponent } from './login/forgetpassword';
 import { ProfileMenuComponent } from './profile-menu/profile-menu';
 import { ProfileComponent } from './profile/profile';
 import { AddEventComponent } from './add-event/add-event';
+import { NuevaOrgaExtComponent } from './components/nueva-orga-ext/nueva-orga-ext';
 import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
@@ -16,5 +17,7 @@ export const routes: Routes = [
   { path: 'forgetpassword', component: ForgetPasswordComponent },
   { path: 'profile-menu', component: ProfileMenuComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'add-event', component: AddEventComponent, canActivate: [AuthGuard] },
+  { path: 'new-organ-ext', component: NuevaOrgaExtComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'signin' }
 ];

@@ -17,7 +17,6 @@ import { EncountersComponent, Encounter } from '../components/encounters/encount
 })
 export class AddEventComponent {
   eventForm: FormGroup;
-  selectedFile: File | null = null;
   showOrgModal: boolean = false;
   selectedOrganizations: ExternalOrganization[] = [];
   encounters: Encounter[] = [];
@@ -28,9 +27,6 @@ export class AddEventComponent {
       eventLocation: ['', Validators.required],
       eventType: ['', Validators.required],
       responsibleId: ['', Validators.required],
-      eventDate: ['', Validators.required],
-      eventHourIni: ['', Validators.required],
-      eventHourFin: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
       externalOrgName: [''],
       externalOrgNit: [''],
@@ -38,18 +34,11 @@ export class AddEventComponent {
     });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  }
 
   submitEvent(): void {
     if (this.eventForm.valid && this.encounters.length > 0) {
       const eventData = {
         ...this.eventForm.value,
-        file: this.selectedFile,
         selectedOrganizations: this.selectedOrganizations,
         hasExternalOrganizations: this.selectedOrganizations.length > 0,
         encounters: this.encounters

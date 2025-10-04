@@ -64,45 +64,14 @@
   </app-encounters>
 
   <fieldset class="form-row form-row--last">
-    <legend class="sr-only">Fechas y estado</legend>
-    <div class="input-group">
-      <label for="eventDate">Fecha</label>
-      <input type="date" id="eventDate" formControlName="eventDate" required
-             [ngClass]="{'is-invalid': eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched}">
-      <div *ngIf="eventForm.get('eventDate')?.hasError('required') && eventForm.get('eventDate')?.touched"
-           class="invalid-feedback">
-        La fecha es obligatoria.
-      </div>
-    </div>
-    <div class="input-group">
-      <label for="eventHourIni">Hora de Inicio</label>
-      <input type="time" id="eventHourIni" formControlName="eventHourIni" required
-             [ngClass]="{'is-invalid': eventForm.get('eventHourIni')?.invalid && eventForm.get('eventHourIni')?.touched}">
-      <div *ngIf="eventForm.get('eventHourIni')?.hasError('required') && eventForm.get('eventHourIni')?.touched"
-           class="invalid-feedback">
-        La hora de inicio es obligatoria.
-      </div>
-      <label for="eventHourFin">Hora de Fin</label>
-      <input type="time" id="eventHourFin" formControlName="eventHourFin" required
-             [ngClass]="{'is-invalid': eventForm.get('eventHourFin')?.invalid && eventForm.get('eventHourFin')?.touched}">
-      <div *ngIf="eventForm.get('eventHourFin')?.hasError('required') && eventForm.get('eventHourFin')?.touched"
-           class="invalid-feedback">
-        La hora de fin es obligatoria.
-      </div>
-    </div>
+    <legend class="sr-only">Estado</legend>
     <div class="input-group">
       <p class="label-status">Estado del evento</p>
       <p class="status">{{ eventForm.get('eventStatus')?.value }}</p>
     </div>
   </fieldset>
 
-  <section class="form-grid" id="agregarPDF">
-    <div class="upload-container">
-      <p>Aval (PDF)</p>
-      <div class="upload-box">
-        <input type="file" accept=".pdf" (change)="onFileSelected($event)">
-      </div>
-    </div>
+  <section class="form-grid">
 
     <fieldset class="external-org">
       <legend>Módulo de organización externa</legend>
@@ -114,9 +83,6 @@
         <button type="button" (click)="openModal()" class="icon-button" aria-label="Abrir listado de organizaciones externas">
           <img src="assets/images/copy.png" alt="Listado de organización externa">
         </button>
-        <a class="icon-button" href="/new-organ-ext" routerLink="/new-organ-ext" aria-label="Agregar organización externa">
-          <img src="assets/images/plus_square.png" alt="Agregar organización externa">
-        </a>
       </div>
     </fieldset>
 

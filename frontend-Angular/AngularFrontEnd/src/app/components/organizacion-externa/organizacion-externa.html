@@ -37,8 +37,11 @@
           <div class="org-nit">{{ org.nit }}</div>
         </div>
         <div class="org-actions">
-          <button type="button" class="action-btn view-btn" title="Ver detalles">
+          <button type="button" class="action-btn view-btn" title="Ver detalles" (click)="viewOrganizationDetails(org)">
             <img src="assets/images/search.png" alt="Ver detalles">
+          </button>
+          <button type="button" class="action-btn add-btn" title="Agregar nueva organización" (click)="addNewOrganization()">
+            <img src="assets/images/plus_square.png" alt="Agregar organización">
           </button>
         </div>
       </div>
@@ -50,3 +53,12 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de detalles de organización -->
+<app-organization-details 
+  [organization]="selectedOrganization"
+  [showModal]="showDetailsModal"
+  (modalClosed)="closeDetailsModal()"
+  (organizationUpdated)="onOrganizationUpdated($event)"
+  (organizationDeleted)="onOrganizationDeleted($event)">
+</app-organization-details>

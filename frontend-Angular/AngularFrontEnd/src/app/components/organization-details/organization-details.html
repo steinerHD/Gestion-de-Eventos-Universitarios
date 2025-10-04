@@ -1,0 +1,112 @@
+<!-- Modal de detalles de organización -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <h2>Organización datos</h2>
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary" *ngIf="canEdit && !isEditing" (click)="toggleEdit()">
+          Editar
+        </button>
+        <button type="button" class="btn btn-danger" *ngIf="canDelete" (click)="deleteOrganization()">
+          Eliminar
+        </button>
+        <button type="button" class="close-btn" (click)="closeModal()" aria-label="Cerrar">
+          <img src="assets/images/close.png" alt="Cerrar">
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido del modal -->
+    <div class="modal-body">
+      <form [formGroup]="organizationForm" *ngIf="organization">
+        <div class="form-group">
+          <label for="name">Nombre:</label>
+          <input 
+            type="text" 
+            id="name" 
+            formControlName="name" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="nit">Nit:</label>
+          <input 
+            type="text" 
+            id="nit" 
+            formControlName="nit" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">Dirección:</label>
+          <input 
+            type="text" 
+            id="direccion" 
+            formControlName="direccion" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="representanteLegal">Representante Legal:</label>
+          <input 
+            type="text" 
+            id="representanteLegal" 
+            formControlName="representanteLegal" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono:</label>
+          <input 
+            type="tel" 
+            id="telefono" 
+            formControlName="telefono" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="sectorEconomico">Sector económico:</label>
+          <input 
+            type="text" 
+            id="sectorEconomico" 
+            formControlName="sectorEconomico" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="actividadPrincipal">Actividad principal:</label>
+          <input 
+            type="text" 
+            id="actividadPrincipal" 
+            formControlName="actividadPrincipal" 
+            [readonly]="!isEditing"
+            [ngClass]="{'readonly': !isEditing}"
+          >
+        </div>
+
+        <!-- Botones de acción cuando está editando -->
+        <div class="form-actions" *ngIf="isEditing">
+          <button type="button" class="btn btn-primary" (click)="saveChanges()">
+            Guardar
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="toggleEdit()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

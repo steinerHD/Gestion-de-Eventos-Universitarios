@@ -1,12 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { OrganizationService, ExternalOrganization } from '../../services/organization.service';
+import { OrganizationDetailsComponent } from '../organization-details/organization-details';
 
 @Component({
   selector: 'app-organizacion-externa',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, OrganizationDetailsComponent],
   templateUrl: './organizacion-externa.html',
   styleUrls: ['./organizacion-externa.css']
 })
@@ -19,8 +21,13 @@ export class OrganizacionExternaComponent implements OnInit {
   filteredOrganizations: ExternalOrganization[] = [];
   searchQuery: string = '';
   selectedOrganizations: ExternalOrganization[] = [];
+  showDetailsModal: boolean = false;
+  selectedOrganization: ExternalOrganization | null = null;
 
-  constructor(private organizationService: OrganizationService) {}
+  constructor(
+    private organizationService: OrganizationService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadOrganizations();
@@ -71,5 +78,34 @@ export class OrganizacionExternaComponent implements OnInit {
   clearSearch(): void {
     this.searchQuery = '';
     this.searchOrganizations();
+  }
+
+  viewOrganizationDetails(organization: ExternalOrganization): void {
+    this.selectedOrganization = organization;
+    this.showDetailsModal = true;
+  }
+
+  onOrganizationUpdated(updatedOrg: ExternalOrganization): void {
+    // Actualizar la organización en la lista
+    const index = this.organizations.findIndex(org => org.id === updatedOrg.id);
+    if (index !== -1) {
+      this.organizations[index] = updatedOrg;
+      this.filteredOrganizations = [...this.organizations];
+    }
+  }
+
+  onOrganizationDeleted(organizationId: string): void {
+    // Remover la organización de la lista
+    this.organizations = this.organizations.filter(org => org.id !== organizationId);
+    this.filteredOrganizations = this.filteredOrganizations.filter(org => org.id !== organizationId);
+  }
+
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedOrganization = null;
+  }
+
+  addNewOrganization(): void {
+    this.router.navigate(['/new-organ-ext']);
   }
 }

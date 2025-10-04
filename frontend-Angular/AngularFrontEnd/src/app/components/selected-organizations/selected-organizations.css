@@ -5,12 +5,12 @@
 .selected-org-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   background-color: #f8f9fa;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
   transition: all 0.2s ease;
 }
 
@@ -21,29 +21,141 @@
 
 .org-details {
   flex: 1;
+  margin-right: 16px;
 }
 
 .org-name {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .org-nit {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
   font-family: monospace;
+  margin-bottom: 16px;
+}
+
+.checkbox-group {
+  margin-bottom: 16px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.checkbox-group label {
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.representante-fields {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.field-group {
+  margin-bottom: 12px;
+}
+
+.field-group:last-child {
+  margin-bottom: 0;
+}
+
+.field-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.field-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.field-group input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.aval-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-aval {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-aval:hover {
+  background-color: #0056b3;
+}
+
+.aval-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e8f5e8;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.aval-text {
+  font-size: 14px;
+  color: #155724;
+  font-weight: 500;
+}
+
+.btn-remove-aval {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.btn-remove-aval:hover {
+  background-color: #f8d7da;
+}
+
+.org-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .remove-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 8px;
   border-radius: 4px;
   transition: background-color 0.2s;
-  margin-left: 12px;
 }
 
 .remove-btn:hover {
@@ -55,8 +167,8 @@
 }
 
 .remove-btn img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   transition: filter 0.2s;
 }
 
@@ -74,3 +186,4 @@
     font-size: 11px;
   }
 }
+

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-sign-up',
@@ -24,7 +24,7 @@ export class SignUpComponent {
     this.onSubmit.emit();
   }
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router) {
     this.signUpForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -44,8 +44,21 @@ export class SignUpComponent {
 
   onSignUp() {
     if (this.signUpForm.valid) {
-      console.log('Datos de registro:', this.signUpForm.value);
-      // Aquí llamas al servicio de signup
+      const userData = this.signUpForm.value;
+      console.log('Usuario registrado exitosamente:', userData);
+      
+      // Guardar datos del usuario en localStorage para simular base de datos
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const newUser = {
+        id: Date.now().toString(),
+        ...userData,
+        createdAt: new Date().toISOString()
+      };
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      // Redirigir a signin después del registro exitoso
+      this.router.navigate(['/signin']);
     } else {
       this.signUpForm.markAllAsTouched();
     }

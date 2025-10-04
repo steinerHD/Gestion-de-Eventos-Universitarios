@@ -134,3 +134,4 @@ export class EncountersComponent implements OnInit {
            );
   }
 }
+
