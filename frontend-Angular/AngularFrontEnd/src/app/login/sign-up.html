@@ -1,4 +1,10 @@
- <div class="card p-4 mx-auto">
+<div class="container py-5">
+  <div
+    class="logo-container mb-4 d-flex justify-content-center align-items-center">
+    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img img-fluid">
+  </div>
+
+  <div class="card p-4 mx-auto">
     <h3 class="mb-3 text-center">Registro</h3>
     <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
       <!-- Nombre completo -->
@@ -125,7 +131,8 @@
         <div
           *ngIf="signUpForm.get('password')?.invalid && (signUpForm.get('password')?.dirty || signUpForm.get('password')?.touched)"
           class="invalid-feedback d-block">
-          La contraseña es obligatoria, debe tener al menos 6 caracteres, una mayúscula y un número.
+          La contraseña debe tener al menos, <br>
+          6 caracteres, una mayúscula y un número.
         </div>
       </div>
 
@@ -148,14 +155,15 @@
 
       <button type="submit" class="btn btn-primary w-100 mb-4">Crear cuenta</button>
     </form>
-  </div>
+  
 
   <div class="text-center mt-3">
     <a
-      routerLink="/login"
+      routerLink="/signin"
       class="btn btn-link p-0"
       role="button"
       style="color:#176a6a; font-weight:600;">
       ¿Ya tienes cuenta? Inicia sesión aquí
     </a>
   </div>
+</div>

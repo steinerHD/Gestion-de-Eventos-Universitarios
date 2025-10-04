@@ -13,7 +13,6 @@ import { RouterLink } from '@angular/router';
 
 export class SignUpComponent {
 
-  selectedMenu: string = 'signin'; // Initialize with a default value
   @Output() goSignin = new EventEmitter<void>();
 
   signUpForm: FormGroup;

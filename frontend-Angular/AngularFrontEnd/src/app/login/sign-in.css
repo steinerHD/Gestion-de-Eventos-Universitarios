@@ -7,53 +7,6 @@ body {
 }
 
 
-.main-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-}
-
-.navbar-custom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #28AFB0;
-  color: #F4FFFD;
-  padding: 0.7rem 2rem;
-  box-shadow: 0 2px 8px rgba(30,64,175,0.08);
-}
-
-.navbar-logo .logo-img {
-  max-width: 78px;
-  max-height: 78px;
-  border-radius: 8px;
-}
-
-.navbar-search {
-  display: flex;
-  align-items: center;
-  background: #F4FFFD;
-  border-radius: 24px;
-  padding: 0.2rem 0.8rem;
-  color: #28AFB0;
-  min-width: 220px;
-}
-
-.search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  margin-left: 0.5rem;
-  color: #28AFB0;
-  width: 140px;
-}
-
-.navbar-icons {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-}
 
 .btn-create {
   font-weight: 600;
@@ -143,7 +96,14 @@ body {
   background: #F4FFFD;
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
-  width: 300px;
+  width: 350px;
+}
+
+.invalid-feedback {
+  max-width: 100%; /* Asegura que no exceda el ancho del contenedor */
+  word-wrap: break-word; /* Permite que el texto se divida en varias líneas */
+  font-size: 0.875rem; /* Tamaño de fuente más pequeño para que sea más compacto */
+  line-height: 1.2; /* Reduce el espaciado entre líneas */
 }
 
 .form-control:focus {

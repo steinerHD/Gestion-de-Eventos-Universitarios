@@ -9,13 +9,12 @@ import { AddEventComponent } from './add-event/add-event';
 import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '', redirectTo: 'signin', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'add-event', component: AddEventComponent, canActivate: [AuthGuard] },
-  { path: 'login', component: SignInComponent },
+  { path: 'signin', component: SignInComponent },
   { path: 'signup', component: SignUpComponent },
   { path: 'forgetpassword', component: ForgetPasswordComponent },
   { path: 'profile-menu', component: ProfileMenuComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '/home' }
+  { path: '**', redirectTo: 'signin' }
 ];
