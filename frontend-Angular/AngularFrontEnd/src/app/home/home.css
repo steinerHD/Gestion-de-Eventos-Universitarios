@@ -121,3 +121,74 @@ label, p, .label-status, .status {
   padding: 15px;
   margin-bottom: 10px;
 }
+
+/* Estilos para encuentros */
+.encounters-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.encounters-section h4 {
+  margin: 0 0 10px 0;
+  color: #176a6a;
+  font-size: 1.1rem;
+}
+
+.encounter-display {
+  display: flex;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #176a6a;
+}
+
+.encounter-number {
+  font-weight: bold;
+  color: #176a6a;
+  margin-right: 15px;
+  min-width: 20px;
+}
+
+.encounter-details {
+  flex: 1;
+}
+
+.encounter-details p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.separator {
+  color: #666;
+  font-weight: bold;
+}
+
+/* Responsive para encuentros */
+@media (max-width: 768px) {
+  .encounter-display {
+    flex-direction: column;
+  }
+  
+  .encounter-number {
+    margin-bottom: 5px;
+  }
+  
+  .time-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .separator {
+    display: none;
+  }
+}

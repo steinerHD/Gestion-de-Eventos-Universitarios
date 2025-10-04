@@ -57,6 +57,12 @@
     </div>
   </fieldset>
 
+  <!-- Módulo de Encuentros -->
+  <app-encounters 
+    [encounters]="encounters"
+    (encountersChanged)="onEncountersChanged($event)">
+  </app-encounters>
+
   <fieldset class="form-row form-row--last">
     <legend class="sr-only">Fechas y estado</legend>
     <div class="input-group">
@@ -99,16 +105,12 @@
     </div>
 
     <fieldset class="external-org">
-      <legend>Organización externa</legend>
-      <div class="input-group">
-        <label for="externalOrgName">Nombre:</label>
-        <input type="text" id="externalOrgName" formControlName="externalOrgName">
+      <legend>Módulo de organización externa</legend>
+      <div class="checkbox-group">
+        <input type="checkbox" id="externalOrgParticipation" formControlName="externalOrgParticipation" (change)="onParticipationChange()">
+        <label for="externalOrgParticipation">¿Participa una organización externa?</label>
       </div>
-      <div class="input-group">
-        <label for="externalOrgNit">NIT:</label>
-        <input type="text" id="externalOrgNit" formControlName="externalOrgNit">
-      </div>
-      <div class="icon-buttons">
+      <div class="icon-buttons" *ngIf="eventForm.get('externalOrgParticipation')?.value">
         <button type="button" (click)="openModal()" class="icon-button" aria-label="Abrir listado de organizaciones externas">
           <img src="assets/images/copy.png" alt="Listado de organización externa">
         </button>
@@ -116,11 +118,14 @@
           <img src="assets/images/plus_square.png" alt="Agregar organización externa">
         </a>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="externalOrgParticipation" formControlName="externalOrgParticipation">
-        <label for="externalOrgParticipation">¿Participa una organización externa?</label>
-      </div>
     </fieldset>
+
+    <!-- Organizaciones seleccionadas -->
+    <app-selected-organizations 
+      *ngIf="eventForm.get('externalOrgParticipation')?.value"
+      [selectedOrganizations]="selectedOrganizations"
+      (organizationRemoved)="onOrganizationRemoved($event)">
+    </app-selected-organizations>
   </section>
 
   <div class="form-actions">
@@ -128,3 +133,10 @@
     <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
   </div>
 </form>
+
+<!-- Modal de organizaciones externas -->
+<app-organizacion-externa 
+  [showModal]="showOrgModal"
+  (modalClosed)="closeOrgModal()"
+  (organizationSelected)="onOrganizationSelected($event)">
+</app-organizacion-externa>

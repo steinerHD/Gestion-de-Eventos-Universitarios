@@ -6,7 +6,7 @@
 
     <div class="navbar-search">
       <i class="fas fa-search"></i>
-      <input type="text" class="search-input" placeholder="Buscar evento..." (input)="searchEvents($event.target.value)" />/>
+      <input type="text" class="search-input" placeholder="Buscar evento..." (input)="searchEvents($event.target.value)" />
     </div>
 
     <div class="navbar-icons">
@@ -27,8 +27,31 @@
     <p>No hay eventos disponibles.</p>
   </div>
   <div *ngFor="let event of events" class="event-card">
-    <h3>{{ event.title }}</h3>
-    <p><strong>Fecha:</strong> {{ event.date }}</p>
-    <p><strong>Descripción:</strong> {{ event.description }}</p>
+    <h3>{{ event.eventName }}</h3>
+    <p><strong>Ubicación:</strong> {{ event.eventLocation }}</p>
+    <p><strong>Tipo:</strong> {{ event.eventType }}</p>
+    <p><strong>Fecha:</strong> {{ event.eventDate }}</p>
+    <p><strong>Hora inicio:</strong> {{ event.eventHourIni }}</p>
+    <p><strong>Hora fin:</strong> {{ event.eventHourFin }}</p>
+    <p><strong>Estado:</strong> {{ event.eventStatus }}</p>
+    
+    <!-- Mostrar encuentros si existen -->
+    <div *ngIf="event.encounters && event.encounters.length > 0" class="encounters-section">
+      <h4>Encuentros:</h4>
+      <div *ngFor="let encounter of event.encounters; let i = index" class="encounter-display">
+        <div class="encounter-number">{{ i + 1 }}:</div>
+        <div class="encounter-details">
+          <p><strong>Fecha:</strong> {{ encounter.date }}</p>
+          <div class="time-row">
+            <span><strong>Hora Inicio:</strong> {{ encounter.startTime }}</span>
+            <span class="separator">|</span>
+            <span><strong>Hora Fin:</strong> {{ encounter.endTime }}</span>
+          </div>
+          <p *ngIf="encounter.location"><strong>Lugar:</strong> {{ encounter.location.name }}</p>
+          <p *ngIf="encounter.location"><strong>Capacidad de Lugar:</strong> {{ encounter.location.capacity }} personas</p>
+          <p *ngIf="encounter.location"><strong>Tipo de lugar:</strong> {{ encounter.location.type }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

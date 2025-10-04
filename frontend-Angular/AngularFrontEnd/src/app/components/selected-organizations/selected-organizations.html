@@ -1,0 +1,20 @@
+<!-- Organizaciones seleccionadas -->
+<div class="selected-organizations" *ngIf="selectedOrganizations.length > 0">
+  <div 
+    *ngFor="let org of selectedOrganizations" 
+    class="selected-org-item"
+  >
+    <div class="org-details">
+      <div class="org-name">{{ org.name }}</div>
+      <div class="org-nit">{{ org.nit }}</div>
+    </div>
+    <button 
+      type="button" 
+      class="remove-btn" 
+      (click)="removeOrganization(org)"
+      title="Eliminar organización"
+    >
+      <img src="assets/images/trash.png" alt="Eliminar">
+    </button>
+  </div>
+</div>

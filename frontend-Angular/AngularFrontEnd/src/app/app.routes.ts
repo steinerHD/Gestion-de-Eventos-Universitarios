@@ -5,11 +5,13 @@ import { SignUpComponent } from './login/sign-up';
 import { ForgetPasswordComponent } from './login/forgetpassword';
 import { ProfileMenuComponent } from './profile-menu/profile-menu';
 import { ProfileComponent } from './profile/profile';
+import { AddEventComponent } from './add-event/add-event';
 import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'add-event', component: AddEventComponent, canActivate: [AuthGuard] },
   { path: 'login', component: SignInComponent },
   { path: 'signup', component: SignUpComponent },
   { path: 'forgetpassword', component: ForgetPasswordComponent },

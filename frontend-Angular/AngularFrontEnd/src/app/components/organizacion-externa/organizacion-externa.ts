@@ -1,50 +1,75 @@
-import { Component, signal } from '@angular/core';
-
-interface Organizacion {
-  id: number;
-  nombre: string;
-  nit: string;
-}
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { OrganizationService, ExternalOrganization } from '../../services/organization.service';
 
 @Component({
   selector: 'app-organizacion-externa',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, FormsModule],
   templateUrl: './organizacion-externa.html',
   styleUrls: ['./organizacion-externa.css']
 })
+export class OrganizacionExternaComponent implements OnInit {
+  @Input() showModal: boolean = false;
+  @Output() modalClosed = new EventEmitter<void>();
+  @Output() organizationSelected = new EventEmitter<ExternalOrganization>();
 
-export class OrganizacionExternaComponent {
-  // Datos de ejemplo para la lista de organizaciones
-  private nextId = 3;
-  organizaciones = signal<Organizacion[]>([
-    { id: 5, nombre: 'Plan padrinos', nit: '1333327455151' },
-    { id: 6, nombre: 'Ministerio de la seriedad', nit: '13323987455151' }
-  ]);
+  organizations: ExternalOrganization[] = [];
+  filteredOrganizations: ExternalOrganization[] = [];
+  searchQuery: string = '';
+  selectedOrganizations: ExternalOrganization[] = [];
 
-  // Para búsqueda
-  search = signal<string>('');
+  constructor(private organizationService: OrganizationService) {}
 
-  get organizacionesFiltradas() {
-    const term = this.search().toLowerCase();
-    return this.organizaciones().filter(org =>
-      org.nombre.toLowerCase().includes(term) || org.nit.includes(term)
-    );
+  ngOnInit(): void {
+    this.loadOrganizations();
   }
 
-  // Método para añadir nuevas orgs
-  addOrganizacion(nombre: string, nit: string) {
-    const newOrg: Organizacion = {
-      id: this.nextId++,
-      nombre,
-      nit
-    };
-    this.organizaciones.update(list => [...list, newOrg]);
+  loadOrganizations(): void {
+    this.organizationService.getOrganizations().subscribe({
+      next: (orgs) => {
+        this.organizations = orgs;
+        this.filteredOrganizations = orgs;
+      },
+      error: (error) => console.error('Error al cargar organizaciones:', error)
+    });
   }
 
-  // Método para capturar el input de búsqueda
-  onSearchChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.search.set(value);
+  searchOrganizations(): void {
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+      this.filteredOrganizations = this.organizations;
+    } else {
+      this.organizationService.searchOrganizations(this.searchQuery).subscribe({
+        next: (orgs) => {
+          this.filteredOrganizations = orgs;
+        },
+        error: (error) => console.error('Error al buscar organizaciones:', error)
+      });
+    }
+  }
+
+  selectOrganization(organization: ExternalOrganization): void {
+    // Verificar si ya está seleccionada
+    const isAlreadySelected = this.selectedOrganizations.some(org => org.id === organization.id);
+    
+    if (!isAlreadySelected) {
+      this.selectedOrganizations.push(organization);
+      this.organizationSelected.emit(organization);
+    }
+  }
+
+  removeSelectedOrganization(organization: ExternalOrganization): void {
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id !== organization.id);
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.modalClosed.emit();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.searchOrganizations();
   }
 }

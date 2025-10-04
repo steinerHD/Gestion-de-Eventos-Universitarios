@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // Adjust path based on location
 
 @Component({
   selector: 'app-profile-menu',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './profile-menu.html',
   styleUrls: ['./profile-menu.css']
 })
