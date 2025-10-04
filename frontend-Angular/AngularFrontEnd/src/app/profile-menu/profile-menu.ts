@@ -1,30 +1,32 @@
 import { Component } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Adjust path based on location
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-profile-menu',
+  standalone: true,
+  imports: [RouterLink],
   templateUrl: './profile-menu.html',
   styleUrls: ['./profile-menu.css']
 })
-
-export class PerfilComponent {
-
-  // Constructor base
-  constructor() { }
+export class ProfileMenuComponent {
+  constructor(private authService: AuthService, private router: Router) {}
 
   /**
    * Método que maneja la acción de visualizar los datos del usuario (HU 3.3).
    */
   visualizarDatos(): void {
-    // Aquí se implementaría la lógica para navegar a la vista de edición/consulta de perfil
+    // Navigate programmatically to ensure consistency
+    this.router.navigate(['/profile']);
     console.log('Navegando a la visualización/edición de datos.');
   }
 
   /**
    * Método que maneja la acción de cerrar la sesión (HU 3.5).
-   * Esta acción es clave para el control de acceso y permisos por roles de usuario [5].
    */
   cerrarSesion(): void {
-    // Aquí se llamaría al servicio de autenticación para invalidar el token/sesión
+    this.authService.logout();
+    this.router.navigate(['/signin']);
     console.log('Sesión cerrada exitosamente.');
   }
 
@@ -32,7 +34,7 @@ export class PerfilComponent {
    * Método que maneja la acción de cerrar el menú o el modal de perfil.
    */
   cerrarMenu(): void {
-    // Aquí se implementaría la lógica para ocultar el componente/modal
+    this.router.navigate(['/home']);
     console.log('Menú de perfil cerrado.');
   }
 }

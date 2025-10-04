@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -10,10 +10,19 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./sign-up.css']
 })
 
-export class SignUp {
+export class SignUpComponent {
+
+  selectedMenu: string = 'signin'; // Initialize with a default value
   @Output() goSignin = new EventEmitter<void>();
 
   signUpForm: FormGroup;
+  @Input() formGroup!: FormGroup;
+  @Output() onSubmit = new EventEmitter<void>();
+  @Output() goToSignIn = new EventEmitter<void>();
+
+  submit() {
+    this.onSubmit.emit();
+  }
 
   constructor(private fb: FormBuilder) {
     this.signUpForm = this.fb.group({
@@ -37,6 +46,8 @@ export class SignUp {
     if (this.signUpForm.valid) {
       console.log('Datos de registro:', this.signUpForm.value);
       // Aquí llamas al servicio de signup
+    } else {
+      this.signUpForm.markAllAsTouched();
     }
   }
 }

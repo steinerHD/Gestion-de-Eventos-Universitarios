@@ -9,7 +9,7 @@ import { first } from 'rxjs';
   templateUrl: './add-event.html',
   styleUrl: './add-event.css'
 })
-export class AddEvent {
+export class AddEventComponent {
   protected readonly title = signal('AngularFrontEnd');
     // Señal para gestionar el estado de la ventana emergente.
   isModalOpen = signal(false);

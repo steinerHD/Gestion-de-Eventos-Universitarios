@@ -1,10 +1,78 @@
 <div class="perfil-container">
-  <p><strong>Nombre del usuario:</strong><br><span class="dato">Pepito Alberto Diaz Castillo</span></p>
-  <p><strong>Tipo de usuario:</strong><br><span class="dato">Estudiante</span></p>
-  <p><strong>Rol de la cuenta</strong><br><span class="dato">Estudiante</span></p>
-  <p><strong>Email:</strong><br><span class="dato">Pepito@U.edu.co</span></p>
-  <p><strong>Facultad:</strong><br><span class="dato">Ingeniería</span></p>
-  <p><strong>Código estudiantil:</strong><br><span class="dato">I0000000</span></p>
+  <h1>Perfil</h1>
 
-  <button class="editar-btn">Editar</button>
+  <div *ngIf="!isEditing; else editForm">
+    <p><strong>Nombre del usuario:</strong><br><span class="dato">{{ profileForm.get('nombre')?.value }}</span></p>
+    <p><strong>Tipo de usuario:</strong><br><span class="dato">{{ profileForm.get('tipoUsuario')?.value }}</span></p>
+    <p><strong>Rol de la cuenta:</strong><br><span class="dato">{{ profileForm.get('rolCuenta')?.value }}</span></p>
+    <p><strong>Email:</strong><br><span class="dato">{{ profileForm.get('email')?.value }}</span></p>
+    <p><strong>Facultad:</strong><br><span class="dato">{{ profileForm.get('facultad')?.value }}</span></p>
+    <p><strong>Código estudiantil:</strong><br><span class="dato">{{ profileForm.get('codigoEstudiantil')?.value }}</span></p>
+    <button class="editar-btn" (click)="toggleEdit()" [disabled]="profileForm.invalid">Editar</button>
+  </div>
+
+  <ng-template #editForm>
+    <form [formGroup]="profileForm" novalidate>
+      <div class="form-group">
+        <label><strong>Nombre del usuario:</strong></label>
+        <input type="text" class="form-control" formControlName="nombre" required
+               [ngClass]="{'is-invalid': profileForm.get('nombre')?.invalid && profileForm.get('nombre')?.touched}">
+        <div *ngIf="profileForm.get('nombre')?.hasError('required') && profileForm.get('nombre')?.touched"
+             class="invalid-feedback">
+          El nombre es obligatorio.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Tipo de usuario:</strong></label>
+        <input type="text" class="form-control" formControlName="tipoUsuario" required
+               [ngClass]="{'is-invalid': profileForm.get('tipoUsuario')?.invalid && profileForm.get('tipoUsuario')?.touched}">
+        <div *ngIf="profileForm.get('tipoUsuario')?.hasError('required') && profileForm.get('tipoUsuario')?.touched"
+             class="invalid-feedback">
+          El tipo de usuario es obligatorio.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Rol de la cuenta:</strong></label>
+        <input type="text" class="form-control" formControlName="rolCuenta" required
+               [ngClass]="{'is-invalid': profileForm.get('rolCuenta')?.invalid && profileForm.get('rolCuenta')?.touched}">
+        <div *ngIf="profileForm.get('rolCuenta')?.hasError('required') && profileForm.get('rolCuenta')?.touched"
+             class="invalid-feedback">
+          El rol de la cuenta es obligatorio.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Email:</strong></label>
+        <input type="email" class="form-control" formControlName="email" required
+               [ngClass]="{'is-invalid': profileForm.get('email')?.invalid && profileForm.get('email')?.touched}">
+        <div *ngIf="profileForm.get('email')?.hasError('required') && profileForm.get('email')?.touched"
+             class="invalid-feedback">
+          El email es obligatorio.
+        </div>
+        <div *ngIf="profileForm.get('email')?.hasError('email') && profileForm.get('email')?.touched"
+             class="invalid-feedback">
+          El email debe ser válido.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Facultad:</strong></label>
+        <input type="text" class="form-control" formControlName="facultad" required
+               [ngClass]="{'is-invalid': profileForm.get('facultad')?.invalid && profileForm.get('facultad')?.touched}">
+        <div *ngIf="profileForm.get('facultad')?.hasError('required') && profileForm.get('facultad')?.touched"
+             class="invalid-feedback">
+          La facultad es obligatoria.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Código estudiantil:</strong></label>
+        <input type="text" class="form-control" formControlName="codigoEstudiantil" required
+               [ngClass]="{'is-invalid': profileForm.get('codigoEstudiantil')?.invalid && profileForm.get('codigoEstudiantil')?.touched}">
+        <div *ngIf="profileForm.get('codigoEstudiantil')?.hasError('required') && profileForm.get('codigoEstudiantil')?.touched"
+             class="invalid-feedback">
+          El código estudiantil es obligatorio.
+        </div>
+      </div>
+      <button class="editar-btn" (click)="toggleEdit()" [disabled]="profileForm.invalid">Guardar</button>
+      <button class="editar-btn" (click)="cancelEdit()">Cancelar</button>
+    </form>
+  </ng-template>
 </div>

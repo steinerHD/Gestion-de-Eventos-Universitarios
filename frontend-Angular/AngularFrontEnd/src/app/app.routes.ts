@@ -1,22 +1,19 @@
 import { Routes } from '@angular/router';
-import { Home } from './home/home';
-import { AddEvent } from './add-event/add-event';
-import { SignInComponent } from './login/sign-in/sign-in';
-import { SignUpComponent } from './login/sign-up/sign-up';
-import { ForgetPasswordComponent } from './login/forgetpassword/forgetpassword';
+import { HomeComponent } from './home/home';
+import { SignInComponent } from './login/sign-in';
+import { SignUpComponent } from './login/sign-up';
+import { ForgetPasswordComponent } from './login/forgetpassword';
+import { ProfileMenuComponent } from './profile-menu/profile-menu';
+import { ProfileComponent } from './profile/profile';
+import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/signin', pathMatch: 'full' },
-  
-  // Login y autenticación
-  { path: 'sign-in', component: SignInComponent },
-  { path: 'forgetpassword', component: ForgetPasswordComponent  },
-  { path: 'sign-up', component: SignUpComponent  },
-
-  // Módulos principales
-  { path: 'home', component: Home },
-  { path: 'add-event', component: AddEvent },
-
-  // Ruta por defecto
-  { path: '**', redirectTo: '/sign-in' }
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: SignInComponent },
+  { path: 'signup', component: SignUpComponent },
+  { path: 'forgetpassword', component: ForgetPasswordComponent },
+  { path: 'profile-menu', component: ProfileMenuComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '/home' }
 ];

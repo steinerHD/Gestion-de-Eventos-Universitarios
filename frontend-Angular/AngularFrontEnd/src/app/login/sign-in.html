@@ -1,0 +1,35 @@
+<div class="card p-4 mx-auto">
+  <h3 class="mb-3 text-center">Iniciar Sesión</h3>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo institucional</label>
+      <input type="email" class="form-control" id="email" formControlName="email" placeholder="Escribe tu correo" required
+        [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)}">
+      <div *ngIf="loginForm.get('email')?.hasError('required') && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"
+           class="invalid-feedback d-block">
+        El correo es obligatorio.
+      </div>
+      <div *ngIf="loginForm.get('email')?.hasError('email') && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"
+           class="invalid-feedback d-block">
+        El correo debe ser válido.
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="password" formControlName="password" placeholder="Escribe tu contraseña" required
+        [ngClass]="{'is-invalid': loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)}">
+      <div *ngIf="loginForm.get('password')?.hasError('required') && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
+           class="invalid-feedback d-block">
+        La contraseña es obligatoria.
+      </div>
+      <div *ngIf="loginForm.get('password')?.hasError('minlength') && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
+           class="invalid-feedback d-block">
+        La contraseña debe tener al menos 6 caracteres.
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mb-4" [disabled]="loginForm.invalid">Iniciar Sesión</button>
+  </form>
+  <div class="text-center">
+    <a routerLink="/forgetpassword">¿Olvidaste tu contraseña?</a>
+  </div>
+</div>
