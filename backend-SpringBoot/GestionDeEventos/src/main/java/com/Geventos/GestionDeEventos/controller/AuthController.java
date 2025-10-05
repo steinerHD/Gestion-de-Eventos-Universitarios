@@ -5,7 +5,12 @@ import com.Geventos.GestionDeEventos.dto.JwtResponse;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.JwtService;
+import com.Geventos.GestionDeEventos.service.RecuperarContrasenaService;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import com.Geventos.GestionDeEventos.dto.EstudianteRequest;
 import com.Geventos.GestionDeEventos.entity.Estudiante;
@@ -34,6 +39,15 @@ public class AuthController {
     private final EstudianteService estudianteService;
     private final DocenteService docenteService;
     private final SecretariaAcademicaService secretariaAcademicaService;
+    @Autowired  
+    private RecuperarContrasenaService recuperarContrasenaService;
+
+    @PostMapping("/recuperar")
+    public String recuperarContrasena(@RequestBody Map<String, String> body) {
+        String correo = body.get("correo");
+        System.out.println("Correo recibido: " + correo);
+        return recuperarContrasenaService.enviarContrasena(correo);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
