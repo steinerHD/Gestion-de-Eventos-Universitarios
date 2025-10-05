@@ -1,0 +1,146 @@
+<!-- Módulo de Instalaciones -->
+<div class="installations-module">
+  <h3 class="module-title">Módulo de instalaciones</h3>
+  
+  <!-- Lista de encuentros -->
+  <div class="encounters-container">
+    <div 
+      *ngFor="let encounter of encounters; let i = index" 
+      class="encounter-item"
+    >
+      <!-- Botón de eliminar encuentro -->
+      <button 
+        type="button" 
+        class="remove-encounter-btn" 
+        (click)="removeEncounter(encounter.id)"
+        title="Eliminar encuentro"
+      >
+        <img src="assets/images/trash.png" alt="Eliminar encuentro">
+      </button>
+
+      <!-- Campos del encuentro -->
+      <div class="encounter-fields">
+        <div class="field-group">
+          <label for="date-{{encounter.id}}">Fecha</label>
+          <input 
+            type="date" 
+            id="date-{{encounter.id}}" 
+            [(ngModel)]="encounter.date"
+            (change)="onEncounterChange()"
+            class="encounter-input"
+          >
+        </div>
+
+        <div class="time-fields">
+          <div class="field-group">
+            <label for="startTime-{{encounter.id}}">Hora Inicio</label>
+            <input 
+              type="time" 
+              id="startTime-{{encounter.id}}" 
+              [(ngModel)]="encounter.startTime"
+              (change)="onEncounterChange()"
+              class="encounter-input"
+            >
+          </div>
+
+          <div class="field-group">
+            <label for="endTime-{{encounter.id}}">Hora Fin</label>
+            <input 
+              type="time" 
+              id="endTime-{{encounter.id}}" 
+              [(ngModel)]="encounter.endTime"
+              (change)="onEncounterChange()"
+              class="encounter-input"
+            >
+          </div>
+        </div>
+
+        <!-- Selección de lugar -->
+        <div class="location-section">
+          <button 
+            *ngIf="!encounter.location"
+            type="button" 
+            class="choose-location-btn" 
+            (click)="openLocationModal(encounter.id)"
+          >
+            Elegir lugar
+          </button>
+          
+          <div *ngIf="encounter.location" class="selected-location">
+            <span class="location-label">Lugar:</span>
+            <span class="location-name">{{ encounter.location.name }}</span>
+            <button 
+              type="button" 
+              class="remove-location-btn" 
+              (click)="removeLocation(encounter.id)"
+              title="Quitar lugar"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón para agregar encuentro -->
+  <button 
+    type="button" 
+    class="add-encounter-btn" 
+    (click)="addEncounter()"
+  >
+    Agregar instalación
+  </button>
+</div>
+
+<!-- Modal de selección de lugares -->
+<div class="modal-overlay" *ngIf="showLocationModal" (click)="closeLocationModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <h2>Seleccionar Lugar</h2>
+      <button type="button" class="close-btn" (click)="closeLocationModal()" aria-label="Cerrar">
+        <img src="assets/images/close.png" alt="Cerrar">
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar lugar..." 
+          [(ngModel)]="searchQuery"
+          (input)="searchLocations()"
+        >
+        <button type="button" class="clear-search-btn" (click)="clearSearch()" *ngIf="searchQuery">
+          <img src="assets/images/close.png" alt="Limpiar búsqueda">
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de lugares -->
+    <div class="locations-list">
+      <div 
+        *ngFor="let location of filteredLocations" 
+        class="location-item"
+        (click)="selectLocation(location)"
+      >
+        <div class="location-info">
+          <div class="location-name">{{ location.name }}</div>
+          <div class="location-details">
+            <span class="location-type">Tipo: {{ location.type }}</span>
+            <span class="location-capacity">Capacidad: {{ location.capacity }} personas</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mensaje cuando no hay resultados -->
+      <div *ngIf="filteredLocations.length === 0" class="no-results">
+        <p>No se encontraron lugares</p>
+      </div>
+    </div>
+  </div>
+</div>
+

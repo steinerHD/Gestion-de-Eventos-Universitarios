@@ -1,0 +1,108 @@
+<header class="headerSec">
+  <button type="button" aria-label="Ir al inicio" routerLink="/home">
+    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img">
+  </button>
+  <h1>Nuevo Evento</h1>
+  <button type="button" aria-label="Perfil de usuario" routerLink="/profile-menu">
+    <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
+  </button>
+</header>
+
+<form [formGroup]="eventForm" class="container" novalidate (ngSubmit)="submitEvent()">
+  <fieldset class="form-row">
+    <legend class="sr-only">Información básica del evento</legend>
+    <div class="input-group">
+      <label for="eventName">Nombre del evento</label>
+      <input type="text" id="eventName" formControlName="eventName" placeholder="Nombre..." required
+             [ngClass]="{'is-invalid': eventForm.get('eventName')?.invalid && eventForm.get('eventName')?.touched}">
+      <div *ngIf="eventForm.get('eventName')?.hasError('required') && eventForm.get('eventName')?.touched"
+           class="invalid-feedback">
+        El nombre es obligatorio.
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="eventLocation">Lugar</label>
+      <input type="text" id="eventLocation" formControlName="eventLocation" placeholder="Lugar del evento..." required
+             [ngClass]="{'is-invalid': eventForm.get('eventLocation')?.invalid && eventForm.get('eventLocation')?.touched}">
+      <div *ngIf="eventForm.get('eventLocation')?.hasError('required') && eventForm.get('eventLocation')?.touched"
+           class="invalid-feedback">
+        El lugar es obligatorio.
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-row">
+    <legend class="sr-only">Tipo y responsable</legend>
+    <div class="input-group">
+      <label for="eventType">Tipo de evento</label>
+      <select id="eventType" formControlName="eventType" required
+              [ngClass]="{'is-invalid': eventForm.get('eventType')?.invalid && eventForm.get('eventType')?.touched}">
+        <option value="" disabled>Seleccione un tipo</option>
+        <option value="academico">Académico</option>
+        <option value="ludico">Lúdico</option>
+      </select>
+      <div *ngIf="eventForm.get('eventType')?.hasError('required') && eventForm.get('eventType')?.touched"
+           class="invalid-feedback">
+        El tipo de evento es obligatorio.
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="responsibleId">ID del responsable</label>
+      <input type="text" id="responsibleId" formControlName="responsibleId" placeholder="Identificación del responsable" required
+             [ngClass]="{'is-invalid': eventForm.get('responsibleId')?.invalid && eventForm.get('responsibleId')?.touched}">
+      <div *ngIf="eventForm.get('responsibleId')?.hasError('required') && eventForm.get('responsibleId')?.touched"
+           class="invalid-feedback">
+        El ID del responsable es obligatorio.
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Módulo de Encuentros -->
+  <app-encounters 
+    [encounters]="encounters"
+    (encountersChanged)="onEncountersChanged($event)">
+  </app-encounters>
+
+  <fieldset class="form-row form-row--last">
+    <legend class="sr-only">Estado</legend>
+    <div class="input-group">
+      <p class="label-status">Estado del evento</p>
+      <p class="status">{{ eventForm.get('eventStatus')?.value }}</p>
+    </div>
+  </fieldset>
+
+  <section class="form-grid">
+
+    <fieldset class="external-org">
+      <legend>Módulo de organización externa</legend>
+      <div class="checkbox-group">
+        <input type="checkbox" id="externalOrgParticipation" formControlName="externalOrgParticipation" (change)="onParticipationChange()">
+        <label for="externalOrgParticipation">¿Participa una organización externa?</label>
+      </div>
+      <div class="icon-buttons" *ngIf="eventForm.get('externalOrgParticipation')?.value">
+        <button type="button" (click)="openModal()" class="icon-button" aria-label="Abrir listado de organizaciones externas">
+          <img src="assets/images/copy.png" alt="Listado de organización externa">
+        </button>
+      </div>
+    </fieldset>
+
+    <!-- Organizaciones seleccionadas -->
+    <app-selected-organizations 
+      *ngIf="eventForm.get('externalOrgParticipation')?.value"
+      [selectedOrganizations]="selectedOrganizations"
+      (organizationRemoved)="onOrganizationRemoved($event)">
+    </app-selected-organizations>
+  </section>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Crear</button>
+    <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+  </div>
+</form>
+
+<!-- Modal de organizaciones externas -->
+<app-organizacion-externa 
+  [showModal]="showOrgModal"
+  (modalClosed)="closeOrgModal()"
+  (organizationSelected)="onOrganizationSelected($event)">
+</app-organizacion-externa>
