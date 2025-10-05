@@ -3,6 +3,7 @@ package com.Geventos.GestionDeEventos.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "usuario")
 @Data
+@ToString(exclude = {"eventosOrganizados", "estudiante", "docente", "secretariaAcademica"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
@@ -44,5 +46,6 @@ public class Usuario {
     private SecretariaAcademica secretariaAcademica;
 
     @OneToMany(mappedBy = "organizador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "usuario-eventos")
     private List<Evento> eventosOrganizados;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Entity
 @Table(name = "evaluacion")
@@ -39,7 +40,8 @@ public class Evaluacion {
     private String justificacion;
     
     @Lob
-    @Column(name = "acta_pdf")
+    @Column(name = "acta_pdf", columnDefinition = "bytea")
+    @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] actaPdf;
     
     @OneToMany(mappedBy = "evaluacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

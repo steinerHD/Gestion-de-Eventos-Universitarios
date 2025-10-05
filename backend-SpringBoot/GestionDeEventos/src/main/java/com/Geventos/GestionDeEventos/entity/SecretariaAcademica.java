@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "secretaria_academica")
 @Data
@@ -21,6 +23,7 @@ public class SecretariaAcademica {
     @Column(name = "facultad", nullable = false, length = 100)
     private String facultad;
     
+    @JsonBackReference
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_secretaria")
     @MapsId

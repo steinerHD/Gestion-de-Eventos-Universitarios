@@ -4,9 +4,13 @@ import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.service.EventoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ContentDisposition;
 import org.springframework.web.bind.annotation.*;
+import java.util.Base64;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -58,6 +62,8 @@ public class EventoController {
         List<Evento> eventos = eventoService.findByOrganizadorId(idOrganizador);
         return ResponseEntity.ok(eventos);
     }
+
+    
     
     @GetMapping("/instalacion/{idInstalacion}")
     public ResponseEntity<List<Evento>> getEventosByInstalacion(@PathVariable Long idInstalacion) {
@@ -105,5 +111,28 @@ public class EventoController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping(value = "/{id}/aval", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getAvalPdf(@PathVariable Long id) {
+        return eventoService.findById(id)
+                .filter(e -> e.getAvalPdf() != null)
+                .map(e -> {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_PDF);
+                    headers.setContentDisposition(ContentDisposition.inline()
+                            .filename("aval_" + id + ".pdf")
+                            .build());
+                    return new ResponseEntity<>(e.getAvalPdf(), headers, HttpStatus.OK);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/{id}/aval/base64", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> getAvalBase64(@PathVariable Long id) {
+        return eventoService.findById(id)
+                .filter(e -> e.getAvalPdf() != null)
+                .map(e -> ResponseEntity.ok(Base64.getEncoder().encodeToString(e.getAvalPdf())))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

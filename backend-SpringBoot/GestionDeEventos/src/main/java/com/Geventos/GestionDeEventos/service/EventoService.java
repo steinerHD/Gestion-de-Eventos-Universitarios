@@ -58,7 +58,33 @@ public class EventoService {
     }
     
     public Evento save(Evento evento) {
-        // Validar que el organizador exista
+        // Validaciones básicas de campos obligatorios
+        if (evento.getTitulo() == null || evento.getTitulo().isBlank()) {
+            throw new IllegalArgumentException("El título es obligatorio");
+        }
+        if (evento.getTipoEvento() == null) {
+            throw new IllegalArgumentException("El tipo de evento es obligatorio");
+        }
+        if (evento.getFecha() == null) {
+            throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
+        }
+        if (evento.getHoraInicio() == null) {
+            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
+        }
+        if (evento.getHoraFin() == null) {
+            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
+        }
+        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0) {
+            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
+        }
+        if (evento.getTipoAval() == null) {
+            throw new IllegalArgumentException("El tipoAval es obligatorio");
+        }
+
+        // Validar que el organizador venga informado y exista
+        if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null) {
+            throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
+        }
         Usuario organizador = usuarioRepository.findById(evento.getOrganizador().getIdUsuario())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
         
@@ -71,7 +97,7 @@ public class EventoService {
         }
         
         // Validar que la instalación exista
-        if (evento.getInstalacion() != null) {
+        if (evento.getInstalacion() != null && evento.getInstalacion().getIdInstalacion() != null) {
             Instalacion instalacion = instalacionRepository.findById(evento.getInstalacion().getIdInstalacion())
                     .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada"));
             evento.setInstalacion(instalacion);
@@ -90,6 +116,32 @@ public class EventoService {
         Evento existingEvento = eventoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
         
+        // Validaciones básicas
+        if (evento.getTitulo() == null || evento.getTitulo().isBlank()) {
+            throw new IllegalArgumentException("El título es obligatorio");
+        }
+        if (evento.getTipoEvento() == null) {
+            throw new IllegalArgumentException("El tipo de evento es obligatorio");
+        }
+        if (evento.getFecha() == null) {
+            throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
+        }
+        if (evento.getHoraInicio() == null) {
+            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
+        }
+        if (evento.getHoraFin() == null) {
+            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
+        }
+        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0) {
+            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
+        }
+        if (evento.getTipoAval() == null) {
+            throw new IllegalArgumentException("El tipoAval es obligatorio");
+        }
+
+        if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null) {
+            throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
+        }
         // Validar que el organizador exista
         Usuario organizador = usuarioRepository.findById(evento.getOrganizador().getIdUsuario())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
@@ -103,7 +155,7 @@ public class EventoService {
         }
         
         // Validar que la instalación exista
-        if (evento.getInstalacion() != null) {
+        if (evento.getInstalacion() != null && evento.getInstalacion().getIdInstalacion() != null) {
             Instalacion instalacion = instalacionRepository.findById(evento.getInstalacion().getIdInstalacion())
                     .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada"));
             evento.setInstalacion(instalacion);
@@ -117,7 +169,8 @@ public class EventoService {
         existingEvento.setTitulo(evento.getTitulo());
         existingEvento.setTipoEvento(evento.getTipoEvento());
         existingEvento.setFecha(evento.getFecha());
-        existingEvento.setHora(evento.getHora());
+        existingEvento.setHoraInicio(evento.getHoraInicio());
+        existingEvento.setHoraFin(evento.getHoraFin()); 
         existingEvento.setInstalacion(evento.getInstalacion());
         existingEvento.setOrganizador(organizador);
         existingEvento.setAvalPdf(evento.getAvalPdf());
