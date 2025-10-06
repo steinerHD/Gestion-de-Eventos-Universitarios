@@ -18,8 +18,9 @@ export interface EventoDTO {
   fecha: string; // yyyy-MM-dd
   horaInicio: string; // HH:mm:ss
   horaFin: string; // HH:mm:ss
-  instalaciones?: InstalacionRef[]; // relación ManyToMany
-  idUsuarioOrganizador?: number; // for convenience
+  instalaciones?: { idInstalacion: number }[]; // estructura simplificada según JSON especificado
+  organizador?: { idUsuario: number }; // estructura según JSON especificado
+  avalPdf?: string; // Base64 string
   tipoAval?: 'Director_Programa' | 'Director_Docencia';
 }
 

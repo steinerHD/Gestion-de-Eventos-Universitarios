@@ -68,12 +68,16 @@
   padding: 24px 28px;
   border-bottom: 1px solid #f0f0f0;
   background-color: #fafbfc;
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
 
 .search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .search-input {
@@ -112,6 +116,46 @@
 .clear-search-btn img {
   width: 16px;
   height: 16px;
+}
+
+/* New Organization Button */
+.new-org-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  white-space: nowrap;
+}
+
+.new-org-btn:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.new-org-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.new-org-btn img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.new-org-btn span {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* Organizations List */
@@ -230,6 +274,18 @@
   
   .search-container {
     padding: 16px 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .search-input-wrapper {
+    width: 100%;
+  }
+  
+  .new-org-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
   }
   
   .organizations-list {

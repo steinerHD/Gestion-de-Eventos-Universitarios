@@ -50,6 +50,36 @@
     </div>
   </fieldset>
 
+
+  <fieldset class="form-row">
+    <legend class="sr-only">Aval del evento</legend>
+    <div class="input-group">
+      <label for="avalPdf">Aval PDF</label>
+      <input type="file" id="avalPdf" (change)="onFileSelected($event)" accept=".pdf" required
+             [ngClass]="{'is-invalid': eventForm.get('avalPdf')?.invalid && eventForm.get('avalPdf')?.touched}">
+      <div *ngIf="eventForm.get('avalPdf')?.hasError('required') && eventForm.get('avalPdf')?.touched"
+           class="invalid-feedback">
+        El aval PDF es obligatorio.
+      </div>
+      <div *ngIf="selectedFile" class="file-info">
+        <span>Archivo seleccionado: {{ selectedFile.name }}</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="tipoAval">Tipo de aval</label>
+      <select id="tipoAval" formControlName="tipoAval" required
+              [ngClass]="{'is-invalid': eventForm.get('tipoAval')?.invalid && eventForm.get('tipoAval')?.touched}">
+        <option value="" disabled>Seleccione un tipo de aval</option>
+        <option value="Director_Programa">Director de Programa</option>
+        <option value="Director_Docencia">Director de Docencia</option>
+      </select>
+      <div *ngIf="eventForm.get('tipoAval')?.hasError('required') && eventForm.get('tipoAval')?.touched"
+           class="invalid-feedback">
+        El tipo de aval es obligatorio.
+      </div>
+    </div>
+  </fieldset>
+
   <!-- Organizadores seleccionados -->
   <app-selected-users 
     [selectedUsers]="selectedUsers"
@@ -94,7 +124,7 @@
   </section>
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Crear</button>
+    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || encounters.length === 0 || selectedUsers.length === 0">Crear</button>
     <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
   </div>
 </form>
