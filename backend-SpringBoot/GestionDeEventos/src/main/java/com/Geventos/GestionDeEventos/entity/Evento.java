@@ -90,14 +90,7 @@ public class Evento {
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Evaluacion> evaluaciones;
     
-    // New relationships for multiple organizers and avals
-    @JsonIgnore
-    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<EventoOrganizador> organizadores;
     
-    @JsonIgnore
-    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<EventoAval> avales;
     
     public enum TipoEvento {
         Académico, Lúdico
