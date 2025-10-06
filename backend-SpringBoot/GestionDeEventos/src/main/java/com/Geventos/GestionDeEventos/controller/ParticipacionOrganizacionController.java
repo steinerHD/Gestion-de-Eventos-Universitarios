@@ -2,6 +2,7 @@ package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacionId;
+import com.Geventos.GestionDeEventos.dto.ParticipacionOrganizacionCreateDTO;
 import com.Geventos.GestionDeEventos.service.ParticipacionOrganizacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,8 +54,10 @@ public class ParticipacionOrganizacionController {
     }
     
     @PostMapping
-    public ResponseEntity<ParticipacionOrganizacion> createParticipacionOrganizacion(@RequestBody ParticipacionOrganizacion participacionOrganizacion) {
+    public ResponseEntity<ParticipacionOrganizacion> createParticipacionOrganizacion(@RequestBody ParticipacionOrganizacionCreateDTO participacionDTO) {
         try {
+            // Convert DTO to entity (handles base64 to byte array conversion)
+            ParticipacionOrganizacion participacionOrganizacion = participacionDTO.toEntity();
             ParticipacionOrganizacion savedParticipacion = participacionOrganizacionService.save(participacionOrganizacion);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedParticipacion);
         } catch (IllegalArgumentException e) {

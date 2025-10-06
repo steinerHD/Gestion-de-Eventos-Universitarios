@@ -21,8 +21,6 @@ export class SelectedOrganizationsComponent {
     participaRepresentante: boolean, 
     nombreRepresentante: string, 
     cedulaRepresentante: string,
-    avalFile: File | null,
-    avalFileName: string,
     certificateFile: File | null,
     certificateFileName: string
   }} = {};
@@ -40,8 +38,6 @@ export class SelectedOrganizationsComponent {
         participaRepresentante: false,
         nombreRepresentante: '',
         cedulaRepresentante: '',
-        avalFile: null,
-        avalFileName: '',
         certificateFile: null,
         certificateFileName: ''
       };
@@ -50,38 +46,6 @@ export class SelectedOrganizationsComponent {
     this.organizationData[orgId].participaRepresentante = target.checked;
   }
 
-  onAvalFileSelected(organization: OrganizacionExternaDTO, event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    const orgId = String(organization.idOrganizacion);
-    
-    if (file && file.type === 'application/pdf') {
-      if (!this.organizationData[orgId]) {
-        this.organizationData[orgId] = {
-          participaRepresentante: false,
-          nombreRepresentante: '',
-          cedulaRepresentante: '',
-          avalFile: null,
-          avalFileName: '',
-          certificateFile: null,
-          certificateFileName: ''
-        };
-      }
-      
-      this.organizationData[orgId].avalFile = file;
-      this.organizationData[orgId].avalFileName = file.name;
-    } else {
-      alert('Por favor selecciona un archivo PDF válido.');
-    }
-  }
-
-  removeAvalFile(organization: OrganizacionExternaDTO): void {
-    const orgId = String(organization.idOrganizacion);
-    if (this.organizationData[orgId]) {
-      this.organizationData[orgId].avalFile = null;
-      this.organizationData[orgId].avalFileName = '';
-    }
-  }
 
   getOrganizationData(organization: OrganizacionExternaDTO) {
     const orgId = String(organization.idOrganizacion);
@@ -90,8 +54,6 @@ export class SelectedOrganizationsComponent {
         participaRepresentante: false,
         nombreRepresentante: '',
         cedulaRepresentante: '',
-        avalFile: null,
-        avalFileName: '',
         certificateFile: null,
         certificateFileName: ''
       };
@@ -110,8 +72,6 @@ export class SelectedOrganizationsComponent {
           participaRepresentante: false,
           nombreRepresentante: '',
           cedulaRepresentante: '',
-          avalFile: null,
-          avalFileName: '',
           certificateFile: null,
           certificateFileName: ''
         };

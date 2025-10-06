@@ -32,40 +32,6 @@
         </div>
       </div>
       
-      <!-- Módulo de aval -->
-      <div class="aval-section">
-        <div *ngIf="!getOrganizationData(org).avalFile" class="aval-upload">
-          <input 
-            type="file" 
-            accept=".pdf" 
-            (change)="onAvalFileSelected(org, $event)"
-            #avalFileInput
-            id="avalFile{{ org.idOrganizacion }}"
-            style="display: none;"
-          >
-          <button 
-            type="button" 
-            class="btn-aval" 
-            (click)="avalFileInput.click()"
-          >
-            Agregar Aval
-          </button>
-        </div>
-        
-        <div *ngIf="getOrganizationData(org).avalFile" class="aval-selected">
-          <span class="aval-text">
-            Aval: {{ getOrganizationData(org).avalFileName }}
-          </span>
-          <button 
-            type="button" 
-            class="btn-remove-aval" 
-            (click)="removeAvalFile(org)"
-            title="Eliminar aval"
-          >
-            ×
-          </button>
-        </div>
-      </div>
 
       <!-- Módulo de certificado de participación -->
       <div class="certificate-section">

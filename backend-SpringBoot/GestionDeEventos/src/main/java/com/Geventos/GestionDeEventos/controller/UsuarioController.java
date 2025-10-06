@@ -2,6 +2,7 @@ package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.JWT.JwtUtil;
 import com.Geventos.GestionDeEventos.dto.AuthRequest;
+import com.Geventos.GestionDeEventos.dto.UsuarioDTO;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,8 @@ public class UsuarioController {
     private final JwtUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
+    public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
+        List<UsuarioDTO> usuarios = usuarioService.findAll();
         return ResponseEntity.ok(usuarios);
     }
 

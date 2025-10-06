@@ -10,6 +10,8 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "participacion_organizacion")
@@ -29,6 +31,7 @@ public class ParticipacionOrganizacion implements Serializable {
     
     @Lob
     @Column(name = "certificado_pdf", nullable = false, columnDefinition = "bytea")
+    @JdbcTypeCode(SqlTypes.BINARY)
     @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] certificadoPdf;
     
