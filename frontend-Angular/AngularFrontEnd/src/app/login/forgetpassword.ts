@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service'; // Updated path
 import { AuthApiService } from '../services/auth-api.service'; // Import AuthApiService
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-forgetpassword',
@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
 export class ForgetPasswordComponent {
   forgetPasswordForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private authApiService: AuthApiService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private authApiService: AuthApiService, private router: Router) {
     this.forgetPasswordForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
@@ -27,6 +27,9 @@ export class ForgetPasswordComponent {
       this.authApiService.recuperarContrasena(this.forgetPasswordForm.value.email).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
+          alert(response.mensaje);
+          this.router.navigate(['/signin']); 
+          
         },
         error: (error) => {
           console.error('Error al enviar la solicitud:', error);

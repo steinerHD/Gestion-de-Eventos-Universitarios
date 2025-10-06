@@ -8,6 +8,7 @@ import com.Geventos.GestionDeEventos.service.JwtService;
 import com.Geventos.GestionDeEventos.service.RecuperarContrasenaService;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +40,20 @@ public class AuthController {
     private final EstudianteService estudianteService;
     private final DocenteService docenteService;
     private final SecretariaAcademicaService secretariaAcademicaService;
-    @Autowired  
+    @Autowired
     private RecuperarContrasenaService recuperarContrasenaService;
 
     @PostMapping("/recuperar")
-    public String recuperarContrasena(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> recuperarContrasena(@RequestBody Map<String, String> body) {
         String correo = body.get("correo");
         System.out.println("Correo recibido: " + correo);
-        return recuperarContrasenaService.enviarContrasena(correo);
+
+        String resultado = recuperarContrasenaService.enviarContrasena(correo);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", resultado);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
