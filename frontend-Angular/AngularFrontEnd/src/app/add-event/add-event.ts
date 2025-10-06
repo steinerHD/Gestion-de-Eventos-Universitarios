@@ -36,7 +36,7 @@ export class AddEventComponent {
   ) {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
-      eventLocation: ['', Validators.required],
+      eventLocation: [''],
       eventType: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
       externalOrgName: [''],
@@ -48,46 +48,35 @@ export class AddEventComponent {
     });
   }
 
-
   submitEvent(): void {
     console.log('=== VALIDACIÓN DEL FORMULARIO DE EVENTO ===');
     console.log('📋 Estado del formulario:', this.eventForm.value);
     console.log('📋 Formulario válido:', this.eventForm.valid);
-    console.log('📋 Errores del formulario:', this.eventForm.errors);
     console.log('📋 Encuentros:', this.encounters);
     console.log('📋 Usuarios seleccionados:', this.selectedUsers);
+    console.log('📋 Organizaciones seleccionadas:', this.selectedOrganizations);
     
-    // Validar campos del formulario
     const formErrors = this.validateForm();
     if (formErrors.length > 0) {
       console.error('❌ Errores en el formulario:', formErrors);
-      formErrors.forEach(error => console.error(`- ${error}`));
       alert('Por favor, complete todos los campos obligatorios.');
       return;
     }
 
-    // Validar encuentros
     if (this.encounters.length === 0) {
-      console.error('❌ El evento debe tener al menos un encuentro.');
       alert('El evento debe tener al menos un encuentro.');
       return;
     }
 
-    // Validar organizadores
     if (this.selectedUsers.length === 0) {
-      console.error('❌ El evento debe tener al menos un organizador.');
       alert('El evento debe tener al menos un organizador.');
       return;
     }
 
-    console.log('✅ Validaciones completadas exitosamente');
-
-    // Crear el objeto EventoDTO para el backend
     const eventoData: EventoDTO = this.buildEventoDTO();
     
     console.log('📤 Enviando evento al backend:', eventoData);
 
-    // Enviar al backend
     this.eventosApiService.create(eventoData).subscribe({
       next: (createdEvent) => {
         console.log('✅ Evento creado exitosamente:', createdEvent);
@@ -105,59 +94,19 @@ export class AddEventComponent {
     const errors: string[] = [];
     const form = this.eventForm;
 
-    // Validar campos básicos
-    if (!form.get('eventName')?.value?.trim()) {
-      errors.push('El título del evento es obligatorio');
-    }
+    if (!form.get('eventName')?.value?.trim()) errors.push('El título del evento es obligatorio');
+    if (!form.get('eventType')?.value) errors.push('El tipo de evento es obligatorio');
+    if (!form.get('avalPdf')?.value?.trim()) errors.push('El aval PDF es obligatorio');
+    if (!form.get('tipoAval')?.value) errors.push('El tipo de aval es obligatorio');
 
-    if (!form.get('eventType')?.value) {
-      errors.push('El tipo de evento es obligatorio');
-    }
-
-    if (!form.get('avalPdf')?.value || form.get('avalPdf')?.value.trim() === '') {
-      errors.push('El aval PDF es obligatorio');
-    }
-
-    if (!form.get('tipoAval')?.value) {
-      errors.push('El tipo de aval es obligatorio');
-    }
-
-    // Validar que haya encuentros
     if (this.encounters.length === 0) {
       errors.push('El evento debe tener al menos un encuentro');
     } else {
-      // Validar cada encuentro
       this.encounters.forEach((encounter, index) => {
-        if (!encounter.date) {
-          errors.push(`El encuentro ${index + 1} debe tener una fecha`);
-        }
-        if (!encounter.startTime) {
-          errors.push(`El encuentro ${index + 1} debe tener una hora de inicio`);
-        }
-        if (!encounter.endTime) {
-          errors.push(`El encuentro ${index + 1} debe tener una hora de fin`);
-        }
-        if (!encounter.location) {
-          errors.push(`El encuentro ${index + 1} debe tener una instalación`);
-        }
-
-        // Validar fechas de encuentros
-        if (encounter.date) {
-          const fecha = new Date(encounter.date);
-          const hoy = new Date();
-          hoy.setHours(0, 0, 0, 0);
-          
-          if (fecha < hoy) {
-            errors.push(`La fecha del encuentro ${index + 1} no puede ser en el pasado`);
-          }
-        }
-
-        // Validar horas de encuentros
-        if (encounter.startTime && encounter.endTime) {
-          if (encounter.startTime >= encounter.endTime) {
-            errors.push(`En el encuentro ${index + 1}, la hora de fin debe ser posterior a la hora de inicio`);
-          }
-        }
+        if (!encounter.date) errors.push(`El encuentro ${index + 1} debe tener una fecha`);
+        if (!encounter.startTime) errors.push(`El encuentro ${index + 1} debe tener una hora de inicio`);
+        if (!encounter.endTime) errors.push(`El encuentro ${index + 1} debe tener una hora de fin`);
+        if (!encounter.location) errors.push(`El encuentro ${index + 1} debe tener una instalación`);
       });
     }
 
@@ -165,48 +114,45 @@ export class AddEventComponent {
   }
 
   private buildEventoDTO(): EventoDTO {
-    const form = this.eventForm;
-    
-    // Obtener datos del primer encuentro (fecha, hora inicio, hora fin)
-    const primerEncuentro = this.encounters[0];
-    
-    console.log('🏢 Construyendo EventoDTO...');
-    console.log('📋 Primer encuentro:', primerEncuentro);
-    console.log('🏢 Ubicación del encuentro:', primerEncuentro?.location);
-    
-    // Mapear instalaciones desde los encuentros - solo IDs según la estructura especificada
-    const instalaciones = this.encounters.map((encounter, index) => {
-      const instalacion = {
-        idInstalacion: encounter.location?.idInstalacion || 0
-      };
-      console.log(`🏢 Instalación ${index + 1} ID:`, instalacion.idInstalacion);
-      return instalacion;
-    });
+  const form = this.eventForm;
+  const primerEncuentro = this.encounters[0];
+  const formatHora = (hora: string) => hora && hora.length === 5 ? hora + ':00' : hora;
 
-    // Obtener el primer organizador (el backend espera un solo organizador)
-    const organizador = this.selectedUsers[0];
-    console.log('👤 Organizador seleccionado:', organizador);
+  // Solo los IDs de instalaciones
+  const instalaciones = this.encounters
+    .filter(enc => enc.location?.idInstalacion !== undefined)
+    .map(enc => ({
+      idInstalacion: enc.location!.idInstalacion
+    }));
 
-    // Actualizar eventLocation con el ID de la primera instalación
-    const primeraInstalacionId = this.encounters[0]?.location?.idInstalacion || 0;
-    form.patchValue({ eventLocation: primeraInstalacionId.toString() });
-    console.log('📍 EventLocation actualizado con ID de instalación:', primeraInstalacionId);
+  // Solo los IDs de organizaciones externas
+  const organizacionesExternas = this.selectedOrganizations
+    .filter(org => org.idOrganizacion !== undefined)
+    .map(org => ({
+      idOrganizacion: org.idOrganizacion!
+    }));
 
-    const eventoData: EventoDTO = {
-      titulo: form.get('eventName')?.value,
-      tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
-      fecha: primerEncuentro?.date || '',
-      horaInicio: primerEncuentro?.startTime || '',
-      horaFin: primerEncuentro?.endTime || '',
-      instalaciones: instalaciones,
-      organizador: { idUsuario: organizador.idUsuario },
-      avalPdf: form.get('avalPdf')?.value,
-      tipoAval: form.get('tipoAval')?.value
-    };
+  const organizador = this.selectedUsers[0];
 
-    console.log('📤 EventoDTO construido:', eventoData);
-    return eventoData;
-  }
+  console.log('🏢 Instalaciones:', instalaciones);
+  console.log('🏢 Organizaciones externas (IDs):', organizacionesExternas);
+
+  const eventoData: EventoDTO = {
+    titulo: form.get('eventName')?.value,
+    tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
+    fecha: primerEncuentro?.date || '',
+    horaInicio: formatHora(primerEncuentro?.startTime) || '',
+    horaFin: formatHora(primerEncuentro?.endTime) || '',
+    instalaciones: instalaciones,
+    organizacionesExternas: organizacionesExternas,
+    organizador: { idUsuario: organizador.idUsuario },
+    avalPdf: form.get('avalPdf')?.value,
+    tipoAval: form.get('tipoAval')?.value
+  };
+
+  console.log('📤 EventoDTO construido (final):', eventoData);
+  return eventoData;
+}
 
   cancel(): void {
     this.eventForm.reset();
@@ -230,10 +176,8 @@ export class AddEventComponent {
   }
 
   onOrganizationSelected(organization: OrganizacionExternaDTO): void {
-    // Verificar si ya está seleccionada
-    const isAlreadySelected = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
-    
-    if (!isAlreadySelected) {
+    const exists = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
+    if (!exists) {
       this.selectedOrganizations.push(organization);
       this.updateFormWithSelectedOrganizations();
     }
@@ -245,7 +189,6 @@ export class AddEventComponent {
   }
 
   private updateFormWithSelectedOrganizations(): void {
-    // Actualizar el formulario con las organizaciones seleccionadas
     if (this.selectedOrganizations.length > 0) {
       const firstOrg = this.selectedOrganizations[0];
       this.eventForm.patchValue({
@@ -274,12 +217,8 @@ export class AddEventComponent {
   }
 
   onUserSelected(user: UsuarioDTO): void {
-    // Verificar si ya está seleccionado
-    const isAlreadySelected = this.selectedUsers.some(u => u.idUsuario === user.idUsuario);
-    
-    if (!isAlreadySelected) {
-      this.selectedUsers.push(user);
-    }
+    const exists = this.selectedUsers.some(u => u.idUsuario === user.idUsuario);
+    if (!exists) this.selectedUsers.push(user);
   }
 
   onUserRemoved(user: UsuarioDTO): void {
@@ -291,28 +230,11 @@ export class AddEventComponent {
   }
 
   isFormValid(): boolean {
-    // Verificar que el formulario básico sea válido
     const formValid = this.eventForm.valid;
-    
-    // Verificar que haya encuentros
     const hasEncounters = this.encounters.length > 0;
-    
-    // Verificar que haya organizadores
     const hasOrganizers = this.selectedUsers.length > 0;
-    
-    // Verificar que todos los encuentros tengan datos válidos
-    const encountersValid = this.encounters.every(encounter => 
-      encounter.date && encounter.startTime && encounter.endTime && encounter.location
-    );
-    
-    console.log('🔍 Validación del formulario:', {
-      formValid,
-      hasEncounters,
-      hasOrganizers,
-      encountersValid,
-      totalValid: formValid && hasEncounters && hasOrganizers && encountersValid
-    });
-    
+    const encountersValid = this.encounters.every(e => e.date && e.startTime && e.endTime && e.location);
+
     return formValid && hasEncounters && hasOrganizers && encountersValid;
   }
 
@@ -320,26 +242,16 @@ export class AddEventComponent {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      console.log('📄 Archivo seleccionado:', file.name);
-      
-      // Convertir archivo a Base64
       const reader = new FileReader();
       reader.onload = () => {
         const base64String = reader.result as string;
-        // Remover el prefijo "data:application/pdf;base64," si existe
         const base64Data = base64String.split(',')[1] || base64String;
         this.eventForm.patchValue({ avalPdf: base64Data });
-        console.log('✅ Archivo convertido a Base64');
-        console.log('📋 Valor del campo avalPdf:', this.eventForm.get('avalPdf')?.value);
-        console.log('📋 Formulario válido después de archivo:', this.eventForm.valid);
       };
       reader.readAsDataURL(file);
     } else {
-      // Si no hay archivo, limpiar el campo
       this.selectedFile = null;
       this.eventForm.patchValue({ avalPdf: '' });
-      console.log('🗑️ Archivo removido');
     }
   }
-
 }

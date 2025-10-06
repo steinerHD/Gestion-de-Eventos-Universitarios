@@ -6,7 +6,7 @@ import { authInterceptor } from './services/auth.interceptor';
 import { routes } from './app.routes';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms'; // <-- Añade esta línea
+import { ReactiveFormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common';
 
 

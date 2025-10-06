@@ -11,11 +11,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
@@ -59,7 +59,7 @@ public class Evento {
     @Column(name = "horafin", nullable = false)
     private LocalTime horaFinLegacy;
     
-    @JsonIgnore
+    
     @ManyToMany
     @JoinTable(
             name = "evento_instalacion",
@@ -82,7 +82,7 @@ public class Evento {
     @Column(name = "tipo_aval", length = 50)
     private TipoAval tipoAval;
 
-    @JsonIgnore
+    @JsonManagedReference(value = "evento-organizaciones")
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParticipacionOrganizacion> participacionesOrganizaciones;
     

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
@@ -38,6 +40,7 @@ public class ParticipacionOrganizacion implements Serializable {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evento", insertable = false, updatable = false)
+    @JsonBackReference(value = "evento-organizaciones")
     private Evento evento;
     
     @ManyToOne(fetch = FetchType.LAZY)

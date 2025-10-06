@@ -11,6 +11,12 @@ export interface InstalacionRef {
   capacidad?: number;
 }
 
+export interface OrganizacionExternaRef {
+  idOrganizacion: number;
+  nombre?: string;
+  nit?: string;
+}
+
 export interface EventoDTO {
   idEvento?: number;
   titulo: string;
@@ -18,7 +24,8 @@ export interface EventoDTO {
   fecha: string; // yyyy-MM-dd
   horaInicio: string; // HH:mm:ss
   horaFin: string; // HH:mm:ss
-  instalaciones?: { idInstalacion: number }[]; // estructura simplificada según JSON especificado
+  instalaciones?: { idInstalacion: number }[];
+  organizacionesExternas?: { idOrganizacion?: number }[]; // estructura simplificada según JSON especificado
   organizador?: { idUsuario: number }; // estructura según JSON especificado
   avalPdf?: string; // Base64 string
   tipoAval?: 'Director_Programa' | 'Director_Docencia';
