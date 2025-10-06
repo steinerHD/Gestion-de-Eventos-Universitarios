@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { OrganizationService } from '../../services/organization.service';
+import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 
 @Component({
   selector: 'app-nueva-orga-ext',
@@ -16,7 +16,7 @@ export class NuevaOrgaExtComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private organizationService: OrganizationService,
+    private organizacionesApi: OrganizacionesApiService,
     private router: Router
   ) {
     this.organizationForm = this.fb.group({
@@ -35,22 +35,17 @@ export class NuevaOrgaExtComponent implements OnInit {
   onSubmit(): void {
     if (this.organizationForm.valid) {
       const organizationData = this.organizationForm.value;
-      
-      // Obtener el ID del usuario actual de la sesión (simulado)
-      const currentUserId = localStorage.getItem('currentUserId') || '1';
-      
-      const newOrganization = {
-        name: organizationData.nombre,
+      const payload: OrganizacionExternaDTO = {
+        nombre: organizationData.nombre,
         nit: organizationData.nit,
-        direccion: organizationData.direccion,
+        ubicacion: organizationData.direccion, // mapear campo del formulario
         representanteLegal: organizationData.representanteLegal,
         telefono: organizationData.telefono,
         sectorEconomico: organizationData.sectorEconomico,
-        actividadPrincipal: organizationData.actividadPrincipal,
-        id_creador: currentUserId
+        actividadPrincipal: organizationData.actividadPrincipal
       };
 
-      this.organizationService.addOrganization(newOrganization).subscribe({
+      this.organizacionesApi.create(payload).subscribe({
         next: (organization) => {
           console.log('Organización registrada exitosamente:', organization);
           alert('Organización registrada exitosamente');

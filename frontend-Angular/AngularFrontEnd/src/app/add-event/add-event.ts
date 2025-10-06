@@ -3,22 +3,27 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { EventService } from '../services/event.service';
-import { ExternalOrganization } from '../services/organization.service';
+import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
+import { UsuarioDTO } from '../services/usuarios.api.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
+import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
+import { SelectedUsersComponent } from '../components/selected-users/selected-users';
 import { EncountersComponent, Encounter } from '../components/encounters/encounters';
 
 @Component({
   selector: 'app-add-event',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, OrganizacionExternaComponent, SelectedOrganizationsComponent, EncountersComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, OrganizacionExternaComponent, SelectedOrganizationsComponent, UsuarioSelectionComponent, SelectedUsersComponent, EncountersComponent],
   templateUrl: './add-event.html',
   styleUrls: ['./add-event.css']
 })
 export class AddEventComponent {
   eventForm: FormGroup;
   showOrgModal: boolean = false;
-  selectedOrganizations: ExternalOrganization[] = [];
+  showUserModal: boolean = false;
+  selectedOrganizations: OrganizacionExternaDTO[] = [];
+  selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   
   constructor(private fb: FormBuilder, private eventService: EventService, private router: Router) {
@@ -26,7 +31,6 @@ export class AddEventComponent {
       eventName: ['', Validators.required],
       eventLocation: ['', Validators.required],
       eventType: ['', Validators.required],
-      responsibleId: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
       externalOrgName: [''],
       externalOrgNit: [''],
@@ -36,10 +40,11 @@ export class AddEventComponent {
 
 
   submitEvent(): void {
-    if (this.eventForm.valid && this.encounters.length > 0) {
+    if (this.eventForm.valid && this.encounters.length > 0 && this.selectedUsers.length > 0) {
       const eventData = {
         ...this.eventForm.value,
         selectedOrganizations: this.selectedOrganizations,
+        selectedUsers: this.selectedUsers,
         hasExternalOrganizations: this.selectedOrganizations.length > 0,
         encounters: this.encounters
       };
@@ -55,6 +60,8 @@ export class AddEventComponent {
       });
     } else if (this.encounters.length === 0) {
       alert('El evento debe tener al menos un encuentro.');
+    } else if (this.selectedUsers.length === 0) {
+      alert('El evento debe tener al menos un organizador.');
     }
   }
 
@@ -71,9 +78,17 @@ export class AddEventComponent {
     this.showOrgModal = false;
   }
 
-  onOrganizationSelected(organization: ExternalOrganization): void {
+  openUserModal(): void {
+    this.showUserModal = true;
+  }
+
+  closeUserModal(): void {
+    this.showUserModal = false;
+  }
+
+  onOrganizationSelected(organization: OrganizacionExternaDTO): void {
     // Verificar si ya está seleccionada
-    const isAlreadySelected = this.selectedOrganizations.some(org => org.id === organization.id);
+    const isAlreadySelected = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
     
     if (!isAlreadySelected) {
       this.selectedOrganizations.push(organization);
@@ -81,8 +96,8 @@ export class AddEventComponent {
     }
   }
 
-  onOrganizationRemoved(organization: ExternalOrganization): void {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id !== organization.id);
+  onOrganizationRemoved(organization: OrganizacionExternaDTO): void {
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.idOrganizacion !== organization.idOrganizacion);
     this.updateFormWithSelectedOrganizations();
   }
 
@@ -91,7 +106,7 @@ export class AddEventComponent {
     if (this.selectedOrganizations.length > 0) {
       const firstOrg = this.selectedOrganizations[0];
       this.eventForm.patchValue({
-        externalOrgName: firstOrg.name,
+        externalOrgName: firstOrg.nombre,
         externalOrgNit: firstOrg.nit,
         externalOrgParticipation: true
       });
@@ -113,6 +128,19 @@ export class AddEventComponent {
         externalOrgNit: ''
       });
     }
+  }
+
+  onUserSelected(user: UsuarioDTO): void {
+    // Verificar si ya está seleccionado
+    const isAlreadySelected = this.selectedUsers.some(u => u.idUsuario === user.idUsuario);
+    
+    if (!isAlreadySelected) {
+      this.selectedUsers.push(user);
+    }
+  }
+
+  onUserRemoved(user: UsuarioDTO): void {
+    this.selectedUsers = this.selectedUsers.filter(u => u.idUsuario !== user.idUsuario);
   }
 
   onEncountersChanged(encounters: Encounter[]): void {

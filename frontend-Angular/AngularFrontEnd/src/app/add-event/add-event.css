@@ -617,3 +617,17 @@ label, p, .label-status, .status {
   display: flex;
   flex-direction: column;
 }
+
+/* User Selection Container */
+.user-selection-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.selected-count {
+  color: #28a745;
+  font-weight: 500;
+  font-size: 14px;
+}

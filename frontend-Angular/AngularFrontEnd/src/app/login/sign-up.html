@@ -54,9 +54,9 @@
           required
           aria-describedby="userTypeHelp">
           <option value="" disabled>Selecciona el tipo de usuario</option>
-          <option value="docente">Docente</option>
-          <option value="estudiante">Estudiante</option>
-          <option value="secretaria">Secretaría</option>
+          <option value="Docente">Docente</option>
+          <option value="Estudiante">Estudiante</option>
+          <option value="Secretaria">Secretaría</option>
         </select>
         <div
           *ngIf="signUpForm.get('userType')?.invalid && (signUpForm.get('userType')?.dirty || signUpForm.get('userType')?.touched)"
@@ -66,7 +66,16 @@
       </div>
 
       <!-- Campos condicionales -->
-      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'docente'">
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'Docente'">
+        <label for="signupCargo" class="form-label">Cargo</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('cargo')?.invalid && (signUpForm.get('cargo')?.dirty || signUpForm.get('cargo')?.touched)}"
+          id="signupCargo"
+          placeholder="Escribe tu cargo"
+          formControlName="cargo"
+          required>
         <label for="signupAcademic" class="form-label">Unidad académica</label>
         <input
           type="text"
@@ -83,7 +92,16 @@
         </div>
       </div>
 
-      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'estudiante'">
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'Estudiante'">
+        <label for="signupCodigoEstudiantil" class="form-label">Código estudiantil</label>
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': signUpForm.get('codigoEstudiantil')?.invalid && (signUpForm.get('codigoEstudiantil')?.dirty || signUpForm.get('codigoEstudiantil')?.touched)}"
+          id="signupCodigoEstudiantil"
+          placeholder="Escribe tu código estudiantil"
+          formControlName="codigoEstudiantil"
+          required>
         <label for="signupProgram" class="form-label">Programa</label>
         <input
           type="text"
@@ -100,7 +118,7 @@
         </div>
       </div>
 
-      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'secretaria'">
+      <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'Secretaria'">
         <label for="signupFaculty" class="form-label">Facultad</label>
         <input
           type="text"

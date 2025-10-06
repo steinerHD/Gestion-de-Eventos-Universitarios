@@ -34,8 +34,7 @@
     font-weight: 600;
     background-color: #3BE5E6; /* color del botón */
     color: #fff;
-    width: 150px;
-    display: block;
+    display: inline-block;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
@@ -45,4 +44,23 @@
     opacity: 0.9;
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Botón secundario (volver) */
+.btn-secondary {
+    background-color: #ffffff;
+    color: #176a6a;
+    border: 2px solid #3BE5E6;
+}
+
+.btn-secondary:hover {
+    background-color: #e6fbfb;
+}
+
+/* Fila de acciones para alinear botones lado a lado */
+.actions-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 20px;
 }

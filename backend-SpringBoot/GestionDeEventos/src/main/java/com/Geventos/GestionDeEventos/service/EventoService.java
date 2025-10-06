@@ -96,11 +96,13 @@ public class EventoService {
             throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
         }
         
-        // Validar que la instalación exista
-        if (evento.getInstalacion() != null && evento.getInstalacion().getIdInstalacion() != null) {
-            Instalacion instalacion = instalacionRepository.findById(evento.getInstalacion().getIdInstalacion())
-                    .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada"));
-            evento.setInstalacion(instalacion);
+        // Validar instalaciones (lista)
+        if (evento.getInstalaciones() != null && !evento.getInstalaciones().isEmpty()) {
+            List<Instalacion> nuevas = evento.getInstalaciones().stream()
+                    .map(i -> instalacionRepository.findById(i.getIdInstalacion())
+                            .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada: id=" + i.getIdInstalacion())))
+                    .toList();
+            evento.setInstalaciones(nuevas);
         }
         
         // Validar que la fecha no sea en el pasado
@@ -154,12 +156,7 @@ public class EventoService {
             throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
         }
         
-        // Validar que la instalación exista
-        if (evento.getInstalacion() != null && evento.getInstalacion().getIdInstalacion() != null) {
-            Instalacion instalacion = instalacionRepository.findById(evento.getInstalacion().getIdInstalacion())
-                    .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada"));
-            evento.setInstalacion(instalacion);
-        }
+        // (eliminado) validación instalación única
         
         // Validar que la fecha no sea en el pasado
         if (evento.getFecha().isBefore(LocalDate.now())) {
@@ -171,7 +168,7 @@ public class EventoService {
         existingEvento.setFecha(evento.getFecha());
         existingEvento.setHoraInicio(evento.getHoraInicio());
         existingEvento.setHoraFin(evento.getHoraFin()); 
-        existingEvento.setInstalacion(evento.getInstalacion());
+        existingEvento.setInstalaciones(evento.getInstalaciones());
         existingEvento.setOrganizador(organizador);
         existingEvento.setAvalPdf(evento.getAvalPdf());
         existingEvento.setTipoAval(evento.getTipoAval());

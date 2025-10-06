@@ -1,0 +1,56 @@
+<!-- Modal de selección de usuarios -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <h2>Seleccionar Organizadores</h2>
+      <button type="button" class="close-btn" (click)="closeModal()" aria-label="Cerrar">
+        <img src="assets/images/close.png" alt="Cerrar">
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar por nombre, correo o código..." 
+          [(ngModel)]="searchQuery"
+          (input)="searchUsuarios()"
+        >
+        <button type="button" class="clear-search-btn" (click)="clearSearch()" *ngIf="searchQuery">
+          <img src="assets/images/close.png" alt="Limpiar búsqueda">
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de usuarios -->
+    <div class="usuarios-list">
+      <div 
+        *ngFor="let usuario of filteredUsuarios" 
+        class="usuario-item"
+        (click)="selectUsuario(usuario)"
+      >
+        <div class="usuario-info">
+          <div class="usuario-name">{{ usuario.nombre }}</div>
+          <div class="usuario-email">{{ usuario.correo }}</div>
+          <div class="usuario-type">{{ getUsuarioTypeLabel(usuario) }}</div>
+          <div *ngIf="usuario.codigoEstudiantil" class="usuario-code">
+            Código: {{ usuario.codigoEstudiantil }}
+          </div>
+        </div>
+        <div class="usuario-actions">
+          <button type="button" class="action-btn select-btn" title="Seleccionar">
+            <img src="assets/images/plus_square.png" alt="Seleccionar">
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mensaje cuando no hay resultados -->
+      <div *ngIf="filteredUsuarios.length === 0" class="no-results">
+        <p>No se encontraron usuarios</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // Adjust path based on location
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
@@ -17,11 +18,16 @@ export class ProfileComponent implements OnInit {
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.profileForm = this.fb.group({
       nombre: ['', Validators.required],
-      tipoUsuario: ['', Validators.required],
-      rolCuenta: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      facultad: ['', Validators.required],
-      codigoEstudiantil: ['', Validators.required]
+      tipoUsuario: [''],
+      // Estudiante
+      codigoEstudiantil: [''],
+      programa: [''],
+      // Docente
+      unidadAcademica: [''],
+      cargo: [''],
+      // Secretaria
+      facultad: ['']
     });
   }
 
@@ -35,7 +41,7 @@ export class ProfileComponent implements OnInit {
         this.profileForm.patchValue(data);
         console.log('Datos del usuario cargados:', data);
       },
-      error: (error) => console.error('Error al cargar datos:', error)
+      error: (error: Error) => console.error('Error al cargar datos:', error)
     });
   }
 
@@ -47,7 +53,7 @@ export class ProfileComponent implements OnInit {
           this.profileForm.patchValue(data);
           console.log('Cambios guardados:', data);
         },
-        error: (error) => console.error('Error al guardar cambios:', error)
+        error: (error: Error) => console.error('Error al guardar cambios:', error)
       });
     }
   }

@@ -53,5 +53,17 @@
         </div>
       </div>
     </div>
+
+    <!-- Mostrar instalaciones asociadas si vienen desde backend -->
+    <div *ngIf="event.instalaciones && event.instalaciones.length > 0" class="instalaciones-section">
+      <h4>Instalaciones asociadas:</h4>
+      <ul>
+        <li *ngFor="let ins of event.instalaciones">
+          {{ ins.nombre || ('Instalación ' + ins.idInstalacion) }}
+          <span *ngIf="ins.ubicacion">- {{ ins.ubicacion }}</span>
+          <span *ngIf="ins.capacidad"> (cap: {{ ins.capacidad }})</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

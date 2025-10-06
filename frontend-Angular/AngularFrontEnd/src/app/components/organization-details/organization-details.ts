@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { OrganizationService, ExternalOrganization } from '../../services/organization.service';
+import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 
 @Component({
   selector: 'app-organization-details',
@@ -11,11 +11,11 @@ import { OrganizationService, ExternalOrganization } from '../../services/organi
   styleUrls: ['./organization-details.css']
 })
 export class OrganizationDetailsComponent implements OnInit, OnChanges {
-  @Input() organization: ExternalOrganization | null = null;
+  @Input() organization: OrganizacionExternaDTO | null = null;
   @Input() showModal: boolean = false;
   @Output() modalClosed = new EventEmitter<void>();
-  @Output() organizationUpdated = new EventEmitter<ExternalOrganization>();
-  @Output() organizationDeleted = new EventEmitter<string>();
+  @Output() organizationUpdated = new EventEmitter<OrganizacionExternaDTO>();
+  @Output() organizationDeleted = new EventEmitter<number>();
 
   organizationForm: FormGroup;
   isEditing: boolean = false;
@@ -24,12 +24,12 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private organizationService: OrganizationService
+    private organizacionesApi: OrganizacionesApiService
   ) {
     this.organizationForm = this.fb.group({
-      name: ['', Validators.required],
+      nombre: ['', Validators.required],
       nit: ['', Validators.required],
-      direccion: ['', Validators.required],
+      ubicacion: ['', Validators.required],
       representanteLegal: ['', Validators.required],
       telefono: ['', Validators.required],
       sectorEconomico: ['', Validators.required],
@@ -54,9 +54,9 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   private loadOrganizationData(): void {
     if (this.organization) {
       this.organizationForm.patchValue({
-        name: this.organization.name,
+        nombre: this.organization.nombre,
         nit: this.organization.nit,
-        direccion: this.organization.direccion || '',
+        ubicacion: this.organization.ubicacion || '',
         representanteLegal: this.organization.representanteLegal || '',
         telefono: this.organization.telefono || '',
         sectorEconomico: this.organization.sectorEconomico || '',
@@ -66,9 +66,9 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   }
 
   private checkPermissions(): void {
-    const currentUserId = localStorage.getItem('currentUserId') || '1';
-    this.canEdit = this.organization?.id_creador === currentUserId;
-    this.canDelete = this.organization?.id_creador === currentUserId;
+    // Backend aún no define id_creador en DTO; permitir edición por ahora
+    this.canEdit = true;
+    this.canDelete = true;
   }
 
   toggleEdit(): void {
@@ -80,9 +80,13 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
 
   saveChanges(): void {
     if (this.organizationForm.valid && this.organization) {
-      const updatedData = this.organizationForm.value;
-      
-      this.organizationService.updateOrganization(this.organization.id, updatedData).subscribe({
+      const updatedData: OrganizacionExternaDTO = {
+        ...this.organization,
+        ...this.organizationForm.value
+      };
+
+      const id = this.organization.idOrganizacion!;
+      this.organizacionesApi.update(id, updatedData).subscribe({
         next: (updatedOrg) => {
           if (updatedOrg) {
             this.organization = updatedOrg;
@@ -103,13 +107,12 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
 
   deleteOrganization(): void {
     if (this.organization && confirm('¿Estás seguro de que quieres eliminar esta organización?')) {
-      this.organizationService.deleteOrganization(this.organization.id).subscribe({
+      const id = this.organization.idOrganizacion!;
+      this.organizacionesApi.delete(id).subscribe({
         next: (success) => {
-          if (success) {
-            this.organizationDeleted.emit(this.organization!.id);
-            this.closeModal();
-            alert('Organización eliminada exitosamente');
-          }
+          this.organizationDeleted.emit(id);
+          this.closeModal();
+          alert('Organización eliminada exitosamente');
         },
         error: (error) => {
           console.error('Error al eliminar organización:', error);

@@ -5,38 +5,29 @@
     class="selected-org-item"
   >
     <div class="org-details">
-      <div class="org-name">{{ org.name }}</div>
+      <div class="org-name">{{ org.nombre }}</div>
       <div class="org-nit">{{ org.nit }}</div>
       
       <!-- Checkbox de participación del representante legal -->
       <div class="checkbox-group">
         <input 
           type="checkbox" 
-          id="participaRepresentante{{ org.id }}" 
+          id="participaRepresentante{{ org.idOrganizacion }}" 
           [checked]="getOrganizationData(org).participaRepresentante"
           (change)="onParticipationChange(org, $event)"
         >
-        <label for="participaRepresentante{{ org.id }}">¿Participa el representante legal?</label>
+        <label for="participaRepresentante{{ org.idOrganizacion }}">¿Participa el representante legal?</label>
       </div>
       
       <!-- Campos del representante legal si no participa -->
       <div *ngIf="!getOrganizationData(org).participaRepresentante" class="representante-fields">
         <div class="field-group">
-          <label for="nombreRepresentante{{ org.id }}">Nombre del representante:</label>
+          <label for="nombreRepresentante{{ org.idOrganizacion }}">Nombre del representante:</label>
           <input 
             type="text" 
-            id="nombreRepresentante{{ org.id }}" 
+            id="nombreRepresentante{{ org.idOrganizacion }}" 
             [(ngModel)]="getOrganizationData(org).nombreRepresentante"
             placeholder="Nombre del representante..."
-          >
-        </div>
-        <div class="field-group">
-          <label for="cedulaRepresentante{{ org.id }}">Cédula del representante:</label>
-          <input 
-            type="text" 
-            id="cedulaRepresentante{{ org.id }}" 
-            [(ngModel)]="getOrganizationData(org).cedulaRepresentante"
-            placeholder="Cédula del representante..."
           >
         </div>
       </div>
@@ -49,7 +40,7 @@
             accept=".pdf" 
             (change)="onAvalFileSelected(org, $event)"
             #avalFileInput
-            id="avalFile{{ org.id }}"
+            id="avalFile{{ org.idOrganizacion }}"
             style="display: none;"
           >
           <button 

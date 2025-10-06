@@ -17,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
 @Entity
 @Table(name = "evento")
@@ -58,10 +59,14 @@ public class Evento {
     @Column(name = "horafin", nullable = false)
     private LocalTime horaFinLegacy;
     
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_instalacion")
-    private Instalacion instalacion;
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "evento_instalacion",
+            joinColumns = @JoinColumn(name = "id_evento"),
+            inverseJoinColumns = @JoinColumn(name = "id_instalacion")
+    )
+    private List<Instalacion> instalaciones;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_organizador")
@@ -84,6 +89,15 @@ public class Evento {
     @JsonIgnore
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Evaluacion> evaluaciones;
+    
+    // New relationships for multiple organizers and avals
+    @JsonIgnore
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EventoOrganizador> organizadores;
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EventoAval> avales;
     
     public enum TipoEvento {
         Académico, Lúdico

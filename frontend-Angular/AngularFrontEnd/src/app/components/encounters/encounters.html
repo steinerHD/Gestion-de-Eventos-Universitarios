@@ -68,7 +68,7 @@
           
           <div *ngIf="encounter.location" class="selected-location">
             <span class="location-label">Lugar:</span>
-            <span class="location-name">{{ encounter.location.name }}</span>
+            <span class="location-name">{{ encounter.location.nombre }}</span>
             <button 
               type="button" 
               class="remove-location-btn" 
@@ -128,10 +128,10 @@
         (click)="selectLocation(location)"
       >
         <div class="location-info">
-          <div class="location-name">{{ location.name }}</div>
+          <div class="location-name">{{ location.nombre }}</div>
           <div class="location-details">
-            <span class="location-type">Tipo: {{ location.type }}</span>
-            <span class="location-capacity">Capacidad: {{ location.capacity }} personas</span>
+            <span class="location-type">Tipo: {{ location.tipo }}</span>
+            <span class="location-capacity">Capacidad: {{ location.capacidad }} personas</span>
           </div>
         </div>
       </div>

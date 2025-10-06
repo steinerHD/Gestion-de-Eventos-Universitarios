@@ -35,6 +35,6 @@ public class Instalacion {
 
 
     @JsonIgnore
-    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "instalaciones")
     private List<Evento> eventos;
 }

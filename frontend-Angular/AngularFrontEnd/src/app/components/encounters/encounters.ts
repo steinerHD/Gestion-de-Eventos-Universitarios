@@ -1,14 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LocationService, Location } from '../../services/location.service';
+import { InstalacionesApiService, InstalacionDTO } from '../../services/instalaciones.api.service';
 
 export interface Encounter {
   id: string;
   date: string;
   startTime: string;
   endTime: string;
-  location: Location | null;
+  location: InstalacionDTO | null;
 }
 
 @Component({
@@ -24,11 +24,11 @@ export class EncountersComponent implements OnInit {
 
   showLocationModal: boolean = false;
   currentEncounterId: string = '';
-  locations: Location[] = [];
-  filteredLocations: Location[] = [];
+  locations: InstalacionDTO[] = [];
+  filteredLocations: InstalacionDTO[] = [];
   searchQuery: string = '';
 
-  constructor(private locationService: LocationService) {}
+  constructor(private instalacionesApi: InstalacionesApiService) {}
 
   ngOnInit(): void {
     this.loadLocations();
@@ -39,7 +39,7 @@ export class EncountersComponent implements OnInit {
   }
 
   loadLocations(): void {
-    this.locationService.getLocations().subscribe({
+    this.instalacionesApi.getAll().subscribe({
       next: (locations) => {
         this.locations = locations;
         this.filteredLocations = locations;
@@ -81,7 +81,7 @@ export class EncountersComponent implements OnInit {
     this.currentEncounterId = '';
   }
 
-  selectLocation(location: Location): void {
+  selectLocation(location: InstalacionDTO): void {
     const encounter = this.encounters.find(enc => enc.id === this.currentEncounterId);
     if (encounter) {
       encounter.location = location;
@@ -102,12 +102,14 @@ export class EncountersComponent implements OnInit {
     if (!this.searchQuery || this.searchQuery.trim() === '') {
       this.filteredLocations = this.locations;
     } else {
-      this.locationService.searchLocations(this.searchQuery).subscribe({
-        next: (locations) => {
-          this.filteredLocations = locations;
-        },
-        error: (error) => console.error('Error al buscar lugares:', error)
-      });
+      // Fallback simple: filtrar en cliente por nombre/tipo/ubicación/capacidad
+      const query = this.searchQuery.toLowerCase();
+      this.filteredLocations = this.locations.filter(loc =>
+        loc.nombre.toLowerCase().includes(query) ||
+        (loc.tipo ?? '').toLowerCase().includes(query) ||
+        (loc.ubicacion ?? '').toLowerCase().includes(query) ||
+        String(loc.capacidad).includes(this.searchQuery)
+      );
     }
   }
 

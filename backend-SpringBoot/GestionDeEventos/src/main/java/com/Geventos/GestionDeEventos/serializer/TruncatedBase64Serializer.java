@@ -1,4 +1,4 @@
-package com.Geventos.GestionDeEventos.entity;
+package com.Geventos.GestionDeEventos.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -26,5 +26,3 @@ public class TruncatedBase64Serializer extends JsonSerializer<byte[]> {
         }
     }
 }
-
-

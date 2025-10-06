@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
 @Entity
 @Table(name = "evaluacion")

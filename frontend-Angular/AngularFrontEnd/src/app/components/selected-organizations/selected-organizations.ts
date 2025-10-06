@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ExternalOrganization } from '../../services/organization.service';
+import { OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { DOCUMENT } from '@angular/common';
 
 @Component({
@@ -12,8 +12,8 @@ import { DOCUMENT } from '@angular/common';
   styleUrls: ['./selected-organizations.css']
 })
 export class SelectedOrganizationsComponent {
-  @Input() selectedOrganizations: ExternalOrganization[] = [];
-  @Output() organizationRemoved = new EventEmitter<ExternalOrganization>();
+  @Input() selectedOrganizations: OrganizacionExternaDTO[] = [];
+  @Output() organizationRemoved = new EventEmitter<OrganizacionExternaDTO>();
 
   // Propiedades para cada organización
   organizationData: { [key: string]: { 
@@ -24,13 +24,13 @@ export class SelectedOrganizationsComponent {
     avalFileName: string
   }} = {};
 
-  removeOrganization(organization: ExternalOrganization): void {
+  removeOrganization(organization: OrganizacionExternaDTO): void {
     this.organizationRemoved.emit(organization);
   }
 
-  onParticipationChange(organization: ExternalOrganization, event: Event): void {
+  onParticipationChange(organization: OrganizacionExternaDTO, event: Event): void {
     const target = event.target as HTMLInputElement;
-    const orgId = organization.id;
+    const orgId = String(organization.idOrganizacion);
     
     if (!this.organizationData[orgId]) {
       this.organizationData[orgId] = {
@@ -45,10 +45,10 @@ export class SelectedOrganizationsComponent {
     this.organizationData[orgId].participaRepresentante = target.checked;
   }
 
-  onAvalFileSelected(organization: ExternalOrganization, event: Event): void {
+  onAvalFileSelected(organization: OrganizacionExternaDTO, event: Event): void {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    const orgId = organization.id;
+    const orgId = String(organization.idOrganizacion);
     
     if (file && file.type === 'application/pdf') {
       if (!this.organizationData[orgId]) {
@@ -68,16 +68,16 @@ export class SelectedOrganizationsComponent {
     }
   }
 
-  removeAvalFile(organization: ExternalOrganization): void {
-    const orgId = organization.id;
+  removeAvalFile(organization: OrganizacionExternaDTO): void {
+    const orgId = String(organization.idOrganizacion);
     if (this.organizationData[orgId]) {
       this.organizationData[orgId].avalFile = null;
       this.organizationData[orgId].avalFileName = '';
     }
   }
 
-  getOrganizationData(organization: ExternalOrganization) {
-    const orgId = organization.id;
+  getOrganizationData(organization: OrganizacionExternaDTO) {
+    const orgId = String(organization.idOrganizacion);
     if (!this.organizationData[orgId]) {
       this.organizationData[orgId] = {
         participaRepresentante: false,

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
 @Entity
 @Table(name = "participacion_organizacion")

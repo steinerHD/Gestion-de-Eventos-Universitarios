@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { OrganizationService, ExternalOrganization } from '../../services/organization.service';
+import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { OrganizationDetailsComponent } from '../organization-details/organization-details';
 
 @Component({
@@ -15,17 +15,17 @@ import { OrganizationDetailsComponent } from '../organization-details/organizati
 export class OrganizacionExternaComponent implements OnInit {
   @Input() showModal: boolean = false;
   @Output() modalClosed = new EventEmitter<void>();
-  @Output() organizationSelected = new EventEmitter<ExternalOrganization>();
+  @Output() organizationSelected = new EventEmitter<OrganizacionExternaDTO>();
 
-  organizations: ExternalOrganization[] = [];
-  filteredOrganizations: ExternalOrganization[] = [];
+  organizations: OrganizacionExternaDTO[] = [];
+  filteredOrganizations: OrganizacionExternaDTO[] = [];
   searchQuery: string = '';
-  selectedOrganizations: ExternalOrganization[] = [];
+  selectedOrganizations: OrganizacionExternaDTO[] = [];
   showDetailsModal: boolean = false;
-  selectedOrganization: ExternalOrganization | null = null;
+  selectedOrganization: OrganizacionExternaDTO | null = null;
 
   constructor(
-    private organizationService: OrganizationService,
+    private organizacionesApi: OrganizacionesApiService,
     private router: Router
   ) {}
 
@@ -34,7 +34,7 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   loadOrganizations(): void {
-    this.organizationService.getOrganizations().subscribe({
+    this.organizacionesApi.getAll().subscribe({
       next: (orgs) => {
         this.organizations = orgs;
         this.filteredOrganizations = orgs;
@@ -47,18 +47,17 @@ export class OrganizacionExternaComponent implements OnInit {
     if (!this.searchQuery || this.searchQuery.trim() === '') {
       this.filteredOrganizations = this.organizations;
     } else {
-      this.organizationService.searchOrganizations(this.searchQuery).subscribe({
-        next: (orgs) => {
-          this.filteredOrganizations = orgs;
-        },
-        error: (error) => console.error('Error al buscar organizaciones:', error)
-      });
+      const q = this.searchQuery.toLowerCase();
+      this.filteredOrganizations = this.organizations.filter(org =>
+        org.nombre.toLowerCase().includes(q) ||
+        org.nit.toLowerCase().includes(q)
+      );
     }
   }
 
-  selectOrganization(organization: ExternalOrganization): void {
+  selectOrganization(organization: OrganizacionExternaDTO): void {
     // Verificar si ya está seleccionada
-    const isAlreadySelected = this.selectedOrganizations.some(org => org.id === organization.id);
+    const isAlreadySelected = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
     
     if (!isAlreadySelected) {
       this.selectedOrganizations.push(organization);
@@ -66,8 +65,8 @@ export class OrganizacionExternaComponent implements OnInit {
     }
   }
 
-  removeSelectedOrganization(organization: ExternalOrganization): void {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id !== organization.id);
+  removeSelectedOrganization(organization: OrganizacionExternaDTO): void {
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.idOrganizacion !== organization.idOrganizacion);
   }
 
   closeModal(): void {
@@ -80,24 +79,24 @@ export class OrganizacionExternaComponent implements OnInit {
     this.searchOrganizations();
   }
 
-  viewOrganizationDetails(organization: ExternalOrganization): void {
+  viewOrganizationDetails(organization: OrganizacionExternaDTO): void {
     this.selectedOrganization = organization;
     this.showDetailsModal = true;
   }
 
-  onOrganizationUpdated(updatedOrg: ExternalOrganization): void {
+  onOrganizationUpdated(updatedOrg: OrganizacionExternaDTO): void {
     // Actualizar la organización en la lista
-    const index = this.organizations.findIndex(org => org.id === updatedOrg.id);
+    const index = this.organizations.findIndex(org => org.idOrganizacion === updatedOrg.idOrganizacion);
     if (index !== -1) {
       this.organizations[index] = updatedOrg;
       this.filteredOrganizations = [...this.organizations];
     }
   }
 
-  onOrganizationDeleted(organizationId: string): void {
+  onOrganizationDeleted(organizationId: number): void {
     // Remover la organización de la lista
-    this.organizations = this.organizations.filter(org => org.id !== organizationId);
-    this.filteredOrganizations = this.filteredOrganizations.filter(org => org.id !== organizationId);
+    this.organizations = this.organizations.filter(org => org.idOrganizacion !== organizationId);
+    this.filteredOrganizations = this.filteredOrganizations.filter(org => org.idOrganizacion !== organizationId);
   }
 
   closeDetailsModal(): void {
