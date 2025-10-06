@@ -22,12 +22,12 @@ public class EventoAvalService {
         return eventoAvalRepository.findByEventoIdAndActivo(idEvento);
     }
     
-    public List<EventoAval> getAvalesByEventoIdAndTipo(Long idEvento, EventoAval.TipoAval tipoAval) {
+    public List<EventoAval> getAvalesByEventoIdAndTipo(Long idEvento, Evento.TipoAval tipoAval) {
         return eventoAvalRepository.findByEventoIdAndTipoAval(idEvento, tipoAval);
     }
     
     @Transactional
-    public EventoAval addAvalToEvento(Long idEvento, byte[] avalPdf, EventoAval.TipoAval tipoAval, String nombreAval) {
+    public EventoAval addAvalToEvento(Long idEvento, byte[] avalPdf, Evento.TipoAval tipoAval, String nombreAval) {
         // Verificar que el evento existe
         Evento evento = eventoRepository.findById(idEvento)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
@@ -52,7 +52,7 @@ public class EventoAvalService {
     }
     
     @Transactional
-    public EventoAval updateAval(Long idAval, byte[] avalPdf, EventoAval.TipoAval tipoAval, String nombreAval) {
+    public EventoAval updateAval(Long idAval, byte[] avalPdf, Evento.TipoAval tipoAval, String nombreAval) {
         EventoAval eventoAval = eventoAvalRepository.findById(idAval)
                 .orElseThrow(() -> new IllegalArgumentException("Aval no encontrado"));
         

@@ -1,6 +1,7 @@
 package com.Geventos.GestionDeEventos.repository;
 
 import com.Geventos.GestionDeEventos.entity.EventoAval;
+import com.Geventos.GestionDeEventos.entity.Evento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,7 +19,7 @@ public interface EventoAvalRepository extends JpaRepository<EventoAval, Long> {
     List<EventoAval> findByEventoId(@Param("idEvento") Long idEvento);
     
     @Query("SELECT ea FROM EventoAval ea WHERE ea.evento.idEvento = :idEvento AND ea.tipoAval = :tipoAval AND ea.activo = true")
-    List<EventoAval> findByEventoIdAndTipoAval(@Param("idEvento") Long idEvento, @Param("tipoAval") EventoAval.TipoAval tipoAval);
+    List<EventoAval> findByEventoIdAndTipoAval(@Param("idEvento") Long idEvento, @Param("tipoAval") Evento.TipoAval tipoAval);
     
     @Query("SELECT ea FROM EventoAval ea WHERE ea.activo = true")
     List<EventoAval> findAllActivos();

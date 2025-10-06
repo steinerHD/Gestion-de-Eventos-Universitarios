@@ -1,6 +1,7 @@
 package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.entity.EventoAval;
+import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.service.EventoAvalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class EventoAvalController {
     @GetMapping("/evento/{idEvento}/tipo/{tipoAval}")
     public ResponseEntity<List<EventoAval>> getAvalesByEventoAndTipo(
             @PathVariable Long idEvento,
-            @PathVariable EventoAval.TipoAval tipoAval) {
+            @PathVariable Evento.TipoAval tipoAval) {
         List<EventoAval> avales = eventoAvalService.getAvalesByEventoIdAndTipo(idEvento, tipoAval);
         return ResponseEntity.ok(avales);
     }
@@ -43,7 +44,7 @@ public class EventoAvalController {
     public ResponseEntity<EventoAval> addAvalToEvento(
             @RequestParam Long idEvento,
             @RequestParam byte[] avalPdf,
-            @RequestParam EventoAval.TipoAval tipoAval,
+            @RequestParam Evento.TipoAval tipoAval,
             @RequestParam(required = false) String nombreAval) {
         try {
             EventoAval eventoAval = eventoAvalService.addAvalToEvento(idEvento, avalPdf, tipoAval, nombreAval);
@@ -57,7 +58,7 @@ public class EventoAvalController {
     public ResponseEntity<EventoAval> updateAval(
             @PathVariable Long idAval,
             @RequestParam(required = false) byte[] avalPdf,
-            @RequestParam(required = false) EventoAval.TipoAval tipoAval,
+            @RequestParam(required = false) Evento.TipoAval tipoAval,
             @RequestParam(required = false) String nombreAval) {
         try {
             EventoAval eventoAval = eventoAvalService.updateAval(idAval, avalPdf, tipoAval, nombreAval);

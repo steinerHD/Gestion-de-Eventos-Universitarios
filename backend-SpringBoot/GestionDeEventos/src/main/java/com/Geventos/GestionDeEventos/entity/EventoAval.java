@@ -27,14 +27,14 @@ public class EventoAval {
     @JoinColumn(name = "id_evento", nullable = false)
     private Evento evento;
     
-    @Column(name = "aval_pdf", nullable = false, columnDefinition = "bytea")
+    @Column(name = "aval_pdf", columnDefinition = "bytea")
     @JdbcTypeCode(SqlTypes.BINARY)
     @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] avalPdf;
     
     @Convert(converter = TipoAvalConverter.class)
-    @Column(name = "tipo_aval", nullable = false, length = 50)
-    private TipoAval tipoAval;
+    @Column(name = "tipo_aval", length = 50)
+    private Evento.TipoAval tipoAval;
     
     @Column(name = "nombre_aval", length = 150)
     private String nombreAval;
@@ -44,8 +44,4 @@ public class EventoAval {
     
     @Column(name = "activo")
     private Boolean activo = true;
-    
-    public enum TipoAval {
-        Director_Programa, Director_Docencia
-    }
 }

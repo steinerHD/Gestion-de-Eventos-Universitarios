@@ -73,13 +73,13 @@ public class Evento {
     @JsonBackReference(value = "usuario-eventos")
     private Usuario organizador;
     
-    @Column(name = "aval_pdf", nullable = false, columnDefinition = "bytea")
+    @Column(name = "aval_pdf", columnDefinition = "bytea")
     @JdbcTypeCode(SqlTypes.BINARY)
     @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] avalPdf;
     
     @Convert(converter = TipoAvalConverter.class)
-    @Column(name = "tipo_aval", nullable = false, length = 50)
+    @Column(name = "tipo_aval", length = 50)
     private TipoAval tipoAval;
 
     @JsonIgnore
