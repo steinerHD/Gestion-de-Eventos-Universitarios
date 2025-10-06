@@ -6,6 +6,7 @@ import { EventService } from '../services/event.service';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { UsuarioDTO } from '../services/usuarios.api.service';
+import { ParticipacionesOrganizacionesApiService, ParticipacionOrganizacionCreateDTO } from '../services/participaciones-organizaciones.api.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
@@ -27,11 +28,13 @@ export class AddEventComponent {
   selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
+  organizationCertificates: Map<number, string> = new Map(); // Map<idOrganizacion, certificadoBase64>
   
   constructor(
     private fb: FormBuilder, 
     private eventService: EventService, 
     private eventosApiService: EventosApiService,
+    private participacionesApiService: ParticipacionesOrganizacionesApiService,
     private router: Router
   ) {
     this.eventForm = this.fb.group({
@@ -73,6 +76,15 @@ export class AddEventComponent {
       return;
     }
 
+    // Validar certificados de organizaciones si participan
+    if (this.eventForm.get('externalOrgParticipation')?.value && this.selectedOrganizations.length > 0) {
+      const missingCertificates = this.validateOrganizationCertificates();
+      if (missingCertificates.length > 0) {
+        alert(`Faltan certificados para las siguientes organizaciones: ${missingCertificates.join(', ')}`);
+        return;
+      }
+    }
+
     const eventoData: EventoDTO = this.buildEventoDTO();
     
     console.log('📤 Enviando evento al backend:', eventoData);
@@ -80,8 +92,17 @@ export class AddEventComponent {
     this.eventosApiService.create(eventoData).subscribe({
       next: (createdEvent) => {
         console.log('✅ Evento creado exitosamente:', createdEvent);
-        alert('Evento creado exitosamente.');
-        this.router.navigate(['/home']);
+        
+        // Si hay organizaciones seleccionadas y participan, crear las participaciones
+        if (this.eventForm.get('externalOrgParticipation')?.value && 
+            this.selectedOrganizations.length > 0 && 
+            createdEvent.idEvento) {
+          
+          this.createOrganizationParticipations(createdEvent.idEvento);
+        } else {
+          alert('Evento creado exitosamente.');
+          this.router.navigate(['/home']);
+        }
       },
       error: (error) => {
         console.error('❌ Error al crear evento:', error);
@@ -253,5 +274,80 @@ export class AddEventComponent {
       this.selectedFile = null;
       this.eventForm.patchValue({ avalPdf: '' });
     }
+  }
+
+  onOrganizationCertificateSelected(event: { organizationId: number, certificateBase64: string }): void {
+    this.organizationCertificates.set(event.organizationId, event.certificateBase64);
+    console.log(`Certificado cargado para organización ${event.organizationId}`);
+  }
+
+  private validateOrganizationCertificates(): string[] {
+    const missingCertificates: string[] = [];
+    
+    for (const organization of this.selectedOrganizations) {
+      if (organization.idOrganizacion && !this.organizationCertificates.has(organization.idOrganizacion)) {
+        missingCertificates.push(organization.nombre || `ID: ${organization.idOrganizacion}`);
+      }
+    }
+    
+    return missingCertificates;
+  }
+
+  private createOrganizationParticipations(eventId: number): void {
+    const participationsToCreate: ParticipacionOrganizacionCreateDTO[] = [];
+    
+    for (const organization of this.selectedOrganizations) {
+      if (organization.idOrganizacion && this.organizationCertificates.has(organization.idOrganizacion)) {
+        const certificado = this.organizationCertificates.get(organization.idOrganizacion);
+        if (certificado) {
+          participationsToCreate.push({
+            idEvento: eventId,
+            idOrganizacion: organization.idOrganizacion,
+            certificadoPdf: certificado,
+            representanteDiferente: false // Por defecto, se puede modificar después
+          });
+        }
+      }
+    }
+
+    if (participationsToCreate.length === 0) {
+      alert('Evento creado exitosamente.');
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    // Crear participaciones una por una
+    let completedCount = 0;
+    let hasErrors = false;
+
+    for (const participation of participationsToCreate) {
+      this.participacionesApiService.create(participation).subscribe({
+        next: (createdParticipation) => {
+          console.log('✅ Participación creada:', createdParticipation);
+          completedCount++;
+          
+          if (completedCount === participationsToCreate.length) {
+            if (!hasErrors) {
+              alert('Evento y participaciones de organizaciones creados exitosamente.');
+              this.router.navigate(['/home']);
+            }
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al crear participación:', error);
+          hasErrors = true;
+          completedCount++;
+          
+          if (completedCount === participationsToCreate.length) {
+            alert('Evento creado, pero hubo errores al crear algunas participaciones de organizaciones.');
+            this.router.navigate(['/home']);
+          }
+        }
+      });
+    }
+  }
+
+  getOrganizationCertificateFileName(organizationId: number): string {
+    return this.organizationCertificates.has(organizationId) ? 'Certificado cargado ✓' : 'Sin certificado';
   }
 }

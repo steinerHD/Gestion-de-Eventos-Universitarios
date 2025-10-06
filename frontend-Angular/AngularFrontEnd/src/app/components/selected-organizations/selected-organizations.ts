@@ -14,6 +14,7 @@ import { DOCUMENT } from '@angular/common';
 export class SelectedOrganizationsComponent {
   @Input() selectedOrganizations: OrganizacionExternaDTO[] = [];
   @Output() organizationRemoved = new EventEmitter<OrganizacionExternaDTO>();
+  @Output() certificateSelected = new EventEmitter<{ organizationId: number, certificateBase64: string }>();
 
   // Propiedades para cada organización
   organizationData: { [key: string]: { 
@@ -21,7 +22,9 @@ export class SelectedOrganizationsComponent {
     nombreRepresentante: string, 
     cedulaRepresentante: string,
     avalFile: File | null,
-    avalFileName: string
+    avalFileName: string,
+    certificateFile: File | null,
+    certificateFileName: string
   }} = {};
 
   removeOrganization(organization: OrganizacionExternaDTO): void {
@@ -38,7 +41,9 @@ export class SelectedOrganizationsComponent {
         nombreRepresentante: '',
         cedulaRepresentante: '',
         avalFile: null,
-        avalFileName: ''
+        avalFileName: '',
+        certificateFile: null,
+        certificateFileName: ''
       };
     }
     
@@ -57,7 +62,9 @@ export class SelectedOrganizationsComponent {
           nombreRepresentante: '',
           cedulaRepresentante: '',
           avalFile: null,
-          avalFileName: ''
+          avalFileName: '',
+          certificateFile: null,
+          certificateFileName: ''
         };
       }
       
@@ -84,10 +91,57 @@ export class SelectedOrganizationsComponent {
         nombreRepresentante: '',
         cedulaRepresentante: '',
         avalFile: null,
-        avalFileName: ''
+        avalFileName: '',
+        certificateFile: null,
+        certificateFileName: ''
       };
     }
     return this.organizationData[orgId];
+  }
+
+  onCertificateFileSelected(organization: OrganizacionExternaDTO, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    const orgId = String(organization.idOrganizacion);
+    
+    if (file && file.type === 'application/pdf') {
+      if (!this.organizationData[orgId]) {
+        this.organizationData[orgId] = {
+          participaRepresentante: false,
+          nombreRepresentante: '',
+          cedulaRepresentante: '',
+          avalFile: null,
+          avalFileName: '',
+          certificateFile: null,
+          certificateFileName: ''
+        };
+      }
+      
+      this.organizationData[orgId].certificateFile = file;
+      this.organizationData[orgId].certificateFileName = file.name;
+      
+      // Convertir a base64 y emitir al componente padre
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        const base64Data = base64String.split(',')[1] || base64String;
+        this.certificateSelected.emit({
+          organizationId: organization.idOrganizacion!,
+          certificateBase64: base64Data
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('Por favor selecciona un archivo PDF válido para el certificado.');
+    }
+  }
+
+  removeCertificateFile(organization: OrganizacionExternaDTO): void {
+    const orgId = String(organization.idOrganizacion);
+    if (this.organizationData[orgId]) {
+      this.organizationData[orgId].certificateFile = null;
+      this.organizationData[orgId].certificateFileName = '';
+    }
   }
 }
 

@@ -66,6 +66,41 @@
           </button>
         </div>
       </div>
+
+      <!-- Módulo de certificado de participación -->
+      <div class="certificate-section">
+        <div *ngIf="!getOrganizationData(org).certificateFile" class="certificate-upload">
+          <input 
+            type="file" 
+            accept=".pdf" 
+            (change)="onCertificateFileSelected(org, $event)"
+            #certificateFileInput
+            id="certificateFile{{ org.idOrganizacion }}"
+            style="display: none;"
+          >
+          <button 
+            type="button" 
+            class="btn-certificate" 
+            (click)="certificateFileInput.click()"
+          >
+            Agregar Certificado
+          </button>
+        </div>
+        
+        <div *ngIf="getOrganizationData(org).certificateFile" class="certificate-selected">
+          <span class="certificate-text">
+            Certificado: {{ getOrganizationData(org).certificateFileName }}
+          </span>
+          <button 
+            type="button" 
+            class="btn-remove-certificate" 
+            (click)="removeCertificateFile(org)"
+            title="Eliminar certificado"
+          >
+            ×
+          </button>
+        </div>
+      </div>
     </div>
     
     <div class="org-actions">

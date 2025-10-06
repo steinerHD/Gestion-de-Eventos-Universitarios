@@ -119,7 +119,8 @@
     <app-selected-organizations 
       *ngIf="eventForm.get('externalOrgParticipation')?.value"
       [selectedOrganizations]="selectedOrganizations"
-      (organizationRemoved)="onOrganizationRemoved($event)">
+      (organizationRemoved)="onOrganizationRemoved($event)"
+      (certificateSelected)="onOrganizationCertificateSelected($event)">
     </app-selected-organizations>
   </section>
 

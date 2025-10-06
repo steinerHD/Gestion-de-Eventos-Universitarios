@@ -143,6 +143,59 @@
   background-color: #f8d7da;
 }
 
+.certificate-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-certificate {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-certificate:hover {
+  background-color: #1e7e34;
+}
+
+.certificate-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e8f5e8;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.certificate-text {
+  font-size: 14px;
+  color: #155724;
+  font-weight: 500;
+}
+
+.btn-remove-certificate {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.btn-remove-certificate:hover {
+  background-color: #f8d7da;
+}
+
 .org-actions {
   display: flex;
   flex-direction: column;
