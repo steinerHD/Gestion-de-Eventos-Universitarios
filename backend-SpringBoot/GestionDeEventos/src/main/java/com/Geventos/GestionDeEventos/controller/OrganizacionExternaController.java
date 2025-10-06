@@ -54,6 +54,13 @@ public class OrganizacionExternaController {
         List<OrganizacionExterna> organizaciones = organizacionExternaService.findByUbicacionContaining(ubicacion);
         return ResponseEntity.ok(organizaciones);
     }
+
+    @GetMapping("/nit/{nit}")
+    public ResponseEntity<OrganizacionExterna> getOrganizacionByNit(@PathVariable String nit) {
+        Optional<OrganizacionExterna> organizacion = organizacionExternaService.findByNit(nit);
+        return organizacion.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
     
     @PostMapping
     public ResponseEntity<OrganizacionExterna> createOrganizacionExterna(@RequestBody OrganizacionExterna organizacionExterna) {

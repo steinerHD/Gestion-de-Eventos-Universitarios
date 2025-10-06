@@ -1,0 +1,89 @@
+<div class="perfil-container">
+  <h1>Perfil</h1>
+
+  <div *ngIf="!isEditing; else editForm">
+    <p><strong>Nombre del usuario:</strong><br><span class="dato">{{ profileForm.get('nombre')?.value }}</span></p>
+    <p><strong>Email:</strong><br><span class="dato">{{ profileForm.get('email')?.value }}</span></p>
+    <p><strong>Tipo de usuario:</strong><br><span class="dato">{{ profileForm.get('tipoUsuario')?.value || 'Usuario' }}</span></p>
+
+    <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Estudiante'">
+      <p><strong>Código estudiantil:</strong><br><span class="dato">{{ profileForm.get('codigoEstudiantil')?.value }}</span></p>
+      <p><strong>Programa:</strong><br><span class="dato">{{ profileForm.get('programa')?.value }}</span></p>
+    </ng-container>
+
+    <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Docente'">
+      <p><strong>Unidad académica:</strong><br><span class="dato">{{ profileForm.get('unidadAcademica')?.value }}</span></p>
+      <p><strong>Cargo:</strong><br><span class="dato">{{ profileForm.get('cargo')?.value }}</span></p>
+    </ng-container>
+
+    <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Secretaria'">
+      <p><strong>Facultad:</strong><br><span class="dato">{{ profileForm.get('facultad')?.value }}</span></p>
+    </ng-container>
+
+    <div class="actions-row">
+      <button class="editar-btn" (click)="toggleEdit()">Editar</button>
+      <a class="editar-btn btn-secondary" routerLink="/home">Volver a inicio</a>
+    </div>
+  </div>
+
+  <ng-template #editForm>
+    <form [formGroup]="profileForm" novalidate>
+      <div class="form-group">
+        <label><strong>Nombre del usuario:</strong></label>
+        <input type="text" class="form-control" formControlName="nombre" required
+               [ngClass]="{'is-invalid': profileForm.get('nombre')?.invalid && profileForm.get('nombre')?.touched}">
+        <div *ngIf="profileForm.get('nombre')?.hasError('required') && profileForm.get('nombre')?.touched"
+             class="invalid-feedback">
+          El nombre es obligatorio.
+        </div>
+      </div>
+      <div class="form-group">
+        <label><strong>Tipo de usuario:</strong></label>
+        <input type="text" class="form-control" formControlName="tipoUsuario" readonly>
+      </div>
+      <div class="form-group">
+        <label><strong>Email:</strong></label>
+        <input type="email" class="form-control" formControlName="email" required
+               [ngClass]="{'is-invalid': profileForm.get('email')?.invalid && profileForm.get('email')?.touched}">
+        <div *ngIf="profileForm.get('email')?.hasError('required') && profileForm.get('email')?.touched"
+             class="invalid-feedback">
+          El email es obligatorio.
+        </div>
+        <div *ngIf="profileForm.get('email')?.hasError('email') && profileForm.get('email')?.touched"
+             class="invalid-feedback">
+          El email debe ser válido.
+        </div>
+      </div>
+      <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Estudiante'">
+        <div class="form-group">
+          <label><strong>Código estudiantil:</strong></label>
+          <input type="text" class="form-control" formControlName="codigoEstudiantil">
+        </div>
+        <div class="form-group">
+          <label><strong>Programa:</strong></label>
+          <input type="text" class="form-control" formControlName="programa">
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Docente'">
+        <div class="form-group">
+          <label><strong>Unidad académica:</strong></label>
+          <input type="text" class="form-control" formControlName="unidadAcademica">
+        </div>
+        <div class="form-group">
+          <label><strong>Cargo:</strong></label>
+          <input type="text" class="form-control" formControlName="cargo">
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Secretaria'">
+        <div class="form-group">
+          <label><strong>Facultad:</strong></label>
+          <input type="text" class="form-control" formControlName="facultad">
+        </div>
+      </ng-container>
+      <button class="editar-btn" (click)="toggleEdit()" [disabled]="profileForm.invalid">Guardar</button>
+      <button class="editar-btn" (click)="cancelEdit()">Cancelar</button>
+    </form>
+  </ng-template>
+</div>

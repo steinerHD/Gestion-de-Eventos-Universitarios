@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface OrganizacionExternaRepository extends JpaRepository<OrganizacionExterna, Long> {
+
+    @Query("SELECT o FROM OrganizacionExterna o WHERE o.nit = :nit")
+    java.util.Optional<OrganizacionExterna> findByNit(@Param("nit") String nit);
     
     List<OrganizacionExterna> findBySectorEconomico(String sectorEconomico);
     

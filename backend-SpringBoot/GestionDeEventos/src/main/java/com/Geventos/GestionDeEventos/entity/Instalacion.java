@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "instalacion")
 @Data
@@ -30,7 +32,9 @@ public class Instalacion {
     
     @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
-    
-    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "instalaciones")
     private List<Evento> eventos;
 }

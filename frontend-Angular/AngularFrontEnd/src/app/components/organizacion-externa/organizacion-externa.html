@@ -1,0 +1,68 @@
+<!-- Modal de organizaciones externas -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <h2>Organizaciones</h2>
+      <button type="button" class="close-btn" (click)="closeModal()" aria-label="Cerrar">
+        <img src="assets/images/close.png" alt="Cerrar">
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar organización..." 
+          [(ngModel)]="searchQuery"
+          (input)="searchOrganizations()"
+        >
+        <button type="button" class="clear-search-btn" (click)="clearSearch()" *ngIf="searchQuery">
+          <img src="assets/images/close.png" alt="Limpiar búsqueda">
+        </button>
+      </div>
+      <button type="button" class="new-org-btn" (click)="addNewOrganization()" title="Crear nueva organización externa">
+        <img src="assets/images/plus_square.png" alt="Nueva organización">
+        <span>Nueva Organización</span>
+      </button>
+    </div>
+
+    <!-- Lista de organizaciones -->
+    <div class="organizations-list">
+      <div 
+        *ngFor="let org of filteredOrganizations" 
+        class="organization-item"
+        (click)="selectOrganization(org)"
+      >
+        <div class="org-info">
+          <div class="org-name">{{ org.nombre }}</div>
+          <div class="org-nit">{{ org.nit }}</div>
+        </div>
+        <div class="org-actions">
+          <button type="button" class="action-btn view-btn" title="Ver detalles" (click)="viewOrganizationDetails(org)">
+            <img src="assets/images/search.png" alt="Ver detalles">
+          </button>
+          <button type="button" class="action-btn add-btn" title="Agregar nueva organización" (click)="addNewOrganization()">
+            <img src="assets/images/plus_square.png" alt="Agregar organización">
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mensaje cuando no hay resultados -->
+      <div *ngIf="filteredOrganizations.length === 0" class="no-results">
+        <p>No se encontraron organizaciones</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de detalles de organización -->
+<app-organization-details 
+  [organization]="selectedOrganization"
+  [showModal]="showDetailsModal"
+  (modalClosed)="closeDetailsModal()"
+  (organizationUpdated)="onOrganizationUpdated($event)"
+  (organizationDeleted)="onOrganizationDeleted($event)">
+</app-organization-details>

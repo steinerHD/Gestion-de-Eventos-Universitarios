@@ -21,7 +21,7 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     @Query("SELECT e FROM Evento e WHERE e.organizador.idUsuario = :idOrganizador")
     List<Evento> findByOrganizadorId(@Param("idOrganizador") Long idOrganizador);
     
-    @Query("SELECT e FROM Evento e WHERE e.instalacion.idInstalacion = :idInstalacion")
+    @Query("SELECT e FROM Evento e JOIN e.instalaciones i WHERE i.idInstalacion = :idInstalacion")
     List<Evento> findByInstalacionId(@Param("idInstalacion") Long idInstalacion);
     
     @Query("SELECT e FROM Evento e WHERE e.titulo LIKE %:titulo%")

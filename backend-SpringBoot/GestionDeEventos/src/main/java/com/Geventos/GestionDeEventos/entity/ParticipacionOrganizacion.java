@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
+
 @Entity
 @Table(name = "participacion_organizacion")
 @Data
@@ -24,7 +28,8 @@ public class ParticipacionOrganizacion implements Serializable {
     private Long idOrganizacion;
     
     @Lob
-    @Column(name = "certificado_pdf", nullable = false)
+    @Column(name = "certificado_pdf", nullable = false, columnDefinition = "bytea")
+    @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] certificadoPdf;
     
     @Column(name = "representante_diferente")
@@ -35,6 +40,7 @@ public class ParticipacionOrganizacion implements Serializable {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evento", insertable = false, updatable = false)
+    @JsonBackReference(value = "evento-organizaciones")
     private Evento evento;
     
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,0 +1,28 @@
+<!-- Usuarios seleccionados como organizadores -->
+<div class="selected-users" *ngIf="selectedUsers.length > 0">
+  <h3>Organizadores del Evento</h3>
+  <div 
+    *ngFor="let user of selectedUsers" 
+    class="selected-user-item"
+  >
+    <div class="user-details">
+      <div class="user-name">{{ user.nombre }}</div>
+      <div class="user-email">{{ user.correo }}</div>
+      <div class="user-type">{{ getUsuarioTypeLabel(user) }}</div>
+      <div *ngIf="user.codigoEstudiantil" class="user-code">
+        Código: {{ user.codigoEstudiantil }}
+      </div>
+    </div>
+    
+    <div class="user-actions">
+      <button 
+        type="button" 
+        class="remove-btn" 
+        (click)="removeUser(user)"
+        title="Eliminar organizador"
+      >
+        <img src="assets/images/trash.png" alt="Eliminar">
+      </button>
+    </div>
+  </div>
+</div>

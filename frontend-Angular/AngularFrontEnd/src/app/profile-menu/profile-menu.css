@@ -1,0 +1,45 @@
+.perfil-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 16px; 
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); 
+    background: #F4FFFD;
+}
+
+.perfil-container h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.opciones-menu {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.opcion-btn {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 24px; 
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #3BE5E6;
+    color: #ffffff;
+    width: 250px;
+    align-self: center;
+    border: 1.5px solid #28AFB0;
+    box-shadow: 0 4px 10px rgba(59, 229, 230, 0.4);
+    font-weight: bold;
+}
+
+.opcion-btn:hover {
+    opacity: 0.95;
+    transform: translateY(-2px); /* efecto sutil al pasar el mouse */
+    box-shadow: 0 6px 14px rgba(59, 229, 230, 0.6); /* sombra más fuerte en hover */
+}

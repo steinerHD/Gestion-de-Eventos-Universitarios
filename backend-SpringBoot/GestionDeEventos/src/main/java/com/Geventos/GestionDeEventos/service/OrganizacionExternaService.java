@@ -23,6 +23,10 @@ public class OrganizacionExternaService {
     public Optional<OrganizacionExterna> findById(Long id) {
         return organizacionExternaRepository.findById(id);
     }
+
+    public Optional<OrganizacionExterna> findByNit(String nit) {
+        return organizacionExternaRepository.findByNit(nit);
+    }
     
     public List<OrganizacionExterna> findBySectorEconomico(String sectorEconomico) {
         return organizacionExternaRepository.findBySectorEconomico(sectorEconomico);
@@ -57,7 +61,8 @@ public class OrganizacionExternaService {
         if (organizacionExterna.getTelefono() == null || organizacionExterna.getTelefono().trim().isEmpty()) {
             throw new IllegalArgumentException("El teléfono es obligatorio");
         }
-        
+
+        existingOrganizacion.setNit(organizacionExterna.getNit());
         existingOrganizacion.setNombre(organizacionExterna.getNombre());
         existingOrganizacion.setRepresentanteLegal(organizacionExterna.getRepresentanteLegal());
         existingOrganizacion.setTelefono(organizacionExterna.getTelefono());

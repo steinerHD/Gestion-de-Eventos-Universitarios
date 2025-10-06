@@ -1,0 +1,66 @@
+.perfil-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: left;
+    font-family: 'Quicksand', sans-serif;
+    color: #222;
+}
+
+.perfil-container p {
+    margin: 12px 0;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.perfil-container strong {
+    color: #000;
+    font-weight: 600;
+}
+
+.perfil-container .dato {
+    color: #2c7a9b; /* azul verdoso como en la imagen */
+    font-weight: 500;
+}
+
+.editar-btn {
+    margin-top: 25px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #3BE5E6; /* color del botón */
+    color: #fff;
+    display: inline-block;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.editar-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Botón secundario (volver) */
+.btn-secondary {
+    background-color: #ffffff;
+    color: #176a6a;
+    border: 2px solid #3BE5E6;
+}
+
+.btn-secondary:hover {
+    background-color: #e6fbfb;
+}
+
+/* Fila de acciones para alinear botones lado a lado */
+.actions-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 20px;
+}

@@ -1,0 +1,69 @@
+<div class="main-navbar">
+  <nav class="navbar-custom">
+    <div class="navbar-logo">
+      <img src="assets/images/logo_inv.png" alt="Logo" class="logo-img"/>
+    </div>
+
+    <div class="navbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" class="search-input" placeholder="Buscar evento..." (input)="searchEvents($event.target.value)" />
+    </div>
+
+    <div class="navbar-icons">
+      <div class="navbar-clock">
+        <img src="assets/images/clock.png" alt="Historial" class="clock-img" />
+      </div>
+      <button class="btn btn-light btn-create" routerLink="/add-event">+ Crear evento</button>
+      <div class="navbar-profile">
+        <img src="assets/images/profile.png" alt="Perfil" class="profile-img" routerLink="/profile-menu" />
+      </div>
+    </div>
+  </nav>
+</div>
+
+<div class="events-container">
+  <h2>Eventos</h2>
+  <div *ngIf="events.length === 0">
+    <p>No hay eventos disponibles.</p>
+  </div>
+  <div *ngFor="let event of events" class="event-card">
+    <h3>{{ event.eventName }}</h3>
+    <p><strong>Ubicación:</strong> {{ event.eventLocation }}</p>
+    <p><strong>Tipo:</strong> {{ event.eventType }}</p>
+    <p><strong>Fecha:</strong> {{ event.eventDate }}</p>
+    <p><strong>Hora inicio:</strong> {{ event.eventHourIni }}</p>
+    <p><strong>Hora fin:</strong> {{ event.eventHourFin }}</p>
+    <p><strong>Estado:</strong> {{ event.eventStatus }}</p>
+    
+    <!-- Mostrar encuentros si existen -->
+    <div *ngIf="event.encounters && event.encounters.length > 0" class="encounters-section">
+      <h4>Encuentros:</h4>
+      <div *ngFor="let encounter of event.encounters; let i = index" class="encounter-display">
+        <div class="encounter-number">{{ i + 1 }}:</div>
+        <div class="encounter-details">
+          <p><strong>Fecha:</strong> {{ encounter.date }}</p>
+          <div class="time-row">
+            <span><strong>Hora Inicio:</strong> {{ encounter.startTime }}</span>
+            <span class="separator">|</span>
+            <span><strong>Hora Fin:</strong> {{ encounter.endTime }}</span>
+          </div>
+          <p *ngIf="encounter.location"><strong>Lugar:</strong> {{ encounter.location.name }}</p>
+          <p *ngIf="encounter.location"><strong>Capacidad de Lugar:</strong> {{ encounter.location.capacity }} personas</p>
+          <p *ngIf="encounter.location"><strong>Tipo de lugar:</strong> {{ encounter.location.type }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mostrar instalaciones asociadas si vienen desde backend -->
+    <div *ngIf="event.instalaciones && event.instalaciones.length > 0" class="instalaciones-section">
+      <h4>Instalaciones asociadas:</h4>
+      <ul>
+        <li *ngFor="let ins of event.instalaciones">
+          {{ ins.nombre || ('Instalación ' + ins.idInstalacion) }}
+          <span *ngIf="ins.ubicacion">- {{ ins.ubicacion }}</span>
+          <span *ngIf="ins.capacidad"> (cap: {{ ins.capacidad }})</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
