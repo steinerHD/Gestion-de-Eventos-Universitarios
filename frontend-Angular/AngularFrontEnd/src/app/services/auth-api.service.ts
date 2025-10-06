@@ -22,6 +22,8 @@ export interface EstudianteRequest {
   programa: string;
 }
 
+
+
 export interface DocenteRequest {
   idUsuario: number;
   unidadAcademica: string;
@@ -45,6 +47,11 @@ export class AuthApiService {
 
   login(payload: LoginRequest): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.baseUrl}/login`, payload);
+  }
+
+  recuperarContrasena(correo: string): Observable<any> {
+  
+    return this.http.post<any>(`${this.baseUrl}/recuperar`, {'correo': correo});
   }
 
   registrarUsuario(payload: UserRequest): Observable<any> {
