@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { EventService } from '../services/event.service';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
@@ -19,7 +19,7 @@ import { EncountersComponent, Encounter } from '../components/encounters/encount
   templateUrl: './add-event.html',
   styleUrls: ['./add-event.css']
 })
-export class AddEventComponent {
+export class AddEventComponent implements OnInit {
   eventForm: FormGroup;
   showOrgModal: boolean = false;
   showUserModal: boolean = false;
@@ -27,12 +27,16 @@ export class AddEventComponent {
   selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
+  isEditMode: boolean = false;
+  eventId: number | null = null;
+  loading: boolean = false;
   
   constructor(
     private fb: FormBuilder, 
     private eventService: EventService, 
     private eventosApiService: EventosApiService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
@@ -46,6 +50,85 @@ export class AddEventComponent {
       avalPdf: ['', Validators.required],
       tipoAval: ['', Validators.required]
     });
+  }
+
+  ngOnInit(): void {
+    // Verificar si estamos en modo edición
+    this.route.queryParams.subscribe(params => {
+      if (params['edit'] === 'true' && params['id']) {
+        this.isEditMode = true;
+        this.eventId = parseInt(params['id']);
+        this.loadEventForEdit();
+      }
+    });
+  }
+
+  private loadEventForEdit(): void {
+    if (!this.eventId) return;
+    
+    this.loading = true;
+    this.eventosApiService.getById(this.eventId).subscribe({
+      next: (evento) => {
+        this.populateFormWithEventData(evento);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error cargando evento para edición:', error);
+        alert('Error al cargar el evento para edición');
+        this.loading = false;
+        this.router.navigate(['/my-events']);
+      }
+    });
+  }
+
+  private populateFormWithEventData(evento: EventoDTO): void {
+    // Llenar el formulario con los datos del evento
+    this.eventForm.patchValue({
+      eventName: evento.titulo,
+      eventType: evento.tipoEvento === 'Académico' ? 'academico' : 'ludico',
+      eventStatus: 'Borrador', // Mantener como borrador al editar
+      avalPdf: evento.avalPdf || '',
+      tipoAval: evento.tipoAval || ''
+    });
+
+    // Configurar el organizador
+    if (evento.organizador?.idUsuario) {
+      // Necesitamos obtener los datos completos del usuario
+      // Por ahora, creamos un objeto básico
+      this.selectedUsers = [{
+        idUsuario: evento.organizador.idUsuario,
+        nombre: 'Usuario', // Se podría obtener del backend
+        correo: ''
+      }];
+    }
+
+    // Configurar instalaciones como encuentros
+    if (evento.instalaciones && evento.instalaciones.length > 0) {
+      this.encounters = evento.instalaciones.map((inst, index) => ({
+        id: index.toString(),
+        date: evento.fecha,
+        startTime: evento.horaInicio?.substring(0, 5), // Remover segundos si existen
+        endTime: evento.horaFin?.substring(0, 5), // Remover segundos si existen
+        location: {
+          idInstalacion: inst.idInstalacion,
+          nombre: `Instalación ${inst.idInstalacion}`, // Se podría obtener del backend
+          tipo: '',
+          capacidad: 0
+        }
+      }));
+    }
+
+    // Configurar organizaciones externas
+    if (evento.organizacionesExternas && evento.organizacionesExternas.length > 0) {
+      this.selectedOrganizations = evento.organizacionesExternas.map(org => ({
+        idOrganizacion: org.idOrganizacion,
+        nombre: `Organización ${org.idOrganizacion}`, // Se podría obtener del backend
+        nit: ''
+      }));
+      this.eventForm.patchValue({
+        externalOrgParticipation: true
+      });
+    }
   }
 
   submitEvent(): void {
@@ -77,17 +160,33 @@ export class AddEventComponent {
     
     console.log('📤 Enviando evento al backend:', eventoData);
 
-    this.eventosApiService.create(eventoData).subscribe({
-      next: (createdEvent) => {
-        console.log('✅ Evento creado exitosamente:', createdEvent);
-        alert('Evento creado exitosamente.');
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        console.error('❌ Error al crear evento:', error);
-        alert('Error al crear el evento. Verifique la consola para más detalles.');
-      }
-    });
+    if (this.isEditMode && this.eventId) {
+      // Modo edición - actualizar evento existente
+      this.eventosApiService.update(this.eventId, eventoData).subscribe({
+        next: (updatedEvent) => {
+          console.log('✅ Evento actualizado exitosamente:', updatedEvent);
+          alert('Evento actualizado exitosamente.');
+          this.router.navigate(['/my-events']);
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar evento:', error);
+          alert('Error al actualizar el evento. Verifique la consola para más detalles.');
+        }
+      });
+    } else {
+      // Modo creación - crear nuevo evento
+      this.eventosApiService.create(eventoData).subscribe({
+        next: (createdEvent) => {
+          console.log('✅ Evento creado exitosamente:', createdEvent);
+          alert('Evento creado exitosamente.');
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.error('❌ Error al crear evento:', error);
+          alert('Error al crear el evento. Verifique la consola para más detalles.');
+        }
+      });
+    }
   }
 
   private validateForm(): string[] {
@@ -138,6 +237,7 @@ export class AddEventComponent {
   console.log('🏢 Organizaciones externas (IDs):', organizacionesExternas);
 
   const eventoData: EventoDTO = {
+    idEvento: this.isEditMode ? this.eventId : undefined,
     titulo: form.get('eventName')?.value,
     tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
     fecha: primerEncuentro?.date || '',
