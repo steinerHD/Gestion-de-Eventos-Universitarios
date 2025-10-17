@@ -9,6 +9,7 @@ import { AddEventComponent } from './add-event/add-event';
 import { NuevaOrgaExtComponent } from './components/nueva-orga-ext/nueva-orga-ext';
 import { AuthGuard } from './services/auth.guard';
 
+
 export const routes: Routes = [
   { path: '', redirectTo: 'signin', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },

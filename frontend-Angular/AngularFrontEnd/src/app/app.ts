@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
+import 'remixicon/fonts/remixicon.css';
 
 @Component({
   selector: 'app-root',
