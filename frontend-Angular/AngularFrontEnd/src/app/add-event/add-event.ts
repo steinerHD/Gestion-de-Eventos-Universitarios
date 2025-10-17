@@ -98,7 +98,8 @@ export class AddEventComponent implements OnInit {
       this.selectedUsers = [{
         idUsuario: evento.organizador.idUsuario,
         nombre: 'Usuario', // Se podría obtener del backend
-        correo: ''
+        correo: '',
+        tipoUsuario: 'estudiante'
       }];
     }
 
@@ -113,6 +114,7 @@ export class AddEventComponent implements OnInit {
           idInstalacion: inst.idInstalacion,
           nombre: `Instalación ${inst.idInstalacion}`, // Se podría obtener del backend
           tipo: '',
+          ubicacion: '',
           capacidad: 0
         }
       }));
@@ -123,7 +125,12 @@ export class AddEventComponent implements OnInit {
       this.selectedOrganizations = evento.organizacionesExternas.map(org => ({
         idOrganizacion: org.idOrganizacion,
         nombre: `Organización ${org.idOrganizacion}`, // Se podría obtener del backend
-        nit: ''
+        nit: '',
+        representanteLegal: '',
+        telefono: '',
+        ubicacion: '',
+        sectorEconomico: '',
+        actividadPrincipal: ''
       }));
       this.eventForm.patchValue({
         externalOrgParticipation: true
@@ -237,7 +244,7 @@ export class AddEventComponent implements OnInit {
   console.log('🏢 Organizaciones externas (IDs):', organizacionesExternas);
 
   const eventoData: EventoDTO = {
-    idEvento: this.isEditMode ? this.eventId : undefined,
+    idEvento: this.isEditMode ? this.eventId || undefined : undefined,
     titulo: form.get('eventName')?.value,
     tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
     fecha: primerEncuentro?.date || '',
