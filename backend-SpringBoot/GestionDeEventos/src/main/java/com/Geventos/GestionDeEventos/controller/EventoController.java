@@ -1,6 +1,7 @@
 package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.entity.Evento;
+import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.service.EventoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,34 +22,35 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class EventoController {
-    
+
     private final EventoService eventoService;
-    
+
     @GetMapping
     public ResponseEntity<List<Evento>> getAllEventos() {
         List<Evento> eventos = eventoService.findAll();
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<Evento> getEventoById(@PathVariable Long id) {
         Optional<Evento> evento = eventoService.findById(id);
         return evento.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @GetMapping("/tipo/{tipoEvento}")
     public ResponseEntity<List<Evento>> getEventosByTipo(@PathVariable Evento.TipoEvento tipoEvento) {
         List<Evento> eventos = eventoService.findByTipoEvento(tipoEvento);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/fecha/{fecha}")
-    public ResponseEntity<List<Evento>> getEventosByFecha(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+    public ResponseEntity<List<Evento>> getEventosByFecha(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         List<Evento> eventos = eventoService.findByFecha(fecha);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/fecha")
     public ResponseEntity<List<Evento>> getEventosByFechaRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
@@ -56,33 +58,32 @@ public class EventoController {
         List<Evento> eventos = eventoService.findByFechaBetween(fechaInicio, fechaFin);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/organizador/{idOrganizador}")
     public ResponseEntity<List<Evento>> getEventosByOrganizador(@PathVariable Long idOrganizador) {
         List<Evento> eventos = eventoService.findByOrganizadorId(idOrganizador);
         return ResponseEntity.ok(eventos);
     }
 
-    
-    
     @GetMapping("/instalacion/{idInstalacion}")
     public ResponseEntity<List<Evento>> getEventosByInstalacion(@PathVariable Long idInstalacion) {
         List<Evento> eventos = eventoService.findByInstalacionId(idInstalacion);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/titulo/{titulo}")
     public ResponseEntity<List<Evento>> getEventosByTitulo(@PathVariable String titulo) {
         List<Evento> eventos = eventoService.findByTituloContaining(titulo);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @GetMapping("/futuros")
-    public ResponseEntity<List<Evento>> getEventosFuturos(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+    public ResponseEntity<List<Evento>> getEventosFuturos(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         List<Evento> eventos = eventoService.findEventosFuturos(fecha);
         return ResponseEntity.ok(eventos);
     }
-    
+
     @PostMapping
     public ResponseEntity<Evento> createEvento(@RequestBody Evento evento) {
         try {
@@ -92,7 +93,7 @@ public class EventoController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<Evento> updateEvento(@PathVariable Long id, @RequestBody Evento evento) {
         try {
@@ -102,7 +103,7 @@ public class EventoController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvento(@PathVariable Long id) {
         try {
@@ -134,5 +135,12 @@ public class EventoController {
                 .filter(e -> e.getAvalPdf() != null)
                 .map(e -> ResponseEntity.ok(Base64.getEncoder().encodeToString(e.getAvalPdf())))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/coorganizadores")
+    public ResponseEntity<List<Usuario>> obtenerCoorganizadores(@PathVariable Long id) {
+        Evento evento = eventoService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+        return ResponseEntity.ok(evento.getCoorganizadores());
     }
 }

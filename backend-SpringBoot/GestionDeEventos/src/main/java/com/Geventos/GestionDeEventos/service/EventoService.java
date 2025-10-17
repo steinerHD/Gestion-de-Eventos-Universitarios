@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class EventoService {
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final InstalacionRepository instalacionRepository;
+    private final UsuarioService usuarioService;
     
     public List<Evento> findAll() {
         return eventoRepository.findAll();
@@ -104,6 +106,16 @@ public class EventoService {
                     .toList();
             evento.setInstalaciones(nuevas);
         }
+
+        // Validar coorganizadores (lista)
+
+        List<Usuario> coorganizadores = new ArrayList<>();
+        if (evento.getCoorganizadores() != null) {
+            for (Usuario idCoorg : evento.getCoorganizadores()) {
+                usuarioService.findById(idCoorg.getIdUsuario()).ifPresent(coorganizadores::add);
+            }
+        }
+        evento.setCoorganizadores(coorganizadores);
         
         // Validar que la fecha no sea en el pasado
         if (evento.getFecha().isBefore(LocalDate.now())) {

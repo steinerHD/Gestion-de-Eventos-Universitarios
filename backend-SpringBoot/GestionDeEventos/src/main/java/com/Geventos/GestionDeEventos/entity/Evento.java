@@ -25,23 +25,23 @@ import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evento {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_evento")
     private Long idEvento;
-    
+
     @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_evento", nullable = false, length = 20)
     private TipoEvento tipoEvento;
-    
+
     @Column(name = "fecha", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha;
-    
+
     @Column(name = "hora_inicio", nullable = false)
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaInicio;
@@ -58,26 +58,21 @@ public class Evento {
     @JsonIgnore
     @Column(name = "horafin", nullable = false)
     private LocalTime horaFinLegacy;
-    
-    
+
     @ManyToMany
-    @JoinTable(
-            name = "evento_instalacion",
-            joinColumns = @JoinColumn(name = "id_evento"),
-            inverseJoinColumns = @JoinColumn(name = "id_instalacion")
-    )
+    @JoinTable(name = "evento_instalacion", joinColumns = @JoinColumn(name = "id_evento"), inverseJoinColumns = @JoinColumn(name = "id_instalacion"))
     private List<Instalacion> instalaciones;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_organizador")
     @JsonBackReference(value = "usuario-eventos")
     private Usuario organizador;
-    
+
     @Column(name = "aval_pdf", columnDefinition = "bytea")
     @JdbcTypeCode(SqlTypes.BINARY)
     @JsonSerialize(using = TruncatedBase64Serializer.class)
     private byte[] avalPdf;
-    
+
     @Convert(converter = TipoAvalConverter.class)
     @Column(name = "tipo_aval", length = 50)
     private TipoAval tipoAval;
@@ -85,17 +80,20 @@ public class Evento {
     @JsonManagedReference(value = "evento-organizaciones")
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParticipacionOrganizacion> participacionesOrganizaciones;
-    
+
     @JsonIgnore
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Evaluacion> evaluaciones;
-    
-    
-    
+
+    @ManyToMany
+    @JoinTable(name = "evento_coorganizador", joinColumns = @JoinColumn(name = "id_evento"), inverseJoinColumns = @JoinColumn(name = "id_usuario"))
+    @JsonManagedReference(value = "evento-coorganizadores")
+    private List<Usuario> coorganizadores;
+
     public enum TipoEvento {
         Académico, Lúdico
     }
-    
+
     public enum TipoAval {
         Director_Programa, Director_Docencia
     }
