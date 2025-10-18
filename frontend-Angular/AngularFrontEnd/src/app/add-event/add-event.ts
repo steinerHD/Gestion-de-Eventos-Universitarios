@@ -138,6 +138,10 @@ export class AddEventComponent {
   console.log('🏢 Organizaciones externas (IDs):', organizacionesExternas);
 
   const eventoData: EventoDTO = {
+<<<<<<< Updated upstream
+=======
+    idEvento: this.isEditMode ? (this.eventId ?? undefined) : undefined,
+>>>>>>> Stashed changes
     titulo: form.get('eventName')?.value,
     tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
     fecha: primerEncuentro?.date || '',
@@ -146,7 +150,7 @@ export class AddEventComponent {
     instalaciones: instalaciones,
     organizacionesExternas: organizacionesExternas,
     organizador: { idUsuario: organizador.idUsuario },
-    avalPdf: form.get('avalPdf')?.value,
+    avalPdf: form.get('avalPdf')?.value || '',
     tipoAval: form.get('tipoAval')?.value
   };
 

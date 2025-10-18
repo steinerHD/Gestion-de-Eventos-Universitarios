@@ -6,7 +6,7 @@ import { ForgetPasswordComponent } from './login/forgetpassword';
 import { ProfileMenuComponent } from './profile-menu/profile-menu';
 import { ProfileComponent } from './profile/profile';
 import { AddEventComponent } from './add-event/add-event';
-import { NuevaOrgaExtComponent } from './components/nueva-orga-ext/nueva-orga-ext';
+import { NuevaOrgaExtComponent } from './nueva-orga-ext/nueva-orga-ext';
 import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [

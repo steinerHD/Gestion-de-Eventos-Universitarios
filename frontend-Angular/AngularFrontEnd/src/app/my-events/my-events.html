@@ -1,0 +1,155 @@
+<header class="headerSec">
+  <button type="button" aria-label="Ir al inicio" routerLink="/home">
+    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img">
+  </button>
+  <h1>Mis Eventos</h1>
+  <button type="button" aria-label="Perfil de usuario" routerLink="/profile-menu">
+    <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
+  </button>
+</header>
+<br>
+<br>
+<div class="container my-events-container">
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-message">
+    <p>Cargando eventos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadEvents()">Reintentar</button>
+  </div>
+
+  <!-- No Events State -->
+  <div *ngIf="!loading && !error && events.length === 0" class="no-events-message">
+    <p>No tienes eventos creados. ¡Crea uno nuevo!</p>
+    <button class="btn btn-primary" routerLink="/add-event">+ Crear Evento</button>
+  </div>
+
+  <!-- Events Content -->
+  <div *ngIf="!loading && !error && events.length > 0">
+    
+    <!-- Filtros -->
+    <div class="filters-section">
+      <button class="btn btn-outline-primary" (click)="toggleFilters()">
+        {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
+      </button>
+      
+      <div *ngIf="showFilters" class="filters-container">
+        <div class="filter-group">
+          <label for="filterEstado">Filtrar por Estado:</label>
+          <select id="filterEstado" [(ngModel)]="filterEstado" (change)="applyFilters()">
+            <option value="">Todos los estados</option>
+            <option value="Borrador">Borrador</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Aprobado">Aprobado</option>
+            <option value="Rechazado">Rechazado</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterNombre">Filtrar por Nombre:</label>
+          <input type="text" id="filterNombre" [(ngModel)]="filterNombre" 
+                 (input)="applyFilters()" placeholder="Buscar por nombre del evento">
+        </div>
+        
+        <div class="filter-group">
+          <label for="filterFecha">Filtrar por Fecha:</label>
+          <input type="date" id="filterFecha" [(ngModel)]="filterFecha" 
+                 (change)="applyFilters()">
+        </div>
+        
+        <button class="btn btn-secondary" (click)="clearFilters()">Limpiar Filtros</button>
+      </div>
+    </div>
+    
+    <!-- Eventos en Borrador -->
+    <div *ngIf="draftEvents.length > 0">
+      <h2>Mis Eventos en Borrador</h2>
+      <div *ngFor="let event of draftEvents" [class]="getEstadoCardClass(event.estado)">
+        <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
+        <h3>{{ event.titulo }}</h3>
+        <p><strong>Tipo:</strong> {{ event.tipoEvento }}</p>
+        <p><strong>Fecha:</strong> {{ event.fecha }}</p>
+        <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
+        <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
+        
+        <div class="event-actions">
+          <button *ngIf="canSendToValidation(event)" 
+                  class="btn btn-primary btn-sm" 
+                  (click)="sendToValidation(event)">
+            Enviar a Validación
+          </button>
+          <button *ngIf="canEdit(event)" 
+                  class="btn btn-secondary btn-sm" 
+                  (click)="editEvent(event)">
+            Editar Evento
+          </button>
+          <button *ngIf="canDelete(event)" 
+                  class="btn btn-danger btn-sm" 
+                  (click)="deleteEvent(event)">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eventos Pendientes -->
+    <div *ngIf="pendingEvents.length > 0">
+      <h2>Mis Eventos Pendientes de Validación</h2>
+      <div *ngFor="let event of pendingEvents" [class]="getEstadoCardClass(event.estado)">
+        <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
+        <h3>{{ event.titulo }}</h3>
+        <p><strong>Tipo:</strong> {{ event.tipoEvento }}</p>
+        <p><strong>Fecha:</strong> {{ event.fecha }}</p>
+        <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
+        <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
+        
+        <div class="event-actions">
+          <button *ngIf="canEdit(event)" 
+                  class="btn btn-secondary btn-sm" 
+                  (click)="editEvent(event)">
+            Editar Evento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eventos Rechazados -->
+    <div *ngIf="rejectedEvents.length > 0">
+      <h2>Mis Eventos Rechazados</h2>
+      <div *ngFor="let event of rejectedEvents" [class]="getEstadoCardClass(event.estado)">
+        <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
+        <h3>{{ event.titulo }}</h3>
+        <p><strong>Tipo:</strong> {{ event.tipoEvento }}</p>
+        <p><strong>Fecha:</strong> {{ event.fecha }}</p>
+        <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
+        <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
+        
+        <div class="event-actions">
+          <button *ngIf="canEdit(event)" 
+                  class="btn btn-secondary btn-sm" 
+                  (click)="editEvent(event)">
+            Editar Evento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eventos Aprobados -->
+    <div *ngIf="approvedEvents.length > 0">
+      <h2>Mis Eventos Aprobados</h2>
+      <div *ngFor="let event of approvedEvents" [class]="getEstadoCardClass(event.estado)">
+        <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
+        <h3>{{ event.titulo }}</h3>
+        <p><strong>Tipo:</strong> {{ event.tipoEvento }}</p>
+        <p><strong>Fecha:</strong> {{ event.fecha }}</p>
+        <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
+        <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
+      </div>
+    </div>
+
+  </div>
+</div>

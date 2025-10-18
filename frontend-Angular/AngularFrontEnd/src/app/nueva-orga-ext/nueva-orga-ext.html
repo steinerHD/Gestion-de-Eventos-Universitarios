@@ -1,3 +1,121 @@
-<main>
-    <h1>MERA BABY</h1>
-</main>
+<div class="container">
+  <div class="form-container">
+    <h2>Organización nueva</h2>
+    
+    <form [formGroup]="organizationForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nombre">Nombre de la organización</label>
+        <input 
+          type="text" 
+          id="nombre" 
+          formControlName="nombre" 
+          placeholder="Nombre..."
+          [ngClass]="{'is-invalid': organizationForm.get('nombre')?.invalid && organizationForm.get('nombre')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('nombre')?.hasError('required') && organizationForm.get('nombre')?.touched" 
+             class="invalid-feedback">
+          El nombre es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nit">NIT</label>
+        <input 
+          type="text" 
+          id="nit" 
+          formControlName="nit" 
+          placeholder="NIT..."
+          [ngClass]="{'is-invalid': organizationForm.get('nit')?.invalid && organizationForm.get('nit')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('nit')?.hasError('required') && organizationForm.get('nit')?.touched" 
+             class="invalid-feedback">
+          El NIT es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Teléfono</label>
+        <input 
+          type="tel" 
+          id="telefono" 
+          formControlName="telefono" 
+          placeholder="Teléfono..."
+          [ngClass]="{'is-invalid': organizationForm.get('telefono')?.invalid && organizationForm.get('telefono')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('telefono')?.hasError('required') && organizationForm.get('telefono')?.touched" 
+             class="invalid-feedback">
+          El teléfono es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección</label>
+        <input 
+          type="text" 
+          id="direccion" 
+          formControlName="direccion" 
+          placeholder="Dirección..."
+          [ngClass]="{'is-invalid': organizationForm.get('direccion')?.invalid && organizationForm.get('direccion')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('direccion')?.hasError('required') && organizationForm.get('direccion')?.touched" 
+             class="invalid-feedback">
+          La dirección es obligatoria.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="representanteLegal">Representante Legal</label>
+        <input 
+          type="text" 
+          id="representanteLegal" 
+          formControlName="representanteLegal" 
+          placeholder="Representante..."
+          [ngClass]="{'is-invalid': organizationForm.get('representanteLegal')?.invalid && organizationForm.get('representanteLegal')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('representanteLegal')?.hasError('required') && organizationForm.get('representanteLegal')?.touched" 
+             class="invalid-feedback">
+          El representante legal es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sectorEconomico">Sector económico</label>
+        <input 
+          type="text" 
+          id="sectorEconomico" 
+          formControlName="sectorEconomico" 
+          placeholder="A que sector económico pertenece la organización..."
+          [ngClass]="{'is-invalid': organizationForm.get('sectorEconomico')?.invalid && organizationForm.get('sectorEconomico')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('sectorEconomico')?.hasError('required') && organizationForm.get('sectorEconomico')?.touched" 
+             class="invalid-feedback">
+          El sector económico es obligatorio.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="actividadPrincipal">Actividad principal</label>
+        <input 
+          type="text" 
+          id="actividadPrincipal" 
+          formControlName="actividadPrincipal" 
+          placeholder="Actividad principal..."
+          [ngClass]="{'is-invalid': organizationForm.get('actividadPrincipal')?.invalid && organizationForm.get('actividadPrincipal')?.touched}"
+        >
+        <div *ngIf="organizationForm.get('actividadPrincipal')?.hasError('required') && organizationForm.get('actividadPrincipal')?.touched" 
+             class="invalid-feedback">
+          La actividad principal es obligatoria.
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="organizationForm.invalid">
+          Registrar organización
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
