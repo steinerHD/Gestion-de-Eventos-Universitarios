@@ -1,7 +1,7 @@
 package com.Geventos.GestionDeEventos.controller;
 
+import com.Geventos.GestionDeEventos.DTOs.Requests.AuthRequest;
 import com.Geventos.GestionDeEventos.JWT.JwtUtil;
-import com.Geventos.GestionDeEventos.dto.AuthRequest;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
 import lombok.RequiredArgsConstructor;

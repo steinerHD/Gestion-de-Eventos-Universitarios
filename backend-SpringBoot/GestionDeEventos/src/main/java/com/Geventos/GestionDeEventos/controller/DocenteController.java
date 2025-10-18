@@ -1,7 +1,10 @@
 package com.Geventos.GestionDeEventos.controller;
 
+import com.Geventos.GestionDeEventos.DTOs.Responses.DocenteResponse;
 import com.Geventos.GestionDeEventos.entity.Docente;
 import com.Geventos.GestionDeEventos.service.DocenteService;
+import com.Geventos.GestionDeEventos.service.UsuarioService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,44 +19,54 @@ import java.util.Optional;
 public class DocenteController {
 
     private final DocenteService docenteService;
+    private final UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<List<Docente>> getAllDocentes() {
+    public ResponseEntity<List<DocenteResponse>> getAllDocentes() {
         List<Docente> docentes = docenteService.findAll();
-        return ResponseEntity.ok(docentes);
+        List<DocenteResponse> response = docentes.stream()
+                .map(docente -> new DocenteResponse(usuarioService.findById(docente.getUsuario().getIdUsuario()).get().getNombre(), docente.getUnidadAcademica(), docente.getCargo()))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Docente> getDocenteById(@PathVariable Long id) {
+    public ResponseEntity<DocenteResponse> getDocenteById(@PathVariable Long id) {
         Optional<Docente> docente = docenteService.findById(id);
-        return docente.map(ResponseEntity::ok)
+        return docente.map(d -> ResponseEntity.ok(new DocenteResponse(usuarioService.findById(d.getUsuario().getIdUsuario()).get().getNombre(), d.getUnidadAcademica(), d.getCargo())))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<Docente> getDocenteByUsuarioId(@PathVariable Long idUsuario) {
+    public ResponseEntity<DocenteResponse> getDocenteByUsuarioId(@PathVariable Long idUsuario) {
         Optional<Docente> docente = docenteService.findByUsuarioId(idUsuario);
-        return docente.map(ResponseEntity::ok)
+        return docente.map(d -> ResponseEntity.ok(new DocenteResponse(usuarioService.findById(d.getUsuario().getIdUsuario()).get().getNombre(), d.getUnidadAcademica(), d.getCargo())))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/unidad-academica/{unidadAcademica}")
-    public ResponseEntity<List<Docente>> getDocentesByUnidadAcademica(@PathVariable String unidadAcademica) {
+    public ResponseEntity<List<DocenteResponse>> getDocentesByUnidadAcademica(@PathVariable String unidadAcademica) {
         List<Docente> docentes = docenteService.findByUnidadAcademica(unidadAcademica);
-        return ResponseEntity.ok(docentes);
+        List<DocenteResponse> response = docentes.stream()
+                .map(docente -> new DocenteResponse(usuarioService.findById(docente.getUsuario().getIdUsuario()).get().getNombre(), docente.getUnidadAcademica(), docente.getCargo()))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/cargo/{cargo}")
-    public ResponseEntity<List<Docente>> getDocentesByCargo(@PathVariable String cargo) {
+    public ResponseEntity<List<DocenteResponse>> getDocentesByCargo(@PathVariable String cargo) {
         List<Docente> docentes = docenteService.findByCargo(cargo);
-        return ResponseEntity.ok(docentes);
+        List<DocenteResponse> response = docentes.stream()
+                .map(docente -> new DocenteResponse(usuarioService.findById(docente.getUsuario().getIdUsuario()).get().getNombre(), docente.getUnidadAcademica(), docente.getCargo()))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Docente> updateDocente(@PathVariable Long id, @RequestBody Docente docente) {
+    public ResponseEntity<DocenteResponse> updateDocente(@PathVariable Long id, @RequestBody Docente docente) {
         try {
             Docente updatedDocente = docenteService.update(id, docente);
-            return ResponseEntity.ok(updatedDocente);
+            return ResponseEntity.ok(new DocenteResponse(usuarioService.findById(updatedDocente.getUsuario().getIdUsuario()).get().getNombre(), updatedDocente.getUnidadAcademica(), updatedDocente.getCargo()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }

@@ -1,4 +1,4 @@
-package com.Geventos.GestionDeEventos.dto;
+package com.Geventos.GestionDeEventos.DTOs.Responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

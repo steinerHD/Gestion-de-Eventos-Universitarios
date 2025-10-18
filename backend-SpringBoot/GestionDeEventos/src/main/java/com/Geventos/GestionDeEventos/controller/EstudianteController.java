@@ -1,7 +1,10 @@
 package com.Geventos.GestionDeEventos.controller;
 
+import com.Geventos.GestionDeEventos.DTOs.Responses.EstudianteResponse;
 import com.Geventos.GestionDeEventos.entity.Estudiante;
 import com.Geventos.GestionDeEventos.service.EstudianteService;
+import com.Geventos.GestionDeEventos.service.UsuarioService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,40 +19,49 @@ import java.util.Optional;
 public class EstudianteController {
 
     private final EstudianteService estudianteService;
+    private final UsuarioService usuarioService;
+    
 
     @GetMapping
-    public ResponseEntity<List<Estudiante>> getAllEstudiantes() {
+    public ResponseEntity<List<EstudianteResponse>> getAllEstudiantes() {
         List<Estudiante> estudiantes = estudianteService.findAll();
-        return ResponseEntity.ok(estudiantes);
+        List<EstudianteResponse> responses = estudiantes.stream()
+                .map(estudiante -> new EstudianteResponse(usuarioService.findById(estudiante.getUsuario().getIdUsuario()).get().getNombre(),estudiante.getCodigoEstudiantil(), estudiante.getPrograma()))
+                .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Estudiante> getEstudianteById(@PathVariable Long id) {
+    public ResponseEntity<EstudianteResponse> getEstudianteById(@PathVariable Long id) {
         Optional<Estudiante> estudiante = estudianteService.findById(id);
-        return estudiante.map(ResponseEntity::ok)
+        return estudiante.map(est -> new EstudianteResponse(usuarioService.findById(est.getUsuario().getIdUsuario()).get().getNombre(), est.getCodigoEstudiantil(), est.getPrograma()))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/codigo/{codigoEstudiantil}")
-    public ResponseEntity<Estudiante> getEstudianteByCodigo(@PathVariable String codigoEstudiantil) {
+    public ResponseEntity<EstudianteResponse> getEstudianteByCodigo(@PathVariable String codigoEstudiantil) {
         Optional<Estudiante> estudiante = estudianteService.findByCodigoEstudiantil(codigoEstudiantil);
-        return estudiante.map(ResponseEntity::ok)
+        return estudiante.map(est -> new EstudianteResponse(usuarioService.findById(est.getUsuario().getIdUsuario()).get().getNombre(), est.getCodigoEstudiantil(), est.getPrograma()))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<Estudiante> getEstudianteByUsuarioId(@PathVariable Long idUsuario) {
+    public ResponseEntity<EstudianteResponse> getEstudianteByUsuarioId(@PathVariable Long idUsuario) {
         Optional<Estudiante> estudiante = estudianteService.findByUsuarioId(idUsuario);
-        return estudiante.map(ResponseEntity::ok)
+        return estudiante.map(est -> new EstudianteResponse(usuarioService.findById(est.getUsuario().getIdUsuario()).get().getNombre(), est.getCodigoEstudiantil(), est.getPrograma()))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Estudiante> updateEstudiante(@PathVariable Long id, @RequestBody Estudiante estudiante) {
+    public ResponseEntity<EstudianteResponse> updateEstudiante(@PathVariable Long id, @RequestBody Estudiante estudiante) {
         try {
             Estudiante updatedEstudiante = estudianteService.update(id, estudiante);
-            return ResponseEntity.ok(updatedEstudiante);
+            EstudianteResponse response = new EstudianteResponse(usuarioService.findById(updatedEstudiante.getUsuario().getIdUsuario()).get().getNombre(), updatedEstudiante.getCodigoEstudiantil(), updatedEstudiante.getPrograma());
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }

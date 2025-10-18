@@ -1,7 +1,5 @@
 package com.Geventos.GestionDeEventos.controller;
 
-import com.Geventos.GestionDeEventos.dto.LoginRequest;
-import com.Geventos.GestionDeEventos.dto.JwtResponse;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.JwtService;
@@ -13,14 +11,17 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import com.Geventos.GestionDeEventos.dto.EstudianteRequest;
+
 import com.Geventos.GestionDeEventos.entity.Estudiante;
 import com.Geventos.GestionDeEventos.service.EstudianteService;
-import com.Geventos.GestionDeEventos.dto.DocenteRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.AuthRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.DocenteRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.EstudianteRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.SecretariaAcademicaRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.UserRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.JwtResponse;
 import com.Geventos.GestionDeEventos.entity.Docente;
 import com.Geventos.GestionDeEventos.service.DocenteService;
-import com.Geventos.GestionDeEventos.dto.SecretariaAcademicaRequest;
-import com.Geventos.GestionDeEventos.dto.UserRequest;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
                 .orElse(null);
 
