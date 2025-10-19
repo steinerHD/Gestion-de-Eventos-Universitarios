@@ -69,6 +69,14 @@ export class EventosApiService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  getByOrganizador(idOrganizador: number): Observable<EventoDTO[]> {
+    return this.http.get<EventoDTO[]>(`${this.baseUrl}/organizador/${idOrganizador}`);
+  }
+
+  sendToValidation(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/enviar-validacion`, {});
+  }
 }
 
 

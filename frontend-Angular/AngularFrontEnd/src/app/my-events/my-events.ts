@@ -75,11 +75,18 @@ export class MyEventsComponent implements OnInit {
   }
 
   private mapEventoWithEstado(evento: EventoDTO): EventoConEstado {
-    // Por ahora, todos los eventos se consideran "Borrador" hasta que se implemente
-    // la lógica de evaluación en el backend
+    // Determinar el estado del evento basado en la información disponible
+    // Si el evento tiene una evaluación, usar su estado
+    // Si no, asumir que es borrador
+    let estado: 'Borrador' | 'Pendiente' | 'Aprobado' | 'Rechazado' = 'Borrador';
+    
+    // Aquí puedes agregar lógica adicional para determinar el estado real
+    // basado en campos del evento o llamadas adicionales a la API
+    // Por ejemplo, si el evento tiene un campo 'estado' o 'evaluacion'
+    
     return {
       ...evento,
-      estado: 'Borrador' as const
+      estado: estado
     };
   }
 
