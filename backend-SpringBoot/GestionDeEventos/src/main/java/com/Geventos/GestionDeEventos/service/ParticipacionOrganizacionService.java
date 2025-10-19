@@ -1,7 +1,9 @@
 package com.Geventos.GestionDeEventos.service;
 
+import com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionOrganizacionRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.ParticipacionOrganizacionResponse;
 import com.Geventos.GestionDeEventos.entity.*;
-import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacionId;
+import com.Geventos.GestionDeEventos.mappers.ParticipacionOrganizacionMapper;
 import com.Geventos.GestionDeEventos.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,85 +11,98 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ParticipacionOrganizacionService {
-    
+
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final EventoRepository eventoRepository;
     private final OrganizacionExternaRepository organizacionExternaRepository;
-    
-    public List<ParticipacionOrganizacion> findAll() {
-        return participacionOrganizacionRepository.findAll();
+
+    public List<ParticipacionOrganizacionResponse> findAll() {
+        return participacionOrganizacionRepository.findAll()
+                .stream()
+                .map(ParticipacionOrganizacionMapper::toResponse)
+                .collect(Collectors.toList());
     }
-    
-    public Optional<ParticipacionOrganizacion> findById(ParticipacionOrganizacionId id) {
-        return participacionOrganizacionRepository.findById(id);
+
+    public Optional<ParticipacionOrganizacionResponse> findById(ParticipacionOrganizacionId id) {
+        return participacionOrganizacionRepository.findById(id)
+                .map(ParticipacionOrganizacionMapper::toResponse);
     }
-    
-    public List<ParticipacionOrganizacion> findByEventoId(Long idEvento) {
-        return participacionOrganizacionRepository.findByEventoId(idEvento);
+
+    public List<ParticipacionOrganizacionResponse> findByEventoId(Long idEvento) {
+        return participacionOrganizacionRepository.findByEventoId(idEvento)
+                .stream()
+                .map(ParticipacionOrganizacionMapper::toResponse)
+                .collect(Collectors.toList());
     }
-    
-    public List<ParticipacionOrganizacion> findByOrganizacionId(Long idOrganizacion) {
-        return participacionOrganizacionRepository.findByOrganizacionId(idOrganizacion);
+
+    public List<ParticipacionOrganizacionResponse> findByOrganizacionId(Long idOrganizacion) {
+        return participacionOrganizacionRepository.findByOrganizacionId(idOrganizacion)
+                .stream()
+                .map(ParticipacionOrganizacionMapper::toResponse)
+                .collect(Collectors.toList());
     }
-    
-    public List<ParticipacionOrganizacion> findByRepresentanteDiferenteTrue() {
-        return participacionOrganizacionRepository.findByRepresentanteDiferenteTrue();
+
+    public List<ParticipacionOrganizacionResponse> findByRepresentanteDiferenteTrue() {
+        return participacionOrganizacionRepository.findByRepresentanteDiferenteTrue()
+                .stream()
+                .map(ParticipacionOrganizacionMapper::toResponse)
+                .collect(Collectors.toList());
     }
-    
-    public ParticipacionOrganizacion save(ParticipacionOrganizacion participacionOrganizacion) {
-        // Validar que el evento exista
-        Evento evento = eventoRepository.findById(participacionOrganizacion.getIdEvento())
+
+    public ParticipacionOrganizacionResponse save(ParticipacionOrganizacionRequest request) {
+        // Validar existencia del evento
+        Evento evento = eventoRepository.findById(request.getIdEvento())
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
-        
-        // Validar que la organización exista
-        OrganizacionExterna organizacion = organizacionExternaRepository.findById(participacionOrganizacion.getIdOrganizacion())
+
+        // Validar existencia de la organización externa
+        OrganizacionExterna organizacion = organizacionExternaRepository.findById(request.getIdOrganizacion())
                 .orElseThrow(() -> new IllegalArgumentException("Organización externa no encontrada"));
-        
-        // Validar que no exista ya una participación para este evento y organización
-        ParticipacionOrganizacionId id = new ParticipacionOrganizacionId(
-                participacionOrganizacion.getIdEvento(), 
-                participacionOrganizacion.getIdOrganizacion()
-        );
+
+        // Validar duplicados
+        ParticipacionOrganizacionId id = new ParticipacionOrganizacionId(request.getIdEvento(), request.getIdOrganizacion());
         if (participacionOrganizacionRepository.existsById(id)) {
             throw new IllegalArgumentException("Ya existe una participación para este evento y organización");
         }
-        
-        // Validar que si representanteDiferente es true, el nombre del representante diferente no sea nulo
-        if (participacionOrganizacion.getRepresentanteDiferente() && 
-            (participacionOrganizacion.getNombreRepresentanteDiferente() == null || 
-             participacionOrganizacion.getNombreRepresentanteDiferente().trim().isEmpty())) {
+
+        // Validar campos obligatorios
+        if (Boolean.TRUE.equals(request.getRepresentanteDiferente()) &&
+                (request.getNombreRepresentanteDiferente() == null || request.getNombreRepresentanteDiferente().trim().isEmpty())) {
             throw new IllegalArgumentException("El nombre del representante diferente es obligatorio cuando representanteDiferente es true");
         }
-        
-        participacionOrganizacion.setEvento(evento);
-        participacionOrganizacion.setOrganizacion(organizacion);
-        
-        return participacionOrganizacionRepository.save(participacionOrganizacion);
+
+        ParticipacionOrganizacion entity = ParticipacionOrganizacionMapper.toEntity(request, evento, organizacion);
+        ParticipacionOrganizacion saved = participacionOrganizacionRepository.save(entity);
+
+        return ParticipacionOrganizacionMapper.toResponse(saved);
     }
-    
-    public ParticipacionOrganizacion update(ParticipacionOrganizacionId id, ParticipacionOrganizacion participacionOrganizacion) {
-        ParticipacionOrganizacion existingParticipacion = participacionOrganizacionRepository.findById(id)
+
+    public ParticipacionOrganizacionResponse update(ParticipacionOrganizacionId id, ParticipacionOrganizacionRequest request) {
+        ParticipacionOrganizacion existing = participacionOrganizacionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Participación de organización no encontrada"));
-        
-        // Validar que si representanteDiferente es true, el nombre del representante diferente no sea nulo
-        if (participacionOrganizacion.getRepresentanteDiferente() && 
-            (participacionOrganizacion.getNombreRepresentanteDiferente() == null || 
-             participacionOrganizacion.getNombreRepresentanteDiferente().trim().isEmpty())) {
+
+        // Validar campos obligatorios
+        if (Boolean.TRUE.equals(request.getRepresentanteDiferente()) &&
+                (request.getNombreRepresentanteDiferente() == null || request.getNombreRepresentanteDiferente().trim().isEmpty())) {
             throw new IllegalArgumentException("El nombre del representante diferente es obligatorio cuando representanteDiferente es true");
         }
-        
-        existingParticipacion.setCertificadoPdf(participacionOrganizacion.getCertificadoPdf());
-        existingParticipacion.setRepresentanteDiferente(participacionOrganizacion.getRepresentanteDiferente());
-        existingParticipacion.setNombreRepresentanteDiferente(participacionOrganizacion.getNombreRepresentanteDiferente());
-        
-        return participacionOrganizacionRepository.save(existingParticipacion);
+
+        // Actualizar datos
+        if (request.getCertificadoPdfBase64() != null) {
+            existing.setCertificadoPdf(java.util.Base64.getDecoder().decode(request.getCertificadoPdfBase64()));
+        }
+        existing.setRepresentanteDiferente(request.getRepresentanteDiferente());
+        existing.setNombreRepresentanteDiferente(request.getNombreRepresentanteDiferente());
+
+        ParticipacionOrganizacion updated = participacionOrganizacionRepository.save(existing);
+        return ParticipacionOrganizacionMapper.toResponse(updated);
     }
-    
+
     public void deleteById(ParticipacionOrganizacionId id) {
         if (!participacionOrganizacionRepository.existsById(id)) {
             throw new IllegalArgumentException("Participación de organización no encontrada");
@@ -95,4 +110,3 @@ public class ParticipacionOrganizacionService {
         participacionOrganizacionRepository.deleteById(id);
     }
 }
-
