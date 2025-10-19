@@ -1,87 +1,83 @@
 package com.Geventos.GestionDeEventos.controller;
 
-import com.Geventos.GestionDeEventos.entity.Instalacion;
+import com.Geventos.GestionDeEventos.DTOs.Requests.InstalacionRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.InstalacionResponse;
 import com.Geventos.GestionDeEventos.service.InstalacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/instalaciones")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class InstalacionController {
-    
+
     private final InstalacionService instalacionService;
-    
+
     @GetMapping
-    public ResponseEntity<List<Instalacion>> getAllInstalaciones() {
-        List<Instalacion> instalaciones = instalacionService.findAll();
-        return ResponseEntity.ok(instalaciones);
+    public ResponseEntity<List<InstalacionResponse>> getAllInstalaciones() {
+        return ResponseEntity.ok(instalacionService.findAll());
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<Instalacion> getInstalacionById(@PathVariable Long id) {
-        Optional<Instalacion> instalacion = instalacionService.findById(id);
-        return instalacion.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<InstalacionResponse> getInstalacionById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(instalacionService.findById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
-    
+
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<Instalacion>> getInstalacionesByTipo(@PathVariable String tipo) {
-        List<Instalacion> instalaciones = instalacionService.findByTipo(tipo);
-        return ResponseEntity.ok(instalaciones);
+    public ResponseEntity<List<InstalacionResponse>> getInstalacionesByTipo(@PathVariable String tipo) {
+        return ResponseEntity.ok(instalacionService.findByTipo(tipo));
     }
-    
+
     @GetMapping("/capacidad/{capacidad}")
-    public ResponseEntity<List<Instalacion>> getInstalacionesByCapacidadMinima(@PathVariable Integer capacidad) {
-        List<Instalacion> instalaciones = instalacionService.findByCapacidadGreaterThanEqual(capacidad);
-        return ResponseEntity.ok(instalaciones);
+    public ResponseEntity<List<InstalacionResponse>> getInstalacionesByCapacidad(@PathVariable Integer capacidad) {
+        return ResponseEntity.ok(instalacionService.findByCapacidadGreaterThanEqual(capacidad));
     }
-    
+
     @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<List<Instalacion>> getInstalacionesByNombre(@PathVariable String nombre) {
-        List<Instalacion> instalaciones = instalacionService.findByNombreContaining(nombre);
-        return ResponseEntity.ok(instalaciones);
+    public ResponseEntity<List<InstalacionResponse>> getInstalacionesByNombre(@PathVariable String nombre) {
+        return ResponseEntity.ok(instalacionService.findByNombreContaining(nombre));
     }
-    
+
     @GetMapping("/ubicacion/{ubicacion}")
-    public ResponseEntity<List<Instalacion>> getInstalacionesByUbicacion(@PathVariable String ubicacion) {
-        List<Instalacion> instalaciones = instalacionService.findByUbicacionContaining(ubicacion);
-        return ResponseEntity.ok(instalaciones);
+    public ResponseEntity<List<InstalacionResponse>> getInstalacionesByUbicacion(@PathVariable String ubicacion) {
+        return ResponseEntity.ok(instalacionService.findByUbicacionContaining(ubicacion));
     }
-    
+
     @PostMapping
-    public ResponseEntity<Instalacion> createInstalacion(@RequestBody Instalacion instalacion) {
+    public ResponseEntity<?> createInstalacion(@Valid @RequestBody InstalacionRequest request) {
         try {
-            Instalacion savedInstalacion = instalacionService.save(instalacion);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedInstalacion);
+            return ResponseEntity.status(HttpStatus.CREATED).body(instalacionService.save(request));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<Instalacion> updateInstalacion(@PathVariable Long id, @RequestBody Instalacion instalacion) {
+    public ResponseEntity<?> updateInstalacion(@PathVariable Long id, @Valid @RequestBody InstalacionRequest request) {
         try {
-            Instalacion updatedInstalacion = instalacionService.update(id, instalacion);
-            return ResponseEntity.ok(updatedInstalacion);
+            return ResponseEntity.ok(instalacionService.update(id, request));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInstalacion(@PathVariable Long id) {
+    public ResponseEntity<?> deleteInstalacion(@PathVariable Long id) {
         try {
             instalacionService.deleteById(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

@@ -1,18 +1,18 @@
 package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.AuthRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.UsuarioRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
 import com.Geventos.GestionDeEventos.JWT.JwtUtil;
-import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -24,30 +24,30 @@ public class UsuarioController {
     private final JwtUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
-        return ResponseEntity.ok(usuarios);
+    public ResponseEntity<List<UsuarioResponse>> getAllUsuarios() {
+        return ResponseEntity.ok(usuarioService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable Long id) {
-        Optional<Usuario> usuario = usuarioService.findById(id);
-        return usuario.map(ResponseEntity::ok)
+    public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable Long id) {
+        return usuarioService.findById(id)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/correo/{correo}")
-    public ResponseEntity<Usuario> getUsuarioByCorreo(@PathVariable String correo) {
-        Optional<Usuario> usuario = usuarioService.findByCorreo(correo);
-        return usuario.map(ResponseEntity::ok)
+    public ResponseEntity<UsuarioResponse> getUsuarioByCorreo(@PathVariable String correo) {
+        return usuarioService.findByCorreo(correo)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id, @RequestBody UsuarioRequest request) {
         try {
-            Usuario updatedUsuario = usuarioService.update(id, usuario);
-            return ResponseEntity.ok(updatedUsuario);
+            UsuarioResponse updated = usuarioService.update(id, request);
+            return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -65,16 +65,17 @@ public class UsuarioController {
 
     @GetMapping("/exists/correo/{correo}")
     public ResponseEntity<Boolean> existsByCorreo(@PathVariable String correo) {
-        boolean exists = usuarioService.existsByCorreo(correo);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(usuarioService.existsByCorreo(correo));
     }
 
     @PostMapping("/auth")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) {
-        Optional<Usuario> usuario = usuarioService.authenticate(authRequest.getCorreo(), authRequest.getContrasenaHash());
+        Optional<UsuarioResponse> usuario = usuarioService.authenticate(
+                authRequest.getCorreo(), authRequest.getContrasenaHash());
+
         if (usuario.isPresent()) {
-            String token = jwtUtil.generateToken(usuario.get().getCorreo());
-            return ResponseEntity.ok(Map.of("token", token));
+            String token = jwtUtil.generateToken(authRequest.getCorreo());
+            return ResponseEntity.ok(Map.of("token", token, "usuario", usuario.get()));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

@@ -1,7 +1,12 @@
 package com.Geventos.GestionDeEventos.service;
 
-import com.Geventos.GestionDeEventos.entity.*;
+import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
+import com.Geventos.GestionDeEventos.entity.Evento;
+import com.Geventos.GestionDeEventos.entity.Instalacion;
+import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.repository.*;
+import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,183 +20,166 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class EventoService {
-    
+
     private final EventoRepository eventoRepository;
-    private final UsuarioRepository usuarioRepository;
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final InstalacionRepository instalacionRepository;
     private final UsuarioService usuarioService;
-    
-    public List<Evento> findAll() {
-        return eventoRepository.findAll();
+
+    // ------------------------- CREATE / UPDATE -------------------------
+    public EventoResponse createEvento(EventoRequest request) {
+        Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
+                .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
+
+        List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
+        List<Usuario> coorganizadores = getUsuariosByIds(request.getCoorganizadores());
+
+        Evento evento = EventoMapper.toEntity(request, organizador, instalaciones, coorganizadores);
+
+        Evento savedEvento = save(evento); // método privado con todas las validaciones
+        return EventoMapper.toResponse(savedEvento);
     }
-    
+
+    public EventoResponse updateEvento(Long id, EventoRequest request) {
+        Evento existingEvento = eventoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
+                .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
+
+        List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
+        List<Usuario> coorganizadores = getUsuariosByIds(request.getCoorganizadores());
+
+        existingEvento.setTitulo(request.getTitulo());
+        existingEvento.setTipoEvento(request.getTipoEvento());
+        existingEvento.setFecha(request.getFecha());
+        existingEvento.setHoraInicio(request.getHoraInicio());
+        existingEvento.setHoraFin(request.getHoraFin());
+        existingEvento.setInstalaciones(instalaciones);
+        existingEvento.setCoorganizadores(coorganizadores);
+        existingEvento.setAvalPdf(request.getAvalPdf());
+        existingEvento.setTipoAval(request.getTipoAval());
+        existingEvento.setOrganizador(organizador);
+
+        Evento updatedEvento = save(existingEvento);
+        return EventoMapper.toResponse(updatedEvento);
+    }
+
+    // ------------------------- READ -------------------------
+    public List<EventoResponse> findAllEventos() {
+        return eventoRepository.findAll().stream()
+                .map(EventoMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Evento> findById(Long id) {
         return eventoRepository.findById(id);
     }
-    
-    public List<Evento> findByTipoEvento(Evento.TipoEvento tipoEvento) {
-        return eventoRepository.findByTipoEvento(tipoEvento);
-    }
-    
-    public List<Evento> findByFecha(LocalDate fecha) {
-        return eventoRepository.findByFecha(fecha);
-    }
-    
-    public List<Evento> findByFechaBetween(LocalDate fechaInicio, LocalDate fechaFin) {
-        return eventoRepository.findByFechaBetween(fechaInicio, fechaFin);
-    }
-    
-    public List<Evento> findByOrganizadorId(Long idOrganizador) {
-        return eventoRepository.findByOrganizadorId(idOrganizador);
-    }
-    
-    public List<Evento> findByInstalacionId(Long idInstalacion) {
-        return eventoRepository.findByInstalacionId(idInstalacion);
-    }
-    
-    public List<Evento> findByTituloContaining(String titulo) {
-        return eventoRepository.findByTituloContaining(titulo);
-    }
-    
-    public List<Evento> findEventosFuturos(LocalDate fecha) {
-        return eventoRepository.findEventosFuturos(fecha);
-    }
-    
-    public Evento save(Evento evento) {
-        // Validaciones básicas de campos obligatorios
-        if (evento.getTitulo() == null || evento.getTitulo().isBlank()) {
-            throw new IllegalArgumentException("El título es obligatorio");
-        }
-        if (evento.getTipoEvento() == null) {
-            throw new IllegalArgumentException("El tipo de evento es obligatorio");
-        }
-        if (evento.getFecha() == null) {
-            throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
-        }
-        if (evento.getHoraInicio() == null) {
-            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
-        }
-        if (evento.getHoraFin() == null) {
-            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
-        }
-        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0) {
-            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
-        }
-        if (evento.getTipoAval() == null) {
-            throw new IllegalArgumentException("El tipoAval es obligatorio");
-        }
 
-        // Validar que el organizador venga informado y exista
-        if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null) {
-            throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
-        }
-        Usuario organizador = usuarioRepository.findById(evento.getOrganizador().getIdUsuario())
-                .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
-        
-        // Validar que el organizador sea estudiante o docente (trigger de BD)
-        boolean esEstudiante = estudianteRepository.findByUsuarioId(organizador.getIdUsuario()).isPresent();
-        boolean esDocente = docenteRepository.findByUsuarioId(organizador.getIdUsuario()).isPresent();
-        
-        if (!esEstudiante && !esDocente) {
-            throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
-        }
-        
-        // Validar instalaciones (lista)
-        if (evento.getInstalaciones() != null && !evento.getInstalaciones().isEmpty()) {
-            List<Instalacion> nuevas = evento.getInstalaciones().stream()
-                    .map(i -> instalacionRepository.findById(i.getIdInstalacion())
-                            .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada: id=" + i.getIdInstalacion())))
-                    .toList();
-            evento.setInstalaciones(nuevas);
-        }
-
-        // Validar coorganizadores (lista)
-
-        List<Usuario> coorganizadores = new ArrayList<>();
-        if (evento.getCoorganizadores() != null) {
-            for (Usuario idCoorg : evento.getCoorganizadores()) {
-                usuarioService.findById(idCoorg.getIdUsuario()).ifPresent(coorganizadores::add);
-            }
-        }
-        evento.setCoorganizadores(coorganizadores);
-        
-        // Validar que la fecha no sea en el pasado
-        if (evento.getFecha().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
-        }
-        
-        evento.setOrganizador(organizador);
-        return eventoRepository.save(evento);
+    public Optional<EventoResponse> findByIdEvento(Long id) {
+        return eventoRepository.findById(id)
+                .map(EventoMapper::toResponse);
     }
-    
-    public Evento update(Long id, Evento evento) {
-        Evento existingEvento = eventoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
-        
-        // Validaciones básicas
-        if (evento.getTitulo() == null || evento.getTitulo().isBlank()) {
-            throw new IllegalArgumentException("El título es obligatorio");
-        }
-        if (evento.getTipoEvento() == null) {
-            throw new IllegalArgumentException("El tipo de evento es obligatorio");
-        }
-        if (evento.getFecha() == null) {
-            throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
-        }
-        if (evento.getHoraInicio() == null) {
-            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
-        }
-        if (evento.getHoraFin() == null) {
-            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
-        }
-        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0) {
-            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
-        }
-        if (evento.getTipoAval() == null) {
-            throw new IllegalArgumentException("El tipoAval es obligatorio");
-        }
 
-        if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null) {
-            throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
-        }
-        // Validar que el organizador exista
-        Usuario organizador = usuarioRepository.findById(evento.getOrganizador().getIdUsuario())
-                .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
-        
-        // Validar que el organizador sea estudiante o docente (trigger de BD)
-        boolean esEstudiante = estudianteRepository.findByUsuarioId(organizador.getIdUsuario()).isPresent();
-        boolean esDocente = docenteRepository.findByUsuarioId(organizador.getIdUsuario()).isPresent();
-        
-        if (!esEstudiante && !esDocente) {
-            throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
-        }
-        
-        // (eliminado) validación instalación única
-        
-        // Validar que la fecha no sea en el pasado
-        if (evento.getFecha().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
-        }
-        
-        existingEvento.setTitulo(evento.getTitulo());
-        existingEvento.setTipoEvento(evento.getTipoEvento());
-        existingEvento.setFecha(evento.getFecha());
-        existingEvento.setHoraInicio(evento.getHoraInicio());
-        existingEvento.setHoraFin(evento.getHoraFin()); 
-        existingEvento.setInstalaciones(evento.getInstalaciones());
-        existingEvento.setOrganizador(organizador);
-        existingEvento.setAvalPdf(evento.getAvalPdf());
-        existingEvento.setTipoAval(evento.getTipoAval());
-        
-        return eventoRepository.save(existingEvento);
+    public List<EventoResponse> findByTipoEvento(Evento.TipoEvento tipoEvento) {
+        return eventoRepository.findByTipoEvento(tipoEvento)
+                .stream().map(EventoMapper::toResponse).toList();
     }
-    
+
+    public List<EventoResponse> findByFecha(LocalDate fecha) {
+        return eventoRepository.findByFecha(fecha)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    public List<EventoResponse> findByFechaBetween(LocalDate inicio, LocalDate fin) {
+        return eventoRepository.findByFechaBetween(inicio, fin)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    public List<EventoResponse> findByOrganizadorId(Long idOrganizador) {
+        return eventoRepository.findByOrganizadorId(idOrganizador)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    public List<EventoResponse> findByInstalacionId(Long idInstalacion) {
+        return eventoRepository.findByInstalacionId(idInstalacion)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    public List<EventoResponse> findByTituloContaining(String titulo) {
+        return eventoRepository.findByTituloContaining(titulo)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    public List<EventoResponse> findEventosFuturos(LocalDate fecha) {
+        return eventoRepository.findEventosFuturos(fecha)
+                .stream().map(EventoMapper::toResponse).toList();
+    }
+
+    // ------------------------- DELETE -------------------------
     public void deleteById(Long id) {
         if (!eventoRepository.existsById(id)) {
             throw new IllegalArgumentException("Evento no encontrado");
         }
         eventoRepository.deleteById(id);
+    }
+
+    // ------------------------- MÉTODOS AUXILIARES PRIVADOS
+    // -------------------------
+    private List<Instalacion> getInstalacionesByIds(List<Long> ids) {
+        if (ids == null)
+            return List.of();
+        List<Instalacion> lista = new ArrayList<>();
+        for (Long id : ids) {
+            Instalacion inst = instalacionRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada: id=" + id));
+            lista.add(inst);
+        }
+        return lista;
+    }
+
+    private List<Usuario> getUsuariosByIds(List<Long> ids) {
+        if (ids == null)
+            return List.of();
+        List<Usuario> lista = new ArrayList<>();
+        for (Long id : ids) {
+            usuarioService.findEntityById(id).ifPresent(lista::add);
+        }
+        return lista;
+    }
+
+    private Evento save(Evento evento) {
+        // ---------------- VALIDACIONES ----------------
+        if (evento.getTitulo() == null || evento.getTitulo().isBlank())
+            throw new IllegalArgumentException("El título es obligatorio");
+        if (evento.getTipoEvento() == null)
+            throw new IllegalArgumentException("El tipo de evento es obligatorio");
+        if (evento.getFecha() == null)
+            throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
+        if (evento.getHoraInicio() == null)
+            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
+        if (evento.getHoraFin() == null)
+            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
+        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0)
+            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
+        if (evento.getTipoAval() == null)
+            throw new IllegalArgumentException("El tipoAval es obligatorio");
+        if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null)
+            throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
+
+        // Validar que sea estudiante o docente
+        Long idOrg = evento.getOrganizador().getIdUsuario();
+        boolean esEstudiante = estudianteRepository.findByUsuarioId(idOrg).isPresent();
+        boolean esDocente = docenteRepository.findByUsuarioId(idOrg).isPresent();
+        if (!esEstudiante && !esDocente)
+            throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
+
+        // Fecha no puede ser en el pasado
+        if (evento.getFecha().isBefore(LocalDate.now()))
+            throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
+
+        return eventoRepository.save(evento);
     }
 }
