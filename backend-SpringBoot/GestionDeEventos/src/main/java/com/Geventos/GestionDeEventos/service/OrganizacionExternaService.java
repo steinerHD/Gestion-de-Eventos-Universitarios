@@ -2,8 +2,10 @@ package com.Geventos.GestionDeEventos.service;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.OrganizacionExternaRequest;
 import com.Geventos.GestionDeEventos.entity.OrganizacionExterna;
+import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.mappers.OrganizacionExternaMapper;
 import com.Geventos.GestionDeEventos.repository.OrganizacionExternaRepository;
+import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class OrganizacionExternaService {
 
     private final OrganizacionExternaRepository organizacionExternaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public List<OrganizacionExterna> findAll() {
         return organizacionExternaRepository.findAll();
@@ -46,18 +49,33 @@ public class OrganizacionExternaService {
         return organizacionExternaRepository.findByUbicacionContaining(ubicacion);
     }
 
-    public OrganizacionExterna save(OrganizacionExternaRequest request) {
+    /**
+     * Crea una organización y la asocia al usuario creador.
+     */
+    public OrganizacionExterna save(OrganizacionExternaRequest request, Long idCreador) {
         if (organizacionExternaRepository.findByNit(request.getNit()).isPresent()) {
             throw new IllegalArgumentException("Ya existe una organización con este NIT");
         }
 
+        Usuario creador = usuarioRepository.findById(idCreador)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario creador no encontrado"));
+
         OrganizacionExterna organizacion = OrganizacionExternaMapper.toEntity(request);
+        organizacion.setCreador(creador);
+
         return organizacionExternaRepository.save(organizacion);
     }
 
-    public OrganizacionExterna update(Long id, OrganizacionExternaRequest request) {
+    /**
+     * Permite editar solo si el usuario autenticado es el creador.
+     */
+    public OrganizacionExterna update(Long id, OrganizacionExternaRequest request, Long idUsuarioActual) {
         OrganizacionExterna existing = organizacionExternaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Organización externa no encontrada"));
+
+        if (!existing.getCreador().getIdUsuario().equals(idUsuarioActual)) {
+            throw new SecurityException("No tienes permiso para editar esta organización");
+        }
 
         existing.setNit(request.getNit());
         existing.setNombre(request.getNombre());
@@ -70,10 +88,17 @@ public class OrganizacionExternaService {
         return organizacionExternaRepository.save(existing);
     }
 
-    public void deleteById(Long id) {
-        if (!organizacionExternaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Organización externa no encontrada");
+    /**
+     * Permite eliminar solo si el usuario autenticado es el creador.
+     */
+    public void deleteById(Long id, Long idUsuarioActual) {
+        OrganizacionExterna existing = organizacionExternaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Organización externa no encontrada"));
+
+        if (!existing.getCreador().getIdUsuario().equals(idUsuarioActual)) {
+            throw new SecurityException("No tienes permiso para eliminar esta organización");
         }
-        organizacionExternaRepository.deleteById(id);
+
+        organizacionExternaRepository.delete(existing);
     }
 }

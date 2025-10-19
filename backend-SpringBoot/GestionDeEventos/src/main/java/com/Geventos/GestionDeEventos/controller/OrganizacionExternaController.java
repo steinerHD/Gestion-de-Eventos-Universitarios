@@ -56,34 +56,42 @@ public class OrganizacionExternaController {
 
     @PostMapping
     public ResponseEntity<OrganizacionExternaResponse> createOrganizacionExterna(
-            @Valid @RequestBody OrganizacionExternaRequest request) {
+            @Valid @RequestBody OrganizacionExternaRequest request,
+            @RequestParam Long idCreador) {
         try {
-            OrganizacionExterna saved = organizacionExternaService.save(request);
+            OrganizacionExterna saved = organizacionExternaService.save(request, idCreador);
             return ResponseEntity.status(HttpStatus.CREATED).body(OrganizacionExternaMapper.toResponse(saved));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrganizacionExternaResponse> updateOrganizacionExterna(
+    public ResponseEntity<?> updateOrganizacionExterna(
             @PathVariable Long id,
-            @Valid @RequestBody OrganizacionExternaRequest request) {
+            @Valid @RequestBody OrganizacionExternaRequest request,
+            @RequestParam Long idUsuario) {
         try {
-            OrganizacionExterna updated = organizacionExternaService.update(id, request);
+            OrganizacionExterna updated = organizacionExternaService.update(id, request, idUsuario);
             return ResponseEntity.ok(OrganizacionExternaMapper.toResponse(updated));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrganizacionExterna(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOrganizacionExterna(
+            @PathVariable Long id,
+            @RequestParam Long idUsuario) {
         try {
-            organizacionExternaService.deleteById(id);
+            organizacionExternaService.deleteById(id, idUsuario);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 }

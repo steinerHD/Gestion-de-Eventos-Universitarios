@@ -53,4 +53,9 @@ public class Usuario {
     @ManyToMany(mappedBy = "coorganizadores")
     @JsonBackReference(value = "evento-coorganizadores")
     private List<Evento> eventosCoorganizados;
+
+    @OneToMany(mappedBy = "creador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "usuario-organizaciones")
+    private List<OrganizacionExterna> organizacionesCreadas;
+
 }

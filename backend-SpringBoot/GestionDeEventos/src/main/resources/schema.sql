@@ -158,6 +158,7 @@ CREATE TABLE evento (
 
 CREATE TABLE organizacion_externa (
   id_organizacion SERIAL PRIMARY KEY,
+  id_creador INT REFERENCES usuario(id_usuario),
   nit INT NOT NULL,
   nombre VARCHAR(150) NOT NULL,
   representante_legal VARCHAR(150) NOT NULL,
