@@ -1,6 +1,8 @@
 package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.entity.Usuario;
+import com.Geventos.GestionDeEventos.mappers.DocenteMapper;
+import com.Geventos.GestionDeEventos.mappers.EstudianteMapper;
 import com.Geventos.GestionDeEventos.mappers.SecretariaMapper;
 import com.Geventos.GestionDeEventos.mappers.UsuarioMapper;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
@@ -29,6 +31,8 @@ import com.Geventos.GestionDeEventos.DTOs.Responses.SecretariaResponse;
 import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
 import com.Geventos.GestionDeEventos.service.CorreoBienvenidaService;
 import com.Geventos.GestionDeEventos.service.DocenteService;
+import com.Geventos.GestionDeEventos.entity.Docente;
+import com.Geventos.GestionDeEventos.entity.Estudiante;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
 import lombok.RequiredArgsConstructor;
@@ -97,12 +101,11 @@ public class AuthController {
     @PostMapping("/registrar/docente")
     public ResponseEntity<?> createDocente(@Valid @RequestBody DocenteRequest request) {
         try {
-            DocenteResponse response = docenteService.save(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            Docente docente = docenteService.save(request);
+            DocenteResponse response = DocenteMapper.toResponse(docente);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el docente");
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -110,13 +113,11 @@ public class AuthController {
     @PostMapping("/registrar/estudiante")
     public ResponseEntity<?> createEstudiante(@RequestBody EstudianteRequest request) {
         try {
-            EstudianteResponse response = estudianteService.save(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            Estudiante estudiante = estudianteService.save(request);
+            EstudianteResponse response = EstudianteMapper.toResponse(estudiante);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al registrar el estudiante");
+            return ResponseEntity.badRequest().build();
         }
     }
 

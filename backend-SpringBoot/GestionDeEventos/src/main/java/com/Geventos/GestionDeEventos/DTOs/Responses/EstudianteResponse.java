@@ -14,7 +14,6 @@ public class EstudianteResponse {
     private Long idEstudiante;
     private String codigoEstudiantil;
     private String programa;
-    private Long idUsuario;
     private String nombreUsuario;
     private String correoUsuario;
 }

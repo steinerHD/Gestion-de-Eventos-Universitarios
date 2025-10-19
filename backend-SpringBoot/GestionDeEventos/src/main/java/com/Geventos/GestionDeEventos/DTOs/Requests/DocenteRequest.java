@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocenteRequest {
-    private Long idDocente;          // Coincide con idUsuario en la mayoría de casos
+    private Long idUsuario;          
     private String unidadAcademica;
     private String cargo;
 }

@@ -9,7 +9,7 @@ public class EstudianteMapper {
 
     public static Estudiante toEntity(EstudianteRequest request) {
         Estudiante estudiante = new Estudiante();
-        estudiante.setIdEstudiante(request.getIdEstudiante());
+        estudiante.setIdEstudiante(request.getIdUsuario());
         estudiante.setCodigoEstudiantil(request.getCodigoEstudiantil());
         estudiante.setPrograma(request.getPrograma());
         return estudiante;
@@ -23,7 +23,6 @@ public class EstudianteMapper {
 
         Usuario usuario = estudiante.getUsuario();
         if (usuario != null) {
-            response.setIdUsuario(usuario.getIdUsuario());
             response.setNombreUsuario(usuario.getNombre());
             response.setCorreoUsuario(usuario.getCorreo());
         }

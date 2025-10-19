@@ -26,9 +26,9 @@ public class EstudianteService {
     // ------------------------------
     // MÉTODO SAVE NUEVO
     // ------------------------------
-    public EstudianteResponse save(EstudianteRequest request) {
+    public Estudiante save(EstudianteRequest request) {
         // Validar usuario existente
-        Usuario usuario = usuarioRepository.findById(request.getIdEstudiante())
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         // Validar código único
@@ -42,12 +42,12 @@ public class EstudianteService {
         }
 
         // Crear entidad
-        Estudiante estudiante = EstudianteMapper.toEntity(request);
+        Estudiante estudiante = new Estudiante();
         estudiante.setUsuario(usuario);
-        estudiante.setIdEstudiante(usuario.getIdUsuario()); // importante para @MapsId
+        estudiante.setPrograma(request.getPrograma());
+        estudiante.setCodigoEstudiantil(request.getCodigoEstudiantil());
 
-        Estudiante saved = estudianteRepository.save(estudiante);
-        return EstudianteMapper.toResponse(saved);
+        return estudianteRepository.save(estudiante);
     }
 
     // ------------------------------

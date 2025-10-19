@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EstudianteRequest {
-    private Long idEstudiante;         // Id del usuario asociado
+    private Long idUsuario;         // Id del usuario asociado
     private String codigoEstudiantil;
     private String programa;
 }

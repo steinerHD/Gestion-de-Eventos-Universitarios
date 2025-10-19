@@ -56,13 +56,6 @@ public class SecretariaAcademicaService {
         return secretariaAcademicaRepository.save(secretaria);
     }
 
-    // Crear (versión sobrecargada para compatibilidad directa)
-    public SecretariaAcademica save(SecretariaAcademica secretariaAcademica) {
-        if (secretariaAcademica.getUsuario() == null) {
-            throw new IllegalArgumentException("Debe asignar un usuario válido a la secretaria");
-        }
-        return secretariaAcademicaRepository.save(secretariaAcademica);
-    }
 
     // Actualizar una secretaria existente
     public SecretariaAcademica update(Long id, SecretariaAcademica secretariaAcademica) {

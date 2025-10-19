@@ -54,18 +54,20 @@ public class DocenteService {
                 .collect(Collectors.toList());
     }
 
-    public DocenteResponse save(DocenteRequest request) {
+    public Docente save(DocenteRequest request) {
         // Validar usuario existente
-        Usuario usuario = usuarioRepository.findById(request.getIdDocente())
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario asociado no encontrado"));
 
         // Crear la entidad docente
-        Docente docente = DocenteMapper.toEntity(request);
-        docente.setUsuario(usuario); // Enlazar usuario
-        docente.setIdDocente(usuario.getIdUsuario()); // Asegurar consistencia con @MapsId
+        Docente docente = new Docente();
+        docente.setUsuario(usuario);
+        docente.setUnidadAcademica(request.getUnidadAcademica());
+        docente.setCargo(request.getCargo());
+       
 
-        Docente saved = docenteRepository.save(docente);
-        return DocenteMapper.toResponse(saved);
+        return docenteRepository.save(docente);
+        
     }
 
     /**
@@ -80,7 +82,7 @@ public class DocenteService {
                 .orElseThrow(() -> new IllegalArgumentException("Docente no encontrado"));
 
         // Validar que el usuario asociado exista
-        Usuario usuario = usuarioRepository.findById(request.getIdDocente())
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario asociado no encontrado"));
 
         // Mapear campos (evitar sobreescribir id ni relación incorrecta)

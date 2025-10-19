@@ -22,7 +22,7 @@ public class DocenteMapper {
     // 🔹 Convierte de request DTO a entidad
     public static Docente toEntity(DocenteRequest request) {
         Docente docente = new Docente();
-        docente.setIdDocente(request.getIdDocente());
+        docente.setIdDocente(request.getIdUsuario());
         docente.setUnidadAcademica(request.getUnidadAcademica());
         docente.setCargo(request.getCargo());
         return docente;
