@@ -1,26 +1,34 @@
 package com.Geventos.GestionDeEventos.controller;
 
-import com.Geventos.GestionDeEventos.dto.LoginRequest;
-import com.Geventos.GestionDeEventos.dto.JwtResponse;
 import com.Geventos.GestionDeEventos.entity.Usuario;
+import com.Geventos.GestionDeEventos.mappers.SecretariaMapper;
+import com.Geventos.GestionDeEventos.mappers.UsuarioMapper;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.JwtService;
 import com.Geventos.GestionDeEventos.service.RecuperarContrasenaService;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
+
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import com.Geventos.GestionDeEventos.dto.EstudianteRequest;
-import com.Geventos.GestionDeEventos.entity.Estudiante;
+
 import com.Geventos.GestionDeEventos.service.EstudianteService;
-import com.Geventos.GestionDeEventos.dto.DocenteRequest;
-import com.Geventos.GestionDeEventos.entity.Docente;
+import com.Geventos.GestionDeEventos.DTOs.Requests.AuthRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.DocenteRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.EstudianteRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.SecretariaRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.UsuarioRequest;
+import com.Geventos.GestionDeEventos.DTOs.Responses.DocenteResponse;
+import com.Geventos.GestionDeEventos.DTOs.Responses.EstudianteResponse;
+import com.Geventos.GestionDeEventos.DTOs.Responses.JwtResponse;
+import com.Geventos.GestionDeEventos.DTOs.Responses.SecretariaResponse;
+import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
+import com.Geventos.GestionDeEventos.service.CorreoBienvenidaService;
 import com.Geventos.GestionDeEventos.service.DocenteService;
-import com.Geventos.GestionDeEventos.dto.SecretariaAcademicaRequest;
-import com.Geventos.GestionDeEventos.dto.UserRequest;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +50,8 @@ public class AuthController {
     private final SecretariaAcademicaService secretariaAcademicaService;
     @Autowired
     private RecuperarContrasenaService recuperarContrasenaService;
+    private final UsuarioMapper usuarioMapper;
+    private final CorreoBienvenidaService correoBienvenidaService;
 
     @PostMapping("/recuperar")
     public ResponseEntity<Map<String, String>> recuperarContrasena(@RequestBody Map<String, String> body) {
@@ -57,7 +67,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
                 .orElse(null);
 
@@ -71,57 +81,62 @@ public class AuthController {
 
     // Registro de secretaria académica
     @PostMapping("/registrar/secretaria")
-    public ResponseEntity<?> registrarSecretaria(@RequestBody SecretariaAcademicaRequest request) {
-        System.out.println("[DEBUG] Entrando a /api/auth/registrar/secretaria");
+    public ResponseEntity<SecretariaResponse> createSecretariaAcademica(
+            @Valid @RequestBody SecretariaRequest request) {
+
         try {
-            SecretariaAcademica saved = secretariaAcademicaService.save(request.getIdUsuario(), request.getFacultad());
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            SecretariaAcademica secretaria = secretariaAcademicaService.save(request);
+            SecretariaResponse response = SecretariaMapper.toResponse(secretaria);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     // Registro de docente
     @PostMapping("/registrar/docente")
-    public ResponseEntity<?> registrarDocente(@RequestBody DocenteRequest request) {
+    public ResponseEntity<?> createDocente(@Valid @RequestBody DocenteRequest request) {
         try {
-            Docente docente = new Docente();
-            docente.setUnidadAcademica(request.getUnidadAcademica());
-            docente.setCargo(request.getCargo());
-            Docente saved = docenteService.save(request.getIdUsuario(), docente);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            DocenteResponse response = docenteService.save(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el docente");
         }
     }
 
     // Registro de estudiante
     @PostMapping("/registrar/estudiante")
-    public ResponseEntity<?> registrarEstudiante(@RequestBody EstudianteRequest request) {
+    public ResponseEntity<?> createEstudiante(@RequestBody EstudianteRequest request) {
         try {
-            Estudiante estudiante = new Estudiante();
-            estudiante.setCodigoEstudiantil(request.getCodigoEstudiantil());
-            estudiante.setPrograma(request.getPrograma());
-            Estudiante saved = estudianteService.save(request.getIdUsuario(), estudiante);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            EstudianteResponse response = estudianteService.save(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al registrar el estudiante");
         }
     }
 
     // Registro de usuario
     @PostMapping("/registrar/usuario")
-    public ResponseEntity<?> registrarUsuario(@RequestBody UserRequest request) {
-        System.out.println("[DEBUG] Entrando a /api/auth/registrar/usuario");
+    public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest request) {
         try {
-            Usuario usuario = new Usuario();
-            usuario.setNombre(request.getNombre());
-            usuario.setCorreo(request.getCorreo());
-            usuario.setContrasenaHash(request.getContrasenaHash());
-            Usuario saved = usuarioService.save(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            UsuarioResponse response = usuarioService.save(request);
+
+            // Obtener la entidad del usuario para enviar el correo
+            Usuario usuario = usuarioMapper.toEntity(request);
+            usuario.setCorreo(response.getCorreo());
+            usuario.setNombre(response.getNombre());
+
+            // Enviar correo de bienvenida
+            correoBienvenidaService.enviarCorreoBienvenida(usuario);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }
