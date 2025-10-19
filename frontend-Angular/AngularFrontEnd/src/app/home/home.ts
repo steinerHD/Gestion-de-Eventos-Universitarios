@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EventService } from '../services/event.service';
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
