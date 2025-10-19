@@ -2,6 +2,7 @@ package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.mappers.SecretariaMapper;
+import com.Geventos.GestionDeEventos.mappers.UsuarioMapper;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.JwtService;
 import com.Geventos.GestionDeEventos.service.RecuperarContrasenaService;
@@ -26,6 +27,7 @@ import com.Geventos.GestionDeEventos.DTOs.Responses.EstudianteResponse;
 import com.Geventos.GestionDeEventos.DTOs.Responses.JwtResponse;
 import com.Geventos.GestionDeEventos.DTOs.Responses.SecretariaResponse;
 import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
+import com.Geventos.GestionDeEventos.service.CorreoBienvenidaService;
 import com.Geventos.GestionDeEventos.service.DocenteService;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
@@ -48,6 +50,8 @@ public class AuthController {
     private final SecretariaAcademicaService secretariaAcademicaService;
     @Autowired
     private RecuperarContrasenaService recuperarContrasenaService;
+    private final UsuarioMapper usuarioMapper;
+    private final CorreoBienvenidaService correoBienvenidaService;
 
     @PostMapping("/recuperar")
     public ResponseEntity<Map<String, String>> recuperarContrasena(@RequestBody Map<String, String> body) {
@@ -121,6 +125,15 @@ public class AuthController {
     public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest request) {
         try {
             UsuarioResponse response = usuarioService.save(request);
+
+            // Obtener la entidad del usuario para enviar el correo
+            Usuario usuario = usuarioMapper.toEntity(request);
+            usuario.setCorreo(response.getCorreo());
+            usuario.setNombre(response.getNombre());
+
+            // Enviar correo de bienvenida
+            correoBienvenidaService.enviarCorreoBienvenida(usuario);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
