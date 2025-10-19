@@ -149,6 +149,7 @@ CREATE TABLE evento (
   tipo_evento VARCHAR(20) NOT NULL CHECK (tipo_evento IN ('Académico','Lúdico')),
   fecha DATE NOT NULL,
   horaInicio TIME NOT NULL,
+  estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
   horaFin TIME NOT NULL,
   id_instalacion INT REFERENCES instalacion(id_instalacion),
   id_usuario_organizador INT REFERENCES usuario(id_usuario),

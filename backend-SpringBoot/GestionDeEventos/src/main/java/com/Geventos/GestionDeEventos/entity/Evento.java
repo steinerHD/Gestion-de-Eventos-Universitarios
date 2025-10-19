@@ -77,6 +77,10 @@ public class Evento {
     @Column(name = "tipo_aval", length = 50)
     private TipoAval tipoAval;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 20)
+    private EstadoEvento estado;
+
     @JsonManagedReference(value = "evento-organizaciones")
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParticipacionOrganizacion> participacionesOrganizaciones;
@@ -96,6 +100,10 @@ public class Evento {
 
     public enum TipoAval {
         Director_Programa, Director_Docencia
+    }
+
+    public enum EstadoEvento {
+        Aprobado, Rechazado, Pendiente, Borrador
     }
 
     @PrePersist
