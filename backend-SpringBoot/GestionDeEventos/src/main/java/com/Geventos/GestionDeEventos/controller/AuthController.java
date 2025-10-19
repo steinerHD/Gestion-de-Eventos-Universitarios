@@ -111,7 +111,7 @@ public class AuthController {
 
     // Registro de estudiante
     @PostMapping("/registrar/estudiante")
-    public ResponseEntity<?> createEstudiante(@RequestBody EstudianteRequest request) {
+    public ResponseEntity<?> createEstudiante(@Valid @RequestBody EstudianteRequest request) {
         try {
             Estudiante estudiante = estudianteService.save(request);
             EstudianteResponse response = EstudianteMapper.toResponse(estudiante);
