@@ -30,4 +30,6 @@ public class OrganizacionExternaRequest {
 
     @NotBlank(message = "La actividad principal es obligatoria")
     private String actividadPrincipal;
+    
+    private Long idCreador;
 }

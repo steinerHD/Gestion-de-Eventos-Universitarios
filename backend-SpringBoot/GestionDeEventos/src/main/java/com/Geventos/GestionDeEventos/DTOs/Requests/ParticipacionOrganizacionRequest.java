@@ -6,7 +6,7 @@ import lombok.Data;
 public class ParticipacionOrganizacionRequest {
     private Long idEvento;
     private Long idOrganizacion;
-    private String certificadoPdfBase64; // PDF codificado en Base64
+    private String certificadoPdf;
     private Boolean representanteDiferente;
     private String nombreRepresentanteDiferente;
 }

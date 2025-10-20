@@ -6,7 +6,6 @@ import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 
-import java.util.Base64;
 import java.util.List;
 
 public class EventoMapper {
@@ -23,6 +22,7 @@ public class EventoMapper {
         evento.setCoorganizadores(coorganizadores);
         evento.setAvalPdf(request.getAvalPdf());
         evento.setTipoAval(request.getTipoAval());
+        evento.setEstado(request.getEstado());
         return evento;
     }
 
@@ -39,15 +39,13 @@ public class EventoMapper {
             evento.getInstalaciones().stream().map(Instalacion::getIdInstalacion).toList() : List.of());
         response.setCoorganizadores(evento.getCoorganizadores() != null ?
             evento.getCoorganizadores().stream().map(Usuario::getIdUsuario).toList() : List.of());
+        response.setOrganizacionesExternas(evento.getParticipacionesOrganizaciones() != null ?
+            evento.getParticipacionesOrganizaciones().stream()
+                .map(participacion -> participacion.getOrganizacion().getIdOrganizacion())
+                .toList() : List.of());
         response.setTipoAval(evento.getTipoAval());
-
-        // Convertir PDF a Base64
-        if (evento.getAvalPdf() != null && evento.getAvalPdf().length > 0) {
-            response.setAvalBase64(Base64.getEncoder().encodeToString(evento.getAvalPdf()));
-        } else {
-            response.setAvalBase64(null);
-        }
-
+        response.setAvalPdf(evento.getAvalPdf());
+        response.setEstado(evento.getEstado());
         return response;
     }
 }

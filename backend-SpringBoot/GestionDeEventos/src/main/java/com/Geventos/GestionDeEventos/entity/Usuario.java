@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "usuario")
 @Data
-@ToString(exclude = { "eventosOrganizados", "estudiante", "docente", "secretariaAcademica" })
+@ToString(exclude = { "eventosOrganizados", "eventosCoorganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {

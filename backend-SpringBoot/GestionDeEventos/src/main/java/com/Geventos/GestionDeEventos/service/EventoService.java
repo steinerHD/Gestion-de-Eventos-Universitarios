@@ -5,6 +5,7 @@ import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
+import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.repository.*;
 import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ public class EventoService {
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final InstalacionRepository instalacionRepository;
+    private final OrganizacionExternaRepository organizacionExternaRepository;
+    private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final UsuarioService usuarioService;
 
     // ------------------------- CREATE / UPDATE -------------------------
@@ -38,6 +41,12 @@ public class EventoService {
         Evento evento = EventoMapper.toEntity(request, organizador, instalaciones, coorganizadores);
 
         Evento savedEvento = save(evento); // método privado con todas las validaciones
+        
+        // Manejar organizaciones externas después de guardar el evento
+        if (request.getOrganizacionesExternas() != null && !request.getOrganizacionesExternas().isEmpty()) {
+            manejarOrganizacionesExternas(savedEvento.getIdEvento(), request.getOrganizacionesExternas());
+        }
+        
         return EventoMapper.toResponse(savedEvento);
     }
 
@@ -63,6 +72,12 @@ public class EventoService {
         existingEvento.setOrganizador(organizador);
 
         Evento updatedEvento = save(existingEvento);
+        
+        // Manejar organizaciones externas después de actualizar el evento
+        if (request.getOrganizacionesExternas() != null) {
+            manejarOrganizacionesExternas(id, request.getOrganizacionesExternas());
+        }
+        
         return EventoMapper.toResponse(updatedEvento);
     }
 
@@ -162,8 +177,8 @@ public class EventoService {
             throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
         if (evento.getHoraFin() == null)
             throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
-        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0)
-            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
+        if (evento.getAvalPdf() == null || evento.getAvalPdf().isBlank())
+            throw new IllegalArgumentException("La ruta del aval PDF es obligatoria");
         if (evento.getTipoAval() == null)
             throw new IllegalArgumentException("El tipoAval es obligatorio");
         if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null)
@@ -181,5 +196,26 @@ public class EventoService {
             throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
 
         return eventoRepository.save(evento);
+    }
+
+    private void manejarOrganizacionesExternas(Long idEvento, List<Long> organizacionesExternasIds) {
+        // Eliminar participaciones existentes para este evento
+        participacionOrganizacionRepository.deleteByIdEvento(idEvento);
+        
+        // Crear nuevas participaciones
+        for (Long idOrganizacion : organizacionesExternasIds) {
+            // Verificar que la organización existe
+            if (!organizacionExternaRepository.existsById(idOrganizacion)) {
+                throw new IllegalArgumentException("Organización externa no encontrada: id=" + idOrganizacion);
+            }
+            
+            ParticipacionOrganizacion participacion = new ParticipacionOrganizacion();
+            participacion.setIdEvento(idEvento);
+            participacion.setIdOrganizacion(idOrganizacion);
+            participacion.setCertificadoPdf("");
+            participacion.setRepresentanteDiferente(false);
+            
+            participacionOrganizacionRepository.save(participacion);
+        }
     }
 }

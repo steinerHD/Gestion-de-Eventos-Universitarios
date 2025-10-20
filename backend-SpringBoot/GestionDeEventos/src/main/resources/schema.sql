@@ -153,7 +153,7 @@ CREATE TABLE evento (
   horaFin TIME NOT NULL,
   id_instalacion INT REFERENCES instalacion(id_instalacion),
   id_usuario_organizador INT REFERENCES usuario(id_usuario),
-  aval_pdf BYTEA NOT NULL,
+  aval_pdf VARCHAR(255) NOT NULL,
   tipo_aval VARCHAR(50) NOT NULL CHECK (tipo_aval IN ('Director Programa','Director Docencia'))
 );
 
@@ -172,7 +172,7 @@ CREATE TABLE organizacion_externa (
 CREATE TABLE participacion_organizacion (
   id_evento INT NOT NULL,
   id_organizacion INT NOT NULL,
-  certificado_pdf BYTEA NOT NULL,
+  certificado_pdf VARCHAR(255) NOT NULL,
   representante_diferente BOOLEAN DEFAULT FALSE,
   nombre_representante_diferente VARCHAR(150),
   PRIMARY KEY (id_evento, id_organizacion),

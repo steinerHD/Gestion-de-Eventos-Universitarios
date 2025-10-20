@@ -3,7 +3,6 @@ package com.Geventos.GestionDeEventos.controller;
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
-import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import com.Geventos.GestionDeEventos.service.EventoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,10 +35,13 @@ public class EventoController {
 
     @PostMapping
     public ResponseEntity<EventoResponse> createEvento(@RequestBody EventoRequest request) {
+        System.out.println("[DEBUG] POST /api/eventos - Request recibido");
         try {
             EventoResponse response = eventoService.createEvento(request);
+            System.out.println("[DEBUG] Evento creado exitosamente con ID: " + response.getIdEvento());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error en validación: " + e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -106,11 +108,14 @@ public class EventoController {
 
     // ------------------------- PDFs -------------------------
     @GetMapping("/{id}/aval")
-    public ResponseEntity<String> getAvalBase64(@PathVariable Long id) {
-        return eventoService.findById(id)
-                .map(EventoMapper::toResponse)
-                .map(r -> ResponseEntity.ok(r.getAvalBase64()))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> getAvalPdf(@PathVariable Long id) {
+        return ResponseEntity.ok(eventoService.findById(id).get().getAvalPdf());
+    }
+
+    // ------------------------- TEST ENDPOINT -------------------------
+    @GetMapping("/test-auth")
+    public ResponseEntity<String> testAuth() {
+        return ResponseEntity.ok("Autenticación funcionando correctamente");
     }
 
 }

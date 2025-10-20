@@ -52,12 +52,16 @@ public class OrganizacionExternaService {
     /**
      * Crea una organización y la asocia al usuario creador.
      */
-    public OrganizacionExterna save(OrganizacionExternaRequest request, Long idCreador) {
+    public OrganizacionExterna save(OrganizacionExternaRequest request) {
         if (organizacionExternaRepository.findByNit(request.getNit()).isPresent()) {
             throw new IllegalArgumentException("Ya existe una organización con este NIT");
         }
 
-        Usuario creador = usuarioRepository.findById(idCreador)
+        if (request.getIdCreador() == null) {
+            throw new IllegalArgumentException("El ID del creador es obligatorio");
+        }
+
+        Usuario creador = usuarioRepository.findById(request.getIdCreador())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario creador no encontrado"));
 
         OrganizacionExterna organizacion = OrganizacionExternaMapper.toEntity(request);
