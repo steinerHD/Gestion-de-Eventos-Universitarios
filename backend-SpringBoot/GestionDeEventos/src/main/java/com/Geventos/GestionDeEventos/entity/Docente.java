@@ -6,10 +6,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "docente")
 @Data
+@EqualsAndHashCode(exclude = { "usuario" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Docente {

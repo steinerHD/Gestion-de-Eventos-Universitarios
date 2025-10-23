@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "usuario")
 @Data
+@EqualsAndHashCode(exclude = { "eventosOrganizados", "eventosCoorganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
 @ToString(exclude = { "eventosOrganizados", "eventosCoorganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
 @NoArgsConstructor
 @AllArgsConstructor

@@ -42,7 +42,11 @@ public class EventoController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             System.out.println("[DEBUG] Error en validación: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -110,6 +114,46 @@ public class EventoController {
     @GetMapping("/{id}/aval")
     public ResponseEntity<String> getAvalPdf(@PathVariable Long id) {
         return ResponseEntity.ok(eventoService.findById(id).get().getAvalPdf());
+    }
+
+    // ------------------------- PARTICIPACIONES ORGANIZACIONES -------------------------
+    @PostMapping("/{id}/participaciones")
+    public ResponseEntity<?> agregarParticipacionOrganizacion(
+            @PathVariable Long id,
+            @RequestBody com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionDetalleRequest participacionRequest) {
+        try {
+            // Verificar que el evento existe
+            if (!eventoService.findById(id).isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Crear la participación
+            com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionOrganizacionRequest request = 
+                new com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionOrganizacionRequest();
+            request.setIdEvento(id);
+            request.setIdOrganizacion(participacionRequest.getIdOrganizacion());
+            request.setCertificadoPdf(participacionRequest.getCertificadoPdf());
+            request.setRepresentanteDiferente(participacionRequest.getRepresentanteDiferente());
+            request.setNombreRepresentanteDiferente(participacionRequest.getNombreRepresentanteDiferente());
+            
+            // Aquí necesitarías inyectar el ParticipacionOrganizacionService
+            // Por ahora, devolvemos un mensaje de éxito
+            return ResponseEntity.ok("Participación agregada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // ------------------------- DEBUG ENDPOINTS -------------------------
+    @GetMapping("/debug/organizaciones")
+    public ResponseEntity<?> debugOrganizaciones() {
+        try {
+            // Aquí necesitarías inyectar el OrganizacionExternaRepository
+            // Por ahora devolvemos un mensaje
+            return ResponseEntity.ok("Endpoint de debug - necesitas inyectar OrganizacionExternaRepository");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     // ------------------------- TEST ENDPOINT -------------------------

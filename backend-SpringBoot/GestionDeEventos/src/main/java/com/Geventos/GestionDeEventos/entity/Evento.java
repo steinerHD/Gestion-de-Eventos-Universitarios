@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 @Table(name = "evento")
 @Data
+@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "coorganizadores", "instalaciones" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evento {
@@ -37,11 +39,11 @@ public class Evento {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha;
 
-    @Column(name = "horainicio", nullable = false)
+    @Column(name = "hora_inicio", nullable = false)
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaInicio;
 
-    @Column(name = "horafin", nullable = false)
+    @Column(name = "hora_fin", nullable = false)
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaFin;
 

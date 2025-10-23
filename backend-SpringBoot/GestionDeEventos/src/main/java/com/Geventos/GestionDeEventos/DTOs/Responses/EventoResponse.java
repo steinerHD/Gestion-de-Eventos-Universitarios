@@ -21,7 +21,7 @@ public class EventoResponse {
     private Long idOrganizador;
     private List<Long> instalaciones; // ids
     private List<Long> coorganizadores; // ids
-    private List<Long> organizacionesExternas; // ids de organizaciones externas
+    private List<ParticipacionDetalleResponse> participacionesOrganizaciones; // detalles de participaciones
     private TipoAval tipoAval;
     private String avalPdf;
     private EstadoEvento estado;
