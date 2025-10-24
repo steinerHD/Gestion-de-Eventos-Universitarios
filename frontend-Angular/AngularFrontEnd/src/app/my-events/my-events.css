@@ -7,13 +7,18 @@
 
 /* Estilos para el header */
 .headerSec {
+  position: sticky;
+  top: 0;
+  z-index: 1020; /* Un valor alto para asegurar que esté por encima de otros elementos */
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #28AFB0, #1a8a8b);
-  color: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 1rem 3rem;
+  background: #ffffff;
+  color: #4F5D75;
+  max-height: 80px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.201);
 }
 
 .headerSec h1 {
@@ -22,15 +27,27 @@
   font-weight: 600;
 }
 
-.logo-img, .profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Empuja este contenedor a la derecha */
+}
+
+
+.logo-img {
+  height: 50px;
   cursor: pointer;
   transition: transform 0.2s;
 }
 
-.logo-img:hover, .profile-img:hover {
+#perfilBtn {
+  color: #4F5D75;
+  font-size: 50px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.logo-img:hover, .profile-img:hover, #perfilBtn:hover {
   transform: scale(1.1);
 }
 
@@ -61,14 +78,27 @@
 }
 
 .filters-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  display: grid; /* Mantener el layout de rejilla */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Mantener columnas responsivas */
+  gap: 1rem; /* Mantener espaciado */
+  
+  /* Estilos para la transición */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 1rem; /* Padding horizontal para que no se colapse al ocultarse */
+  margin-top: 0;
+  border: none;
+  transition: max-height 0.2s ease-out, opacity 0.2s ease-out, margin-top 0.2s ease-out, padding 0.2s ease-out;
+}
+
+.filters-container.show {
+  max-height: 500px; /* Altura suficiente para mostrar todo el contenido */
+  opacity: 1;
   margin-top: 1rem;
   padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
   border: 1px solid #e9ecef;
+  background: #f8f9fa;
 }
 
 .filter-group {
@@ -123,22 +153,49 @@ h2 {
 .event-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: #28AFB0;
+  background: linear-gradient(90deg, rgba(40, 175, 176, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(40, 175, 176, 0.15) 100%);
 }
 
 .event-card.draft {
   border-left-color: #6c757d;
 }
 
+.event-card.draft:hover {
+  border-left-color: #6c757d;
+  background: #6C757D;
+  background: linear-gradient(90deg, rgba(108, 117, 125, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(108, 117, 125, 0.15) 100%);
+}
+
 .event-card.pending {
   border-left-color: #ffc107;
+}
+
+.event-card.pending:hover {
+  border-left-color: #ffc107;
+  background: #FFC107;
+background: linear-gradient(90deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(255, 193, 7, 0.15) 100%);
 }
 
 .event-card.approved {
   border-left-color: #28a745;
 }
 
+.event-card.approved:hover {
+  border-left-color: #28a745;
+  background: #28A745;
+  background: linear-gradient(90deg, rgba(40, 167, 69, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(40, 167, 69, 0.15) 100%);
+}
+
+
 .event-card.rejected {
   border-left-color: #dc3545;
+}
+
+.event-card.rejected:hover {
+  border-left-color: #dc3545;
+  background: #DC3545;
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(220, 53, 69, 0.15) 100%);
 }
 
 /* Estilos para badges de estado */
@@ -231,7 +288,8 @@ h2 {
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: #1a8a8b;
+  align-content: space-around;
   color: white;
 }
 
@@ -253,6 +311,7 @@ h2 {
 .btn-outline-primary {
   background: transparent;
   color: #28AFB0;
+  border-radius: 20px;
   border: 2px solid #28AFB0;
 }
 
@@ -309,3 +368,34 @@ h2 {
   }
 }
 
+/* Clase para replicar el estilo del botón "+ Crear evento" en otros elementos, como un chat */
+.btn-create-event{
+  /* Propiedades base de .btn */
+  padding: 0.5rem;
+  border: 1px solid #21252976; /* Borde sutil como en btn-light */
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  width: 150px;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-items: center;
+
+  /* Propiedades de .btn-light */
+  background-color: #f8f9fa; /* Fondo claro */
+  color: #212529; /* Texto oscuro */
+}
+
+.btn-create-event:hover {
+  background-color: #3BE5E6; /* Un poco más oscuro al pasar el mouse */
+  border-color: #dae0e5;
+  color: white;
+  font-weight: bold; 
+}
+
+#editarBtn {
+  background-color: #3BE5E6;
+  border-radius: 100px;
+  font-weight: bold;
+  border: 1px solid #2c3e502e;
+}

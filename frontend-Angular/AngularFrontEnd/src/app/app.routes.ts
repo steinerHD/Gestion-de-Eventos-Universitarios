@@ -8,6 +8,7 @@ import { ProfileComponent } from './profile/profile';
 import { AddEventComponent } from './add-event/add-event';
 import { NuevaOrgaExtComponent } from './nueva-orga-ext/nueva-orga-ext';
 import { AuthGuard } from './services/auth.guard';
+import { MyEventsComponent } from './my-events/my-events';
 
 
 export const routes: Routes = [
@@ -20,5 +21,6 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'add-event', component: AddEventComponent, canActivate: [AuthGuard] },
   { path: 'new-organ-ext', component: NuevaOrgaExtComponent, canActivate: [AuthGuard] },
+  {path: 'my-events', component: MyEventsComponent, canActivate: [AuthGuard]},
   { path: '**', redirectTo: 'signin' }
 ];

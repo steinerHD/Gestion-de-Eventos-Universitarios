@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import 'remixicon/fonts/remixicon.css';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +12,13 @@ import 'remixicon/fonts/remixicon.css';
   imports: [RouterOutlet],
   template: `
     <router-outlet></router-outlet>
+    <script>const notyf = new Notyf()</script>
   `
 })
 
 export class AppComponent {}
 
 export const appConfig = {
+  
   providers: [provideRouter(routes)]
 };

@@ -37,4 +37,10 @@ export class ProfileMenuComponent {
     this.router.navigate(['/home']);
     console.log('Menú de perfil cerrado.');
   }
+
+
+  misEventos(): void {
+    this.router.navigate(['/my-events']);
+    console.log('Navegando a Mis Eventos.');
+  }
 }
