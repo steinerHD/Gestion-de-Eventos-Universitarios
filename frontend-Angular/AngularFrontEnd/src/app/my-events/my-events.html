@@ -1,11 +1,10 @@
 <header class="headerSec">
-  <button type="button" aria-label="Ir al inicio" routerLink="/home">
-    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img">
-  </button>
-  <h1>Mis Eventos</h1>
-  <button type="button" aria-label="Perfil de usuario" routerLink="/profile-menu">
-    <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
-  </button>
+    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img" routerLink="/home">
+  <h1>Mis Eventos</h1> 
+  <div class="header-actions">
+    <button class="btn-create-event" routerLink="/add-event">+ Crear evento</button>
+    <i class="ri-account-circle-fill" id="perfilBtn" routerLink="/profile-menu"></i>
+  </div>
 </header>
 <br>
 <br>
@@ -37,7 +36,7 @@
         {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
       </button>
       
-      <div *ngIf="showFilters" class="filters-container">
+      <div class="filters-container" [class.show]="showFilters">
         <div class="filter-group">
           <label for="filterEstado">Filtrar por Estado:</label>
           <select id="filterEstado" [(ngModel)]="filterEstado" (change)="applyFilters()">
@@ -61,7 +60,9 @@
                  (change)="applyFilters()">
         </div>
         
-        <button class="btn btn-secondary" (click)="clearFilters()">Limpiar Filtros</button>
+        <button class="btn btn-secondary" (click)="clearFilters()">
+          <i class="ri-eraser-fill"></i>
+          <i>Limpiar filtros</i></button>
       </div>
     </div>
     
@@ -108,7 +109,7 @@
         <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
         
         <div class="event-actions">
-          <button *ngIf="canEdit(event)" 
+          <button id='editarBtn' *ngIf="canEdit(event)" 
                   class="btn btn-secondary btn-sm" 
                   (click)="editEvent(event)">
             Editar Evento
