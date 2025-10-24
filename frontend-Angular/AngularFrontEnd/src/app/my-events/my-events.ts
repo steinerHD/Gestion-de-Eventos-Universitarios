@@ -20,7 +20,18 @@ interface EventoConEstado extends EventoDTO {
 
 export class MyEventsComponent implements OnInit {
 
-  events: EventoConEstado[] = [];
+  // events: EventoConEstado[] = []; 💢
+  events: EventoConEstado[] = [
+    { // ❤️‍🔥 Objeto de ejemplo para que el *ngIf permita mostrar el contenido
+      idEvento: 999,
+      titulo: 'Placeholder',
+      tipoEvento: 'Académico',
+      fecha: '2025-01-01',
+      horaInicio: '00:00',
+      horaFin: '00:00',
+      estado: 'Pendiente'
+    }
+  ];
   filteredEvents: EventoConEstado[] = [];
   draftEvents: EventoConEstado[] = [];
   rejectedEvents: EventoConEstado[] = [];
@@ -48,30 +59,34 @@ export class MyEventsComponent implements OnInit {
   loadEvents(): void {
     this.loading = true;
     this.error = null;
-    
-    this.authService.getUserProfile().subscribe({
-      next: (userProfile) => {
-        const idUsuario = userProfile.idUsuario;
-        this.eventosApiService.getByOrganizador(idUsuario).subscribe({
-          next: (eventos) => {
-            this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
-            this.filteredEvents = [...this.events];
-            this.filterEventsByStatus();
-            this.loading = false;
-          },
-          error: (error) => {
-            console.error('Error cargando eventos:', error);
-            this.error = 'Error al cargar los eventos';
-            this.loading = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error obteniendo perfil de usuario:', error);
-        this.error = 'Error al obtener información del usuario';
-        this.loading = false;
-      }
-    });
+
+    // <<solo para el evento de ejemplo>>
+    // Se comenta la carga real de eventos para permitir la visualización del ejemplo estático.
+    // this.authService.getUserProfile().subscribe({
+    //   next: (userProfile) => {
+    //     const idUsuario = userProfile.idUsuario;
+    //     this.eventosApiService.getByOrganizador(idUsuario).subscribe({
+    //       next: (eventos) => {
+    //         this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
+    //         this.filteredEvents = [...this.events];
+    //         this.filterEventsByStatus();
+    //         this.loading = false;
+    //       },
+    //       error: (error) => {
+    //         console.error('Error cargando eventos:', error);
+    //         this.error = 'Error al cargar los eventos';
+    //         this.loading = false;
+    //       }
+    //     });
+    //   },
+    //   error: (error) => {
+    //     console.error('Error obteniendo perfil de usuario:', error);
+    //     this.error = 'Error al obtener información del usuario';
+    //     this.loading = false;
+    //   }
+    // });
+    this.loading = false; // Forzar a que no se muestre "cargando"
+    // <<solo para el evento de ejemplo>>
   }
 
   private mapEventoWithEstado(evento: EventoDTO): EventoConEstado {
