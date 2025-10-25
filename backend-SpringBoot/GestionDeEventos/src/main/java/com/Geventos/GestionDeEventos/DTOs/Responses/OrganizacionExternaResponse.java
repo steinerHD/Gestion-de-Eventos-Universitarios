@@ -15,4 +15,5 @@ public class OrganizacionExternaResponse {
     private String ubicacion;
     private String sectorEconomico;
     private String actividadPrincipal;
+    private Long idCreador;
 }

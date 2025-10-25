@@ -6,7 +6,7 @@ import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.OrganizacionExterna;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 
-import java.util.Base64;
+
 
 public class ParticipacionOrganizacionMapper {
 
@@ -20,9 +20,7 @@ public class ParticipacionOrganizacionMapper {
         entity.setIdEvento(request.getIdEvento());
         entity.setIdOrganizacion(request.getIdOrganizacion());
 
-        if (request.getCertificadoPdfBase64() != null && !request.getCertificadoPdfBase64().isEmpty()) {
-            entity.setCertificadoPdf(Base64.getDecoder().decode(request.getCertificadoPdfBase64()));
-        }
+        entity.setCertificadoPdf(request.getCertificadoPdf());
 
         entity.setRepresentanteDiferente(request.getRepresentanteDiferente());
         entity.setNombreRepresentanteDiferente(request.getNombreRepresentanteDiferente());
@@ -38,11 +36,7 @@ public class ParticipacionOrganizacionMapper {
         response.setIdEvento(entity.getIdEvento());
         response.setIdOrganizacion(entity.getIdOrganizacion());
 
-        if (entity.getCertificadoPdf() != null) {
-            String base64 = Base64.getEncoder().encodeToString(entity.getCertificadoPdf());
-            response.setCertificadoPdfBase64(base64.length() > 50 ? base64.substring(0, 50) + "..." : base64);
-        }
-
+        response.setCertificadoPdf(entity.getCertificadoPdf());
         response.setRepresentanteDiferente(entity.getRepresentanteDiferente());
         response.setNombreRepresentanteDiferente(entity.getNombreRepresentanteDiferente());
 

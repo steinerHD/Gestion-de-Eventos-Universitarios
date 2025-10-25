@@ -1,42 +1,26 @@
--- =======================
---  ESQUEMA SIGEU
--- =======================
+INSERT INTO organizacion_externa 
+(nit, nombre, representante_legal, telefono, ubicacion, sector_economico, actividad_principal, id_creador) 
+VALUES
+('900567890-1', 'Nequi S.A.', 'Andrés Vásquez Franco', '+573001234567', 'Medellín, Antioquia', 'Servicios Financieros', 'Billetera digital y pagos electrónicos', 1),
 
+('900765432-2', 'Daviplata S.A.', 'Javier Suárez', '+573109876543', 'Bogotá D.C.', 'Servicios Financieros', 'Transferencias y pagos digitales', 1),
 
-CREATE TABLE usuario (
-  id_usuario SERIAL PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL,
-  correo VARCHAR(150) UNIQUE NOT NULL,
-  contrasena_hash TEXT NOT NULL
-);
+('901234567-3', 'RappiPay S.A.S.', 'Felipe Villamarín', '+573165554321', 'Bogotá D.C.', 'Tecnología Financiera', 'Servicios financieros y fintech', 1),
 
-CREATE TABLE estudiante (
-  id_estudiante INT PRIMARY KEY,
-  codigo_estudiantil VARCHAR(20) UNIQUE NOT NULL,
-  programa VARCHAR(100) NOT NULL,
-  FOREIGN KEY (id_estudiante) REFERENCES usuario(id_usuario)
-);
+('900876543-4', 'Movii S.A.', 'Hernando Rubio', '+573012223344', 'Bogotá D.C.', 'Fintech', 'Plataforma de pagos y billetera digital', 1),
 
-CREATE TABLE docente (
-  id_docente INT PRIMARY KEY,
-  unidad_academica VARCHAR(100) NOT NULL,
-  cargo VARCHAR(50),
-  FOREIGN KEY (id_docente) REFERENCES usuario(id_usuario)
-);
+('900123456-5', 'Nu Colombia S.A.S.', 'Catalina Bretón', '+573159988776', 'Bogotá D.C.', 'Servicios Financieros', 'Tarjetas de crédito digitales', 1),
 
-CREATE TABLE secretaria_academica (
-  id_secretaria INT PRIMARY KEY,
-  facultad VARCHAR(100) NOT NULL,
-  FOREIGN KEY (id_secretaria) REFERENCES usuario(id_usuario)
-);
+('900654321-6', 'Banco de Bogotá', 'Alejandro Figueroa', '+576075500', 'Bogotá D.C.', 'Bancario', 'Servicios financieros y crédito', 1),
 
-CREATE TABLE instalacion (
-  id_instalacion SERIAL PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL,
-  tipo VARCHAR(50) NOT NULL,
-  ubicacion VARCHAR(200) NOT NULL,
-  capacidad INT NOT NULL
-);
+('900333222-7', 'Bancolombia S.A.', 'Juan Carlos Mora', '+576045109000', 'Medellín, Antioquia', 'Bancario', 'Servicios bancarios y de inversión', 1),
+
+('901111222-8', 'Dale! (Grupo Aval)', 'Luis Carlos Sarmiento', '+573125557788', 'Bogotá D.C.', 'Fintech', 'Plataforma digital de pagos', 1),
+
+('901234999-9', 'Tpaga S.A.S.', 'Andrés Gutiérrez', '+573208889990', 'Bogotá D.C.', 'Fintech', 'Pagos móviles y transferencias', 1),
+
+('901000888-0', 'Powwi S.A.S.', 'María Camila Pérez', '+573157774455', 'Cali, Valle del Cauca', 'Tecnología Financiera', 'Servicios de pagos y recargas digitales', 1);
+
 
 INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Salon 111', 'Salon de clases', 'El edificio numero 1 en el piso 1 en el salon de clases 1', 25),
@@ -142,156 +126,3 @@ INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Auditorio Purpura', 'Auditorio', 'Bloque 2 (al lado oeste del piso 2)', 77),
 ('Auditorio Cyan', 'Auditorio', 'Bloque 2 (frente a los ascensores del segundo piso)', 105),
 ('Biblioteca Central', 'Biblioteca', 'Bloque 1 en el piso 1 al lado norte', 50);
-
-CREATE TABLE evento (
-  id_evento SERIAL PRIMARY KEY,
-  titulo VARCHAR(150) NOT NULL,
-  tipo_evento VARCHAR(20) NOT NULL CHECK (tipo_evento IN ('Académico','Lúdico')),
-  fecha DATE NOT NULL,
-  hora_inicio TIME NOT NULL,
-  hora_fin TIME NOT NULL,
-  estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
-  id_usuario_organizador INT REFERENCES usuario(id_usuario),
-  aval_pdf VARCHAR(255),
-  tipo_aval VARCHAR(50) CHECK (tipo_aval IN ('Director_Programa','Director_Docencia'))
-);
-
-CREATE TABLE organizacion_externa (
-  id_organizacion SERIAL PRIMARY KEY,
-  id_creador INT REFERENCES usuario(id_usuario),
-  nit INT NOT NULL,
-  nombre VARCHAR(150) NOT NULL,
-  representante_legal VARCHAR(150) NOT NULL,
-  telefono VARCHAR(20) NOT NULL,
-  ubicacion VARCHAR(200) NOT NULL,
-  sector_economico VARCHAR(100) NOT NULL,
-  actividad_principal VARCHAR(150) NOT NULL
-);
-
-CREATE TABLE participacion_organizacion (
-  id_evento INT NOT NULL,
-  id_organizacion INT NOT NULL,
-  certificado_pdf VARCHAR(255) NOT NULL,
-  representante_diferente BOOLEAN DEFAULT FALSE,
-  nombre_representante_diferente VARCHAR(150),
-  PRIMARY KEY (id_evento, id_organizacion),
-  FOREIGN KEY (id_evento) REFERENCES evento(id_evento),
-  FOREIGN KEY (id_organizacion) REFERENCES organizacion_externa(id_organizacion)
-);
-
-CREATE TABLE evaluacion (
-  id_evaluacion SERIAL PRIMARY KEY,
-  id_evento INT NOT NULL REFERENCES evento(id_evento),
-  id_secretaria INT NOT NULL REFERENCES secretaria_academica(id_secretaria),
-  estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente')),
-  fecha DATE NOT NULL,
-  justificacion TEXT,
-  acta_pdf BYTEA
-);
-
-CREATE TABLE notificacion (
-  id_notificacion SERIAL PRIMARY KEY,
-  id_evaluacion INT NOT NULL REFERENCES evaluacion(id_evaluacion),
-  mensaje TEXT NOT NULL,
-  fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabla intermedia para relación ManyToMany entre Evento e Instalacion
-CREATE TABLE evento_instalacion (
-  id_evento INT NOT NULL,
-  id_instalacion INT NOT NULL,
-  PRIMARY KEY (id_evento, id_instalacion),
-  FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
-  FOREIGN KEY (id_instalacion) REFERENCES instalacion(id_instalacion) ON DELETE CASCADE
-);
-
--- Tabla intermedia para relación ManyToMany entre Evento y Usuario (coorganizadores)
-CREATE TABLE evento_coorganizador (
-  id_evento INT NOT NULL,
-  id_usuario INT NOT NULL,
-  PRIMARY KEY (id_evento, id_usuario),
-  FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
-  FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
-);
-
--- =======================
---  TRIGGERS DE PERMISOS
--- =======================
-
--- 1) Solo estudiantes o docentes pueden organizar eventos
-CREATE OR REPLACE FUNCTION validar_organizador_evento()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM estudiante WHERE id_estudiante = NEW.id_usuario_organizador)
-     AND NOT EXISTS (SELECT 1 FROM docente WHERE id_docente = NEW.id_usuario_organizador) THEN
-    RAISE EXCEPTION 'Solo estudiantes o docentes pueden organizar eventos';
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_validar_organizador_evento
-BEFORE INSERT OR UPDATE ON evento
-FOR EACH ROW
-EXECUTE FUNCTION validar_organizador_evento();
-
--- 1.1) El coorganizador no puede ser el mismo que el organizador principal
-CREATE OR REPLACE FUNCTION validar_coorganizador_evento()
-RETURNS TRIGGER AS $$
-DECLARE
-  v_id_organizador INT;
-BEGIN
-  SELECT id_usuario_organizador INTO v_id_organizador
-  FROM evento
-  WHERE id_evento = NEW.id_evento;
-
-  IF v_id_organizador = NEW.id_usuario THEN
-    RAISE EXCEPTION 'El coorganizador no puede ser el mismo que el organizador principal del evento';
-  END IF;
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_validar_coorganizador_evento
-BEFORE INSERT ON evento_coorganizador
-FOR EACH ROW
-EXECUTE FUNCTION validar_coorganizador_evento();
-
-
--- 2) Solo secretaría académica puede registrar evaluaciones
-CREATE OR REPLACE FUNCTION validar_secretaria_evaluacion()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM secretaria_academica WHERE id_secretaria = NEW.id_secretaria) THEN
-    RAISE EXCEPTION 'Solo usuarios de Secretaría Académica pueden registrar evaluaciones';
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_validar_secretaria_evaluacion
-BEFORE INSERT OR UPDATE ON evaluacion
-FOR EACH ROW
-EXECUTE FUNCTION validar_secretaria_evaluacion();
-
--- 3) Al insertar evaluación, crear notificación automática al organizador
-CREATE OR REPLACE FUNCTION crear_notificacion_evaluacion()
-RETURNS TRIGGER AS $$
-DECLARE
-  v_id_usuario INT;
-  v_estado TEXT;
-BEGIN
-  SELECT id_usuario_organizador INTO v_id_usuario FROM evento WHERE id_evento = NEW.id_evento;
-  v_estado := NEW.estado;
-  INSERT INTO notificacion (id_evaluacion, mensaje)
-  VALUES (NEW.id_evaluacion,
-          'El evento ha sido ' || v_estado || ' por la Secretaría Académica.');
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_crear_notificacion_evaluacion
-AFTER INSERT ON evaluacion
-FOR EACH ROW
-EXECUTE FUNCTION crear_notificacion_evaluacion();

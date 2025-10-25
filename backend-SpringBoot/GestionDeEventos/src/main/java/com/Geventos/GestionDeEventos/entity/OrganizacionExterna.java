@@ -50,5 +50,6 @@ public class OrganizacionExterna {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_creador", nullable = false)
     @JsonBackReference(value = "usuario-organizaciones")
+    @JsonIgnore
     private Usuario creador;
 }

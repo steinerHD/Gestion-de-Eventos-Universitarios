@@ -1,10 +1,12 @@
 package com.Geventos.GestionDeEventos.service;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionDetalleRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
+import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.repository.*;
 import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class EventoService {
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final InstalacionRepository instalacionRepository;
+    private final OrganizacionExternaRepository organizacionExternaRepository;
+    private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final UsuarioService usuarioService;
 
     // ------------------------- CREATE / UPDATE -------------------------
@@ -38,7 +42,22 @@ public class EventoService {
         Evento evento = EventoMapper.toEntity(request, organizador, instalaciones, coorganizadores);
 
         Evento savedEvento = save(evento); // método privado con todas las validaciones
-        return EventoMapper.toResponse(savedEvento);
+        
+        // Manejar organizaciones externas después de guardar el evento
+        if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
+            manejarParticipacionesOrganizaciones(savedEvento.getIdEvento(), request.getParticipacionesOrganizaciones());
+        }
+        
+        // Recargar el evento con las participaciones para devolver la respuesta completa
+        System.out.println("[DEBUG] Recargando evento con participaciones para ID: " + savedEvento.getIdEvento());
+        return eventoRepository.findByIdWithParticipaciones(savedEvento.getIdEvento())
+                .map(eventoConParticipaciones -> {
+                    System.out.println("[DEBUG] Evento recargado con " + 
+                        (eventoConParticipaciones.getParticipacionesOrganizaciones() != null ? 
+                         eventoConParticipaciones.getParticipacionesOrganizaciones().size() : 0) + " participaciones");
+                    return EventoMapper.toResponse(eventoConParticipaciones);
+                })
+                .orElse(EventoMapper.toResponse(savedEvento));
     }
 
     public EventoResponse updateEvento(Long id, EventoRequest request) {
@@ -63,12 +82,21 @@ public class EventoService {
         existingEvento.setOrganizador(organizador);
 
         Evento updatedEvento = save(existingEvento);
-        return EventoMapper.toResponse(updatedEvento);
+        
+        // Manejar organizaciones externas después de actualizar el evento
+        if (request.getParticipacionesOrganizaciones() != null) {
+            manejarParticipacionesOrganizaciones(id, request.getParticipacionesOrganizaciones());
+        }
+        
+        // Recargar el evento con las participaciones para devolver la respuesta completa
+        return eventoRepository.findByIdWithParticipaciones(id)
+                .map(EventoMapper::toResponse)
+                .orElse(EventoMapper.toResponse(updatedEvento));
     }
 
     // ------------------------- READ -------------------------
     public List<EventoResponse> findAllEventos() {
-        return eventoRepository.findAll().stream()
+        return eventoRepository.findAllWithParticipaciones().stream()
                 .map(EventoMapper::toResponse)
                 .toList();
     }
@@ -79,7 +107,7 @@ public class EventoService {
     }
 
     public Optional<EventoResponse> findByIdEvento(Long id) {
-        return eventoRepository.findById(id)
+        return eventoRepository.findByIdWithParticipaciones(id)
                 .map(EventoMapper::toResponse);
     }
 
@@ -162,10 +190,8 @@ public class EventoService {
             throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
         if (evento.getHoraFin() == null)
             throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
-        if (evento.getAvalPdf() == null || evento.getAvalPdf().length == 0)
-            throw new IllegalArgumentException("El avalPdf (Base64) es obligatorio");
-        if (evento.getTipoAval() == null)
-            throw new IllegalArgumentException("El tipoAval es obligatorio");
+        // avalPdf es opcional, se puede crear evento sin aval inicialmente
+        // tipoAval es opcional, se puede crear evento sin tipo de aval inicialmente
         if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null)
             throw new IllegalArgumentException("Debe indicar el organizador con su idUsuario");
 
@@ -181,5 +207,42 @@ public class EventoService {
             throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
 
         return eventoRepository.save(evento);
+    }
+
+    @Transactional
+    private void manejarParticipacionesOrganizaciones(Long idEvento, List<ParticipacionDetalleRequest> participaciones) {
+        System.out.println("[DEBUG] Iniciando manejo de participaciones para evento ID: " + idEvento);
+        System.out.println("[DEBUG] Número de participaciones a procesar: " + participaciones.size());
+        
+        // Eliminar participaciones existentes para este evento
+        participacionOrganizacionRepository.deleteByIdEvento(idEvento);
+        System.out.println("[DEBUG] Participaciones existentes eliminadas");
+        
+        // Crear nuevas participaciones con detalles
+        for (ParticipacionDetalleRequest participacionDetalle : participaciones) {
+            System.out.println("[DEBUG] Procesando participación para organización ID: " + participacionDetalle.getIdOrganizacion());
+            
+            // Verificar que la organización existe
+            boolean organizacionExiste = organizacionExternaRepository.existsById(participacionDetalle.getIdOrganizacion());
+            System.out.println("[DEBUG] Organización " + participacionDetalle.getIdOrganizacion() + " existe: " + organizacionExiste);
+            
+            if (!organizacionExiste) {
+                System.out.println("[ERROR] Organización externa no encontrada: id=" + participacionDetalle.getIdOrganizacion());
+                throw new IllegalArgumentException("Organización externa no encontrada: id=" + participacionDetalle.getIdOrganizacion());
+            }
+            
+            ParticipacionOrganizacion participacion = new ParticipacionOrganizacion();
+            participacion.setIdEvento(idEvento);
+            participacion.setIdOrganizacion(participacionDetalle.getIdOrganizacion());
+            participacion.setCertificadoPdf(participacionDetalle.getCertificadoPdf() != null ? participacionDetalle.getCertificadoPdf() : "");
+            participacion.setRepresentanteDiferente(participacionDetalle.getRepresentanteDiferente() != null ? participacionDetalle.getRepresentanteDiferente() : false);
+            participacion.setNombreRepresentanteDiferente(participacionDetalle.getNombreRepresentanteDiferente());
+            
+            System.out.println("[DEBUG] Guardando participación: evento=" + idEvento + ", organizacion=" + participacionDetalle.getIdOrganizacion());
+            participacionOrganizacionRepository.save(participacion);
+            participacionOrganizacionRepository.flush(); // Forzar persistencia inmediata
+            System.out.println("[DEBUG] Participación guardada exitosamente");
+        }
+        System.out.println("[DEBUG] Manejo de participaciones completado");
     }
 }
