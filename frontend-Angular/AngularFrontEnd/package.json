@@ -30,6 +30,7 @@
     "@angular/platform-browser": "^20.2.0",
     "@angular/router": "^20.2.0",
     "@popperjs/core": "^2.11.8",
+    "@remixicon/vue": "^4.7.0",
     "angular-remix-icon": "^8.1.0",
     "bootstrap": "^5.3.8",
     "notyf": "^3.10.0",
