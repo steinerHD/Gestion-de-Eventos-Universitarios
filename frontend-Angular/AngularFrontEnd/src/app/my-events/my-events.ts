@@ -5,10 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
-interface EventoConEstado extends EventoDTO {
-  estado: 'Borrador' | 'Pendiente' | 'Aprobado' | 'Rechazado';
-  evaluacion?: any;
-}
+
 
 @Component({
   selector: 'app-my-events',
@@ -21,22 +18,40 @@ interface EventoConEstado extends EventoDTO {
 export class MyEventsComponent implements OnInit {
 
   // events: EventoConEstado[] = []; 💢
-  events: EventoConEstado[] = [
-    { // ❤️‍🔥 Objeto de ejemplo para que el *ngIf permita mostrar el contenido
-      idEvento: 999,
-      titulo: 'Placeholder',
-      tipoEvento: 'Académico',
-      fecha: '2025-01-01',
-      horaInicio: '00:00',
-      horaFin: '00:00',
-      estado: 'Pendiente'
+  events: EventoDTO[] = [
+    {
+  titulo: "Foro de Tecnología 2025",
+  tipoEvento: "Académico",
+  fecha: "2025-11-15",
+  horaInicio: "09:00:00",
+  horaFin: "13:00:00",
+  idOrganizador: 1,
+  instalaciones: [2, 5],
+  coorganizadores: [3, 4],
+  participacionesOrganizaciones: [
+    {
+      idOrganizacion: 7,
+      certificadoPdf: "JVBERi0xLjQKJcfsj6IK...", // Base64 del certificado
+      representanteDiferente: true,
+      nombreRepresentanteDiferente: "María López"
+    },
+    {
+      idOrganizacion: 9,
+      certificadoPdf: "JVBERi0xLjQKJcfsj6IK...",
+      representanteDiferente: false
     }
+  ],
+
+  avalPdf: "JVBERi0xLjQKJcfsj6IK...",
+  tipoAval: "Director_Docencia",
+  estado: "Pendiente"
+}
   ];
-  filteredEvents: EventoConEstado[] = [];
-  draftEvents: EventoConEstado[] = [];
-  rejectedEvents: EventoConEstado[] = [];
-  approvedEvents: EventoConEstado[] = [];
-  pendingEvents: EventoConEstado[] = [];
+  filteredEvents: EventoDTO[] = [];
+  draftEvents: EventoDTO[] = [];
+  rejectedEvents: EventoDTO[] = [];
+  approvedEvents: EventoDTO[] = [];
+  pendingEvents: EventoDTO[] = [];
   loading = false;
   error: string | null = null;
   
@@ -89,7 +104,7 @@ export class MyEventsComponent implements OnInit {
     // <<solo para el evento de ejemplo>>
   }
 
-  private mapEventoWithEstado(evento: EventoDTO): EventoConEstado {
+  private mapEventoWithEstado(evento: EventoDTO): EventoDTO {
     // Determinar el estado del evento basado en la información disponible
     // Si el evento tiene una evaluación, usar su estado
     // Si no, asumir que es borrador
@@ -137,7 +152,7 @@ export class MyEventsComponent implements OnInit {
     this.showFilters = !this.showFilters;
   }
 
-  sendToValidation(evento: EventoConEstado): void {
+  sendToValidation(evento: EventoDTO): void {
     if (!evento.idEvento) return;
     
     this.eventosApiService.sendToValidation(evento.idEvento).subscribe({
@@ -154,7 +169,7 @@ export class MyEventsComponent implements OnInit {
     });
   }
 
-  editEvent(evento: EventoConEstado): void {
+  editEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;
     
     // Navegar a la página de edición con el ID del evento
@@ -163,7 +178,7 @@ export class MyEventsComponent implements OnInit {
     });
   }
 
-  deleteEvent(evento: EventoConEstado): void {
+  deleteEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;
     
     const confirmDelete = confirm(`¿Estás seguro de que quieres eliminar el evento "${evento.titulo}"?`);
@@ -183,15 +198,15 @@ export class MyEventsComponent implements OnInit {
     });
   }
 
-  canEdit(evento: EventoConEstado): boolean {
+  canEdit(evento: EventoDTO): boolean {
     return evento.estado === 'Borrador' || evento.estado === 'Rechazado';
   }
 
-  canDelete(evento: EventoConEstado): boolean {
+  canDelete(evento: EventoDTO): boolean {
     return evento.estado === 'Borrador';
   }
 
-  canSendToValidation(evento: EventoConEstado): boolean {
+  canSendToValidation(evento: EventoDTO): boolean {
     return evento.estado === 'Borrador';
   }
 

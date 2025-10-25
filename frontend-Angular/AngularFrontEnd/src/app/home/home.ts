@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { EventService } from '../services/event.service';
+import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 
 
 @Component({
@@ -12,16 +12,16 @@ import { EventService } from '../services/event.service';
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
-  events: any[] = [];
+  events: EventoDTO[] = [];
 
-  constructor(private eventService: EventService) {}
+  constructor(private eventosApiService: EventosApiService) {}
 
   ngOnInit(): void {
     this.loadEvents();
   }
 
   loadEvents(): void {
-    this.eventService.getEvents().subscribe({
+    this.eventosApiService.getAll().subscribe({
       next: (events) => {
         this.events = events;
         console.log('Eventos cargados:', events);
@@ -31,7 +31,15 @@ export class HomeComponent implements OnInit {
   }
 
   searchEvents(query: string): void {
-    this.eventService.searchEvents(query).subscribe((events: any[]) => this.events = events);
+    if (!query || query.trim() === '') {
+      this.loadEvents();
+      return;
+    }
+    
+    this.eventosApiService.getByTitulo(query).subscribe({
+      next: (events) => this.events = events,
+      error: (error: Error) => console.error('Error al buscar eventos:', error)
+    });
   }
   
 }

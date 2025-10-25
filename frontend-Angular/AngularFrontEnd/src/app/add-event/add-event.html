@@ -38,13 +38,13 @@
       </div>
     </div>
     <div class="input-group">
-      <label>Organizadores del evento</label>
+      <label>Coorganizadores del evento</label>
       <div class="user-selection-container">
         <button type="button" class="btn btn-secondary" (click)="openUserModal()">
-          Seleccionar Organizadores
+          Seleccionar Coorganizadores
         </button>
         <span *ngIf="selectedUsers.length > 0" class="selected-count">
-          {{ selectedUsers.length }} organizador(es) seleccionado(s)
+          {{ selectedUsers.length }} coorganizadores seleccionados
         </span>
       </div>
     </div>
@@ -139,6 +139,7 @@
 <!-- Modal de selección de usuarios -->
 <app-usuario-selection 
   [showModal]="showUserModal"
+  [currentUserId]="currentUser?.idUsuario"
   (modalClosed)="closeUserModal()"
   (usuarioSelected)="onUserSelected($event)">
 </app-usuario-selection>

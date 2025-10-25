@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { EventService } from '../services/event.service';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { UsuarioDTO } from '../services/usuarios.api.service';
+import { AuthService } from '../services/auth.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
@@ -27,24 +27,36 @@ export class AddEventComponent {
   selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
-  
+  currentUser: any = null; // Usuario logueado actual
+
   constructor(
-    private fb: FormBuilder, 
-    private eventService: EventService, 
+    private fb: FormBuilder,
     private eventosApiService: EventosApiService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
       eventLocation: [''],
       eventType: ['', Validators.required],
-      eventStatus: ['Borrador', Validators.required],
+      eventStatus: ['Pendiente', Validators.required],
       externalOrgName: [''],
       externalOrgNit: [''],
       externalOrgParticipation: [false],
       // Campos para el backend
       avalPdf: ['', Validators.required],
       tipoAval: ['', Validators.required]
+    });
+    
+    // Obtener el usuario logueado actual
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+        console.log('👤 Usuario logueado actual:', this.currentUser);
+      },
+      error: (error) => {
+        console.error('❌ Error al obtener usuario logueado:', error);
+      }
     });
   }
 
@@ -54,8 +66,8 @@ export class AddEventComponent {
     console.log('📋 Formulario válido:', this.eventForm.valid);
     console.log('📋 Encuentros:', this.encounters);
     console.log('📋 Usuarios seleccionados:', this.selectedUsers);
-    console.log('📋 Organizaciones seleccionadas:', this.selectedOrganizations);
-    
+    console.log('📋 Coorganizadores seleccionados:', this.selectedOrganizations);
+
     const formErrors = this.validateForm();
     if (formErrors.length > 0) {
       console.error('❌ Errores en el formulario:', formErrors);
@@ -74,7 +86,7 @@ export class AddEventComponent {
     }
 
     const eventoData: EventoDTO = this.buildEventoDTO();
-    
+
     console.log('📤 Enviando evento al backend:', eventoData);
 
     this.eventosApiService.create(eventoData).subscribe({
@@ -114,45 +126,81 @@ export class AddEventComponent {
   }
 
   private buildEventoDTO(): EventoDTO {
-  const form = this.eventForm;
-  const primerEncuentro = this.encounters[0];
-  const formatHora = (hora: string) => hora && hora.length === 5 ? hora + ':00' : hora;
+    const form = this.eventForm;
+    const primerEncuentro = this.encounters[0];
+    const formatHora = (hora: string) => hora && hora.length === 5 ? hora + ':00' : hora;
 
-  // Solo los IDs de instalaciones
-  const instalaciones = this.encounters
-    .filter(enc => enc.location?.idInstalacion !== undefined)
-    .map(enc => ({
-      idInstalacion: enc.location!.idInstalacion
-    }));
+    // Solo los IDs de instalaciones
+    const instalaciones = this.encounters
+      .filter(enc => enc.location?.idInstalacion !== undefined)
+      .map(enc => ({
+        idInstalacion: enc.location!.idInstalacion
+      }));
 
-  // Solo los IDs de organizaciones externas
-  const organizacionesExternas = this.selectedOrganizations
-    .filter(org => org.idOrganizacion !== undefined)
-    .map(org => ({
-      idOrganizacion: org.idOrganizacion!
-    }));
+    // Organizaciones externas completas
+    const organizacionesExternas = this.selectedOrganizations
+      .filter(org => (org.idOrganizacion !== undefined) || (org as any).id !== undefined);
 
-  const organizador = this.selectedUsers[0];
+    // El organizador es el usuario logueado actual
+    const organizador = this.currentUser;
+    
+    // Los coorganizadores son usuarios seleccionados que NO sean el usuario logueado
+    const coorganizadores = this.selectedUsers
+      .filter(user => user.idUsuario !== this.currentUser?.idUsuario)
+      .map(user => user.idUsuario);
 
-  console.log('🏢 Instalaciones:', instalaciones);
-  console.log('🏢 Organizaciones externas (IDs):', organizacionesExternas);
+    console.log('👤 Usuario logueado (organizador):', organizador);
+    console.log('👥 Usuarios seleccionados:', this.selectedUsers);
+    console.log('👥 Coorganizadores filtrados:', coorganizadores);
+    console.log('🏢 Instalaciones:', instalaciones);
+    console.log('🏢 Organizaciones externas completas:', organizacionesExternas);
+    console.log('🏢 selectedOrganizations:', this.selectedOrganizations);
+    console.log('🏢 selectedOrganizations.length:', this.selectedOrganizations.length);
+    console.log('🏢 Primer org idOrganizacion:', this.selectedOrganizations[0]?.idOrganizacion);
+    console.log('🏢 Primer org id:', (this.selectedOrganizations[0] as any)?.id);
 
-  const eventoData: EventoDTO = {
-    titulo: form.get('eventName')?.value,
-    tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
-    fecha: primerEncuentro?.date || '',
-    horaInicio: formatHora(primerEncuentro?.startTime) || '',
-    horaFin: formatHora(primerEncuentro?.endTime) || '',
-    instalaciones: instalaciones,
-    organizacionesExternas: organizacionesExternas,
-    organizador: { idUsuario: organizador.idUsuario },
-    avalPdf: form.get('avalPdf')?.value || '',
-    tipoAval: form.get('tipoAval')?.value
-  };
+    const eventoData: EventoDTO = {
+      titulo: form.get('eventName')?.value?.trim() || '',
+      tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
+      fecha: primerEncuentro?.date || '',
+      horaInicio: formatHora(primerEncuentro?.startTime) || '',
+      horaFin: formatHora(primerEncuentro?.endTime) || '',
 
-  console.log('📤 EventoDTO construido (final):', eventoData);
-  return eventoData;
-}
+      // ✅ envía solo los IDs, ej: [2, 5]
+      instalaciones: (instalaciones || []).map(inst => inst.idInstalacion),
+
+      participacionesOrganizaciones: (organizacionesExternas || []).map(org => {
+        const idOrg = org.idOrganizacion || (org as any).id;
+        const participacion = {
+          idOrganizacion: idOrg,
+          nombreOrganizacion: org.nombre || '',
+          certificadoPdf: `certificado_org${idOrg}.pdf`,
+          representanteDiferente: false,
+          nombreRepresentanteDiferente: undefined
+        };
+        console.log('📋 Participación creada:', participacion);
+        return participacion;
+      }),
+
+      // ✅ el primero es el organizador, los demás coorganizadores
+      coorganizadores: coorganizadores,
+
+      idOrganizador: organizador?.idUsuario || 0,
+
+      avalPdf: form.get('avalPdf')?.value || '',
+      tipoAval: form.get('tipoAval')?.value || undefined,
+
+      // 👇 puedes inicializar el estado si lo manejas localmente
+      estado: 'Pendiente'
+    };
+
+    console.log('📤 EventoDTO construido (final):', eventoData);
+    console.log('📤 participacionesOrganizaciones final:', eventoData.participacionesOrganizaciones);
+    console.log('📤 participacionesOrganizaciones.length:', eventoData.participacionesOrganizaciones?.length);
+    console.log('📤 coorganizadores final:', eventoData.coorganizadores);
+    console.log('📤 idOrganizador final:', eventoData.idOrganizador);
+    return eventoData;
+  }
 
   cancel(): void {
     this.eventForm.reset();
@@ -241,16 +289,11 @@ export class AddEventComponent {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string;
-        const base64Data = base64String.split(',')[1] || base64String;
-        this.eventForm.patchValue({ avalPdf: base64Data });
-      };
-      reader.readAsDataURL(file);
+      // file.path NO está disponible por seguridad en navegadores
+      // solo en Electron o Node.js
+      const fakePath = event.target.value; // ejemplo: "C:\\fakepath\\archivo.pdf"
+      this.eventForm.patchValue({ avalPdf: fakePath });
     } else {
-      this.selectedFile = null;
       this.eventForm.patchValue({ avalPdf: '' });
     }
   }

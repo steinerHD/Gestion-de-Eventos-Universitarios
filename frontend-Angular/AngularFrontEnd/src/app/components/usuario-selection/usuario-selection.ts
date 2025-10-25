@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,8 +11,9 @@ import { UsuariosApiService, UsuarioDTO } from '../../services/usuarios.api.serv
   templateUrl: './usuario-selection.html',
   styleUrls: ['./usuario-selection.css']
 })
-export class UsuarioSelectionComponent implements OnInit {
+export class UsuarioSelectionComponent implements OnInit, OnChanges {
   @Input() showModal: boolean = false;
+  @Input() currentUserId?: number; // ID del usuario logueado para excluirlo
   @Output() modalClosed = new EventEmitter<void>();
   @Output() usuarioSelected = new EventEmitter<UsuarioDTO>();
 
@@ -29,11 +30,26 @@ export class UsuarioSelectionComponent implements OnInit {
     this.loadUsuarios();
   }
 
+  ngOnChanges(): void {
+    // Recargar usuarios cuando cambie el currentUserId
+    if (this.currentUserId !== undefined) {
+      this.loadUsuarios();
+    }
+  }
+
   loadUsuarios(): void {
+    console.log('🔄 Cargando usuarios... currentUserId:', this.currentUserId);
     this.usuariosApi.getAll().subscribe({
       next: (usuarios) => {
-        this.usuarios = usuarios;
-        this.filteredUsuarios = usuarios;
+        console.log('📋 Todos los usuarios del sistema:', usuarios);
+        console.log('👤 Usuario logueado a excluir (ID):', this.currentUserId);
+        
+        // Filtrar al usuario logueado de la lista
+        this.usuarios = usuarios.filter(usuario => usuario.idUsuario !== this.currentUserId);
+        this.filteredUsuarios = this.usuarios;
+        
+        console.log('👥 Usuarios cargados (sin usuario logueado):', this.usuarios);
+        console.log('👥 Cantidad de usuarios disponibles:', this.usuarios.length);
       },
       error: (error) => console.error('Error al cargar usuarios:', error)
     });
