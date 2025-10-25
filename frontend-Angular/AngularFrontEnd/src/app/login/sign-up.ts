@@ -4,7 +4,9 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { concatMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of } from 'rxjs'; // Importa 'of' para observables
+import { notyf } from '../app'; // 1. Importa la instancia global de notyf
+import { Notyf } from 'notyf';
 
 
 @Component({
@@ -27,7 +29,6 @@ export class SignUpComponent {
   submit() {
     this.onSubmit.emit();
   }
-
   constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
     this.signUpForm = this.fb.group({
       name: ['', Validators.required],
@@ -39,8 +40,7 @@ export class SignUpComponent {
       program: [''],
       faculty: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-    }, { validators: this.passwordsMatch });
+      confirmPassword: ['', Validators.required]}, { validators: this.passwordsMatch });
     // Dynamic validators based on selected user type
     const userTypeControl = this.signUpForm.get('userType');
     userTypeControl?.valueChanges.subscribe((type: string) => {
@@ -73,6 +73,7 @@ export class SignUpComponent {
       codigoEstudiantil?.updateValueAndValidity({ emitEvent: false });
       faculty?.updateValueAndValidity({ emitEvent: false });
     });
+
   }
 
   private passwordsMatch(form: FormGroup) {
@@ -83,6 +84,7 @@ export class SignUpComponent {
   onSignUp() {
     if (!this.signUpForm.valid) {
       this.signUpForm.markAllAsTouched();
+      notyf.error('Por favor, complete todos los campos obligatorios correctamente.');
       return;
     }
 
@@ -108,11 +110,15 @@ export class SignUpComponent {
 
       })
     ).subscribe({
-      next: () => this.router.navigate(['/signin']),
+      // 2. Muestra un mensaje de éxito y luego redirige
+      next: () => {
+        notyf.success('Usuario registrado exitosamente. Por favor, inicie sesión.');
+        this.router.navigate(['/signin']);
+      },
       error: (err) => {
         console.error(err);
         const msg = err?.error || err?.message || 'Error al registrar usuario o perfil asociado';
-        alert(msg);
+        notyf.error(msg);
       }
     });
   }

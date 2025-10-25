@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { notyf } from '../app'; // Importa la instancia global de notyf
 
 @Component({
   selector: 'app-login',
@@ -25,8 +26,8 @@ export class SignInComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe({
-        next: () => this.router.navigate(['/home']),
-        error: () => alert('Error al iniciar sesión. Verifica tus credenciales.')
+        next: () =>{ notyf.success('Iniciando sesion✅'), this.router.navigate(['/home'])},
+        error: () => notyf.error('Error de inicio de sesión. Por favor, verifica tus credenciales.')
       });
     }
   }
