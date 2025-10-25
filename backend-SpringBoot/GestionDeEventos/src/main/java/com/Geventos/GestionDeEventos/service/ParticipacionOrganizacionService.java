@@ -93,9 +93,7 @@ public class ParticipacionOrganizacionService {
         }
 
         // Actualizar datos
-        if (request.getCertificadoPdfBase64() != null) {
-            existing.setCertificadoPdf(java.util.Base64.getDecoder().decode(request.getCertificadoPdfBase64()));
-        }
+        existing.setCertificadoPdf(request.getCertificadoPdf());
         existing.setRepresentanteDiferente(request.getRepresentanteDiferente());
         existing.setNombreRepresentanteDiferente(request.getNombreRepresentanteDiferente());
 

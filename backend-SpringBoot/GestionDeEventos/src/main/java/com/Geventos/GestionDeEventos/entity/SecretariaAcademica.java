@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 @Table(name = "secretaria_academica")
 @Data
+@EqualsAndHashCode(exclude = { "usuario", "evaluaciones" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecretariaAcademica {

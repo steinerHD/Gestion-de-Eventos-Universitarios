@@ -43,25 +43,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = null;
         String correo = null;
 
+        System.out.println("[DEBUG] Request URI: " + request.getRequestURI());
+        System.out.println("[DEBUG] Authorization header: " + authHeader);
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
                 correo = jwtService.getEmailFromToken(token);
+                System.out.println("[DEBUG] Email from token: " + correo);
             } catch (ExpiredJwtException ex) {
+                System.out.println("[DEBUG] Token expired");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"Token expirado\"}");
                 return;
+            } catch (Exception ex) {
+                System.out.println("[DEBUG] Invalid token: " + ex.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Token inválido\"}");
+                return;
             }
+        } else {
+            System.out.println("[DEBUG] No valid Authorization header found");
         }
 
         if (correo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Usuario usuario = usuarioRepository.findByCorreo(correo).orElse(null);
             if (usuario != null) {
+                System.out.println("[DEBUG] User found: " + usuario.getCorreo());
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(usuario, null, null);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("[DEBUG] User not found for email: " + correo);
             }
         }
 

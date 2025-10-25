@@ -1,11 +1,11 @@
-package com.Geventos.GestionDeEventos.DTOs.Requests;
+package com.Geventos.GestionDeEventos.DTOs.Responses;
 
 import lombok.Data;
 
 @Data
-public class ParticipacionOrganizacionRequest {
-    private Long idEvento;
+public class ParticipacionDetalleResponse {
     private Long idOrganizacion;
+    private String nombreOrganizacion;
     private String certificadoPdf;
     private Boolean representanteDiferente;
     private String nombreRepresentanteDiferente;

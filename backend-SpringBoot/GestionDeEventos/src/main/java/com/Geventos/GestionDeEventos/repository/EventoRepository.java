@@ -29,4 +29,15 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     
     @Query("SELECT e FROM Evento e WHERE e.fecha >= :fecha")
     List<Evento> findEventosFuturos(@Param("fecha") LocalDate fecha);
+    
+    @Query("SELECT DISTINCT e FROM Evento e " +
+           "LEFT JOIN FETCH e.participacionesOrganizaciones p " +
+           "LEFT JOIN FETCH p.organizacion " +
+           "WHERE e.idEvento = :id")
+    java.util.Optional<Evento> findByIdWithParticipaciones(@Param("id") Long id);
+    
+    @Query("SELECT DISTINCT e FROM Evento e " +
+           "LEFT JOIN FETCH e.participacionesOrganizaciones p " +
+           "LEFT JOIN FETCH p.organizacion")
+    List<Evento> findAllWithParticipaciones();
 }

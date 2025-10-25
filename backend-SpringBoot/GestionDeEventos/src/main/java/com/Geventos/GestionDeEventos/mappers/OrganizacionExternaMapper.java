@@ -28,6 +28,7 @@ public class OrganizacionExternaMapper {
         response.setUbicacion(organizacion.getUbicacion());
         response.setSectorEconomico(organizacion.getSectorEconomico());
         response.setActividadPrincipal(organizacion.getActividadPrincipal());
+        response.setIdCreador(organizacion.getCreador() != null ? organizacion.getCreador().getIdUsuario() : null);
         return response;
     }
 }

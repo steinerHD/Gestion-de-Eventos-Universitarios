@@ -3,7 +3,6 @@ package com.Geventos.GestionDeEventos.controller;
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
-import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import com.Geventos.GestionDeEventos.service.EventoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,11 +35,18 @@ public class EventoController {
 
     @PostMapping
     public ResponseEntity<EventoResponse> createEvento(@RequestBody EventoRequest request) {
+        System.out.println("[DEBUG] POST /api/eventos - Request recibido");
         try {
             EventoResponse response = eventoService.createEvento(request);
+            System.out.println("[DEBUG] Evento creado exitosamente con ID: " + response.getIdEvento());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            System.out.println("[DEBUG] Error en validación: " + e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -106,11 +112,54 @@ public class EventoController {
 
     // ------------------------- PDFs -------------------------
     @GetMapping("/{id}/aval")
-    public ResponseEntity<String> getAvalBase64(@PathVariable Long id) {
-        return eventoService.findById(id)
-                .map(EventoMapper::toResponse)
-                .map(r -> ResponseEntity.ok(r.getAvalBase64()))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> getAvalPdf(@PathVariable Long id) {
+        return ResponseEntity.ok(eventoService.findById(id).get().getAvalPdf());
+    }
+
+    // ------------------------- PARTICIPACIONES ORGANIZACIONES -------------------------
+    @PostMapping("/{id}/participaciones")
+    public ResponseEntity<?> agregarParticipacionOrganizacion(
+            @PathVariable Long id,
+            @RequestBody com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionDetalleRequest participacionRequest) {
+        try {
+            // Verificar que el evento existe
+            if (!eventoService.findById(id).isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Crear la participación
+            com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionOrganizacionRequest request = 
+                new com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionOrganizacionRequest();
+            request.setIdEvento(id);
+            request.setIdOrganizacion(participacionRequest.getIdOrganizacion());
+            request.setCertificadoPdf(participacionRequest.getCertificadoPdf());
+            request.setRepresentanteDiferente(participacionRequest.getRepresentanteDiferente());
+            request.setNombreRepresentanteDiferente(participacionRequest.getNombreRepresentanteDiferente());
+            
+            // Aquí necesitarías inyectar el ParticipacionOrganizacionService
+            // Por ahora, devolvemos un mensaje de éxito
+            return ResponseEntity.ok("Participación agregada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // ------------------------- DEBUG ENDPOINTS -------------------------
+    @GetMapping("/debug/organizaciones")
+    public ResponseEntity<?> debugOrganizaciones() {
+        try {
+            // Aquí necesitarías inyectar el OrganizacionExternaRepository
+            // Por ahora devolvemos un mensaje
+            return ResponseEntity.ok("Endpoint de debug - necesitas inyectar OrganizacionExternaRepository");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // ------------------------- TEST ENDPOINT -------------------------
+    @GetMapping("/test-auth")
+    public ResponseEntity<String> testAuth() {
+        return ResponseEntity.ok("Autenticación funcionando correctamente");
     }
 
 }

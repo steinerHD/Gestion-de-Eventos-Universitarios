@@ -4,16 +4,15 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
-
 @Entity
 @Table(name = "participacion_organizacion")
 @Data
+@EqualsAndHashCode(exclude = { "evento", "organizacion" })
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(ParticipacionOrganizacionId.class)
@@ -27,10 +26,8 @@ public class ParticipacionOrganizacion implements Serializable {
     @Column(name = "id_organizacion")
     private Long idOrganizacion;
     
-    @Lob
-    @Column(name = "certificado_pdf", nullable = false, columnDefinition = "bytea")
-    @JsonSerialize(using = TruncatedBase64Serializer.class)
-    private byte[] certificadoPdf;
+    @Column(name = "certificado_pdf", nullable = false)
+    private String certificadoPdf;
     
     @Column(name = "representante_diferente")
     private Boolean representanteDiferente = false;

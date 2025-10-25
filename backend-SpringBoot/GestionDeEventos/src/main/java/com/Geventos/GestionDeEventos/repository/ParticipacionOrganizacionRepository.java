@@ -3,6 +3,7 @@ package com.Geventos.GestionDeEventos.repository;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacionId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,5 +21,9 @@ public interface ParticipacionOrganizacionRepository extends JpaRepository<Parti
     
     @Query("SELECT p FROM ParticipacionOrganizacion p WHERE p.representanteDiferente = true")
     List<ParticipacionOrganizacion> findByRepresentanteDiferenteTrue();
+    
+    @Modifying
+    @Query("DELETE FROM ParticipacionOrganizacion p WHERE p.idEvento = :idEvento")
+    void deleteByIdEvento(@Param("idEvento") Long idEvento);
 }
 

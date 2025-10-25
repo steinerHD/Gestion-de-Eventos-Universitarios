@@ -56,10 +56,9 @@ public class OrganizacionExternaController {
 
     @PostMapping
     public ResponseEntity<OrganizacionExternaResponse> createOrganizacionExterna(
-            @Valid @RequestBody OrganizacionExternaRequest request,
-            @RequestParam Long idCreador) {
+            @Valid @RequestBody OrganizacionExternaRequest request) {
         try {
-            OrganizacionExterna saved = organizacionExternaService.save(request, idCreador);
+            OrganizacionExterna saved = organizacionExternaService.save(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(OrganizacionExternaMapper.toResponse(saved));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);

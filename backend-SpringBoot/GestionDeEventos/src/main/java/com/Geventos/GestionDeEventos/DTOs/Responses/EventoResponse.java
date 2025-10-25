@@ -2,6 +2,7 @@ package com.Geventos.GestionDeEventos.DTOs.Responses;
 
 import com.Geventos.GestionDeEventos.entity.Evento.TipoAval;
 import com.Geventos.GestionDeEventos.entity.Evento.TipoEvento;
+import com.Geventos.GestionDeEventos.entity.Evento.EstadoEvento;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,8 +21,8 @@ public class EventoResponse {
     private Long idOrganizador;
     private List<Long> instalaciones; // ids
     private List<Long> coorganizadores; // ids
+    private List<ParticipacionDetalleResponse> participacionesOrganizaciones; // detalles de participaciones
     private TipoAval tipoAval;
-
-    // Nuevo campo: aval en Base64
-    private String avalBase64;
+    private String avalPdf;
+    private EstadoEvento estado;
 }
