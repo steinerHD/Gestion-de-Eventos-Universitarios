@@ -656,3 +656,27 @@ label, p, .label-status, .status {
   content: "📄";
   font-size: 16px;
 }
+
+/* Estilos para el mensaje de no organizaciones seleccionadas */
+.no-organizations-selected {
+  margin-top: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 2px solid #ffc107;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+.no-organizations-selected p {
+  margin: 0;
+  color: #856404;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.no-organizations-selected p::before {
+  content: "ℹ️";
+  margin-right: 8px;
+  font-size: 16px;
+}

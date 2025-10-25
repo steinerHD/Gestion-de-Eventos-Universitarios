@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -20,6 +20,8 @@ import { EncountersComponent, Encounter } from '../components/encounters/encount
   styleUrls: ['./add-event.css']
 })
 export class AddEventComponent {
+  @ViewChild(SelectedOrganizationsComponent) selectedOrganizationsComponent!: SelectedOrganizationsComponent;
+  
   eventForm: FormGroup;
   showOrgModal: boolean = false;
   showUserModal: boolean = false;
@@ -33,13 +35,14 @@ export class AddEventComponent {
     private fb: FormBuilder,
     private eventosApiService: EventosApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
       eventLocation: [''],
       eventType: ['', Validators.required],
-      eventStatus: ['Pendiente', Validators.required],
+      eventStatus: ['Borrador', Validators.required],
       externalOrgName: [''],
       externalOrgNit: [''],
       externalOrgParticipation: [false],
@@ -171,14 +174,29 @@ export class AddEventComponent {
 
       participacionesOrganizaciones: (organizacionesExternas || []).map(org => {
         const idOrg = org.idOrganizacion || (org as any).id;
+        
+        // Obtener los datos de la organización desde el componente de organizaciones seleccionadas
+        let orgData = {
+          participaRepresentante: false,
+          nombreRepresentante: '',
+          cedulaRepresentante: '',
+          avalFilePath: '',
+          avalFileName: ''
+        };
+        
+        if (this.selectedOrganizationsComponent) {
+          orgData = this.selectedOrganizationsComponent.getOrganizationDataById(idOrg);
+        }
+        
         const participacion = {
           idOrganizacion: idOrg,
           nombreOrganizacion: org.nombre || '',
-          certificadoPdf: `certificado_org${idOrg}.pdf`,
-          representanteDiferente: false,
-          nombreRepresentanteDiferente: undefined
+          certificadoPdf: orgData.avalFilePath || `certificado_org${idOrg}.pdf`, // Usar la ruta del archivo si existe
+          representanteDiferente: !orgData.participaRepresentante, // Si NO participa el representante, entonces es diferente
+          nombreRepresentanteDiferente: orgData.participaRepresentante ? undefined : orgData.nombreRepresentante
         };
         console.log('📋 Participación creada:', participacion);
+        console.log('📋 Datos de la organización:', orgData);
         return participacion;
       }),
 
@@ -224,17 +242,33 @@ export class AddEventComponent {
   }
 
   onOrganizationSelected(organization: OrganizacionExternaDTO): void {
-    const exists = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
-    if (!exists) {
+    // Obtener el ID correcto (puede ser 'id' o 'idOrganizacion')
+    const orgId = organization.idOrganizacion || (organization as any).id;
+    const existingOrgId = this.selectedOrganizations.find(org => {
+      const existingId = org.idOrganizacion || (org as any).id;
+      return existingId === orgId;
+    });
+    
+    if (!existingOrgId) {
       this.selectedOrganizations.push(organization);
-      this.updateFormWithSelectedOrganizations();
+      console.log('✅ Organización agregada:', organization.nombre);
+      
+      // Forzar detección de cambios
+      this.cdr.detectChanges();
+    } else {
+      console.log('⚠️ Organización ya existe:', organization.nombre);
     }
   }
 
   onOrganizationRemoved(organization: OrganizacionExternaDTO): void {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.idOrganizacion !== organization.idOrganizacion);
-    this.updateFormWithSelectedOrganizations();
+    const orgId = organization.idOrganizacion || (organization as any).id;
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => {
+      const existingId = org.idOrganizacion || (org as any).id;
+      return existingId !== orgId;
+    });
+    console.log('❌ Organización removida:', organization.nombre);
   }
+
 
   private updateFormWithSelectedOrganizations(): void {
     if (this.selectedOrganizations.length > 0) {
@@ -257,10 +291,7 @@ export class AddEventComponent {
     const participation = this.eventForm.get('externalOrgParticipation')?.value;
     if (!participation) {
       this.selectedOrganizations = [];
-      this.eventForm.patchValue({
-        externalOrgName: '',
-        externalOrgNit: ''
-      });
+      // Limpiar los datos de las organizaciones cuando se desactiva la participación
     }
   }
 

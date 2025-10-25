@@ -117,10 +117,15 @@
 
     <!-- Organizaciones seleccionadas -->
     <app-selected-organizations 
-      *ngIf="eventForm.get('externalOrgParticipation')?.value"
+      *ngIf="eventForm.get('externalOrgParticipation')?.value && selectedOrganizations.length > 0"
       [selectedOrganizations]="selectedOrganizations"
       (organizationRemoved)="onOrganizationRemoved($event)">
     </app-selected-organizations>
+    
+    <!-- Mensaje cuando no hay organizaciones seleccionadas -->
+    <div *ngIf="eventForm.get('externalOrgParticipation')?.value && selectedOrganizations.length === 0" class="no-organizations-selected">
+      <p>No hay organizaciones seleccionadas. Haz clic en el botón de arriba para seleccionar organizaciones.</p>
+    </div>
   </section>
 
   <div class="form-actions">

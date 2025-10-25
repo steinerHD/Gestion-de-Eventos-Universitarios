@@ -20,7 +20,6 @@ export class OrganizacionExternaComponent implements OnInit {
   organizations: OrganizacionExternaDTO[] = [];
   filteredOrganizations: OrganizacionExternaDTO[] = [];
   searchQuery: string = '';
-  selectedOrganizations: OrganizacionExternaDTO[] = [];
   showDetailsModal: boolean = false;
   selectedOrganization: OrganizacionExternaDTO | null = null;
 
@@ -56,18 +55,11 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   selectOrganization(organization: OrganizacionExternaDTO): void {
-    // Verificar si ya está seleccionada
-    const isAlreadySelected = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
-    
-    if (!isAlreadySelected) {
-      this.selectedOrganizations.push(organization);
-      this.organizationSelected.emit(organization);
-    }
+    // Emitir la organización seleccionada y cerrar el modal
+    this.organizationSelected.emit(organization);
+    this.closeModal();
   }
 
-  removeSelectedOrganization(organization: OrganizacionExternaDTO): void {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.idOrganizacion !== organization.idOrganizacion);
-  }
 
   closeModal(): void {
     this.showModal = false;
