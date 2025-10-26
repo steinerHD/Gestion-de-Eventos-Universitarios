@@ -86,9 +86,8 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   onOrganizationDeleted(organizationId: number): void {
-    // Remover la organización de la lista
-    this.organizations = this.organizations.filter(org => org.idOrganizacion !== organizationId);
-    this.filteredOrganizations = this.filteredOrganizations.filter(org => org.idOrganizacion !== organizationId);
+    // Recargamos la lista desde el servidor para reflejar la eliminación
+    this.loadOrganizations();
   }
 
   closeDetailsModal(): void {

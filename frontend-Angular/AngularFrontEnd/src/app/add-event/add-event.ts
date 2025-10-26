@@ -83,11 +83,6 @@ export class AddEventComponent {
       return;
     }
 
-    if (this.selectedUsers.length === 0) {
-      alert('El evento debe tener al menos un organizador.');
-      return;
-    }
-
     const eventoData: EventoDTO = this.buildEventoDTO();
 
     console.log('📤 Enviando evento al backend:', eventoData);
@@ -130,7 +125,12 @@ export class AddEventComponent {
 
   private buildEventoDTO(): EventoDTO {
     const form = this.eventForm;
-    const primerEncuentro = this.encounters[0];
+    const primerEncuentro = this.encounters[0]; // Ya validamos que existe al menos uno.
+
+    if (!primerEncuentro || !primerEncuentro.date || !primerEncuentro.startTime || !primerEncuentro.endTime) {
+      throw new Error('El primer encuentro no tiene todos los datos necesarios (fecha, hora de inicio, hora de fin).');
+    }
+
     const formatHora = (hora: string) => hora && hora.length === 5 ? hora + ':00' : hora;
 
     // Solo los IDs de instalaciones
@@ -165,9 +165,9 @@ export class AddEventComponent {
     const eventoData: EventoDTO = {
       titulo: form.get('eventName')?.value?.trim() || '',
       tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
-      fecha: primerEncuentro?.date || '',
-      horaInicio: formatHora(primerEncuentro?.startTime) || '',
-      horaFin: formatHora(primerEncuentro?.endTime) || '',
+      fecha: primerEncuentro.date,
+      horaInicio: formatHora(primerEncuentro.startTime),
+      horaFin: formatHora(primerEncuentro.endTime),
 
       // ✅ envía solo los IDs, ej: [2, 5]
       instalaciones: (instalaciones || []).map(inst => inst.idInstalacion),
@@ -311,10 +311,9 @@ export class AddEventComponent {
   isFormValid(): boolean {
     const formValid = this.eventForm.valid;
     const hasEncounters = this.encounters.length > 0;
-    const hasOrganizers = this.selectedUsers.length > 0;
     const encountersValid = this.encounters.every(e => e.date && e.startTime && e.endTime && e.location);
 
-    return formValid && hasEncounters && hasOrganizers && encountersValid;
+    return formValid && hasEncounters && encountersValid;
   }
 
   onFileSelected(event: any): void {

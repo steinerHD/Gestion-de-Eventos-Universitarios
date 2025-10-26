@@ -142,7 +142,7 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
     if (id && confirm('¿Estás seguro de que quieres eliminar esta organización?')) {
       this.organizacionesApi.delete(id, idUsuario).subscribe({
         next: (success) => {
-          this.organizationDeleted.emit(id);
+          this.organizationDeleted.emit(this.currentOrganizacionId);
           this.closeModal();
           alert('Organización eliminada exitosamente');
         },

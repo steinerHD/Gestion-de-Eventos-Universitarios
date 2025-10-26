@@ -41,7 +41,7 @@
           <div class="org-nit">{{ org.nit }}</div>
         </div>
         <div class="org-actions">
-          <button type="button" class="action-btn view-btn" title="Ver detalles" (click)="viewOrganizationDetails(org)">
+          <button type="button" class="action-btn view-btn" title="Ver detalles" (click)="viewOrganizationDetails(org); $event.stopPropagation()">
             <img src="assets/images/search.png" alt="Ver detalles">
           </button>
         </div>
