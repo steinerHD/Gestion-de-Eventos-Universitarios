@@ -1,14 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { OrganizationDetailsComponent } from '../organization-details/organization-details';
+import { NuevaOrgaExtComponent } from '../../nueva-orga-ext/nueva-orga-ext';
 
 @Component({
   selector: 'app-organizacion-externa',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrganizationDetailsComponent],
+  imports: [CommonModule, FormsModule, OrganizationDetailsComponent, NuevaOrgaExtComponent],
   templateUrl: './organizacion-externa.html',
   styleUrls: ['./organizacion-externa.css']
 })
@@ -21,11 +21,11 @@ export class OrganizacionExternaComponent implements OnInit {
   filteredOrganizations: OrganizacionExternaDTO[] = [];
   searchQuery: string = '';
   showDetailsModal: boolean = false;
+  showNewOrgModal: boolean = false;
   selectedOrganization: OrganizacionExternaDTO | null = null;
 
   constructor(
-    private organizacionesApi: OrganizacionesApiService,
-    private router: Router
+    private organizacionesApi: OrganizacionesApiService
   ) {}
 
   ngOnInit(): void {
@@ -97,6 +97,15 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   addNewOrganization(): void {
-    this.router.navigate(['/new-organ-ext']);
+    this.showNewOrgModal = true;
+  }
+
+  closeNewOrgModal(): void {
+    this.showNewOrgModal = false;
+  }
+
+  onNewOrganizationCreated(newOrg: OrganizacionExternaDTO): void {
+    this.loadOrganizations(); // Recargamos la lista para incluir la nueva organización
+    this.closeNewOrgModal();
   }
 }

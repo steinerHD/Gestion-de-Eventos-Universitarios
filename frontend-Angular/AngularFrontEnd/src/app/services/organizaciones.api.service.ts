@@ -12,6 +12,19 @@ export interface OrganizacionExternaDTO {
   ubicacion: string;
   sectorEconomico: string;
   actividadPrincipal: string;
+  idCreador: number;
+}
+
+export interface OrganizacionExternaResponse {
+  id: number;
+  nit:string;
+  nombre: string;
+  representanteLegal: string;
+  telefono: string;
+  ubicacion: string;
+  sectorEconomico: string;
+  actividadPrincipal: string;
+  idCreador: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,8 +41,8 @@ export class OrganizacionesApiService {
     return this.http.get<OrganizacionExternaDTO>(`${this.baseUrl}/${id}`);
   }
 
-  getByNit(nit: string): Observable<OrganizacionExternaDTO> {
-    return this.http.get<OrganizacionExternaDTO>(`${this.baseUrl}/nit/${encodeURIComponent(nit)}`);
+  getByNit(nit: string): Observable<OrganizacionExternaResponse> {
+    return this.http.get<OrganizacionExternaResponse>(`${this.baseUrl}/nit/${encodeURIComponent(nit)}`);
   }
 
   searchByNombre(nombre: string): Observable<OrganizacionExternaDTO[]> {
@@ -49,15 +62,16 @@ export class OrganizacionesApiService {
   }
 
   create(payload: OrganizacionExternaDTO): Observable<OrganizacionExternaDTO> {
+    console.log('Datos :3', payload);
     return this.http.post<OrganizacionExternaDTO>(this.baseUrl, payload);
   }
 
-  update(id: number, payload: OrganizacionExternaDTO): Observable<OrganizacionExternaDTO> {
-    return this.http.put<OrganizacionExternaDTO>(`${this.baseUrl}/${id}`, payload);
+  update(id: number, payload: OrganizacionExternaDTO, idUsuario: number): Observable<OrganizacionExternaDTO> {
+    return this.http.put<OrganizacionExternaDTO>(`${this.baseUrl}/${id}?idUsuario=${idUsuario}`, payload);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  delete(id: number, idUsuario: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}?idUsuario=${idUsuario}`);
   }
 }
 

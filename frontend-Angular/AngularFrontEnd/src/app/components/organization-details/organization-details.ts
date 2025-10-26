@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angu
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
+import { AuthApiService } from '../../services/auth-api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-organization-details',
@@ -21,10 +23,13 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   isEditing: boolean = false;
   canEdit: boolean = false;
   canDelete: boolean = false;
+  currentOrganizacionId: any;
+  currentUser: any;
 
   constructor(
     private fb: FormBuilder,
-    private organizacionesApi: OrganizacionesApiService
+    private organizacionesApi: OrganizacionesApiService,
+    private authService: AuthService
   ) {
     this.organizationForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -35,6 +40,7 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
       sectorEconomico: ['', Validators.required],
       actividadPrincipal: ['', Validators.required]
     });
+  
   }
 
   ngOnInit(): void {
@@ -48,6 +54,18 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
     if (this.organization) {
       this.loadOrganizationData();
       this.checkPermissions();
+      this.organizacionesApi.getByNit(this.organization.nit).subscribe(org => {
+        this.currentOrganizacionId = org.id;
+      })    
+      this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+        console.log('👤 Usuario logueado actual:', this.currentUser);
+      },
+      error: (error) => {
+        console.error('❌ Error al obtener usuario logueado:', error);
+      }
+    })
     }
   }
 
@@ -62,6 +80,7 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
         sectorEconomico: this.organization.sectorEconomico || '',
         actividadPrincipal: this.organization.actividadPrincipal || ''
       });
+    
     }
   }
 
@@ -79,14 +98,24 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   }
 
   saveChanges(): void {
-    if (this.organizationForm.valid && this.organization) {
+    // Obtenemos el ID de forma segura, ya que puede venir como 'id' o 'idOrganizacion'
+    const organizationId = this.organization?.idOrganizacion || (this.organization as any)?.id;
+
+    if (this.organizationForm.valid && organizationId) {
       const updatedData: OrganizacionExternaDTO = {
-        ...this.organization,
-        ...this.organizationForm.value
+        nit: this.organizationForm.value.nit,
+        nombre: this.organizationForm.value.nombre,
+        representanteLegal: this.organizationForm.value.representanteLegal,
+        telefono: this.organizationForm.value.telefono,
+        ubicacion: this.organizationForm.value.ubicacion,
+        sectorEconomico: this.organizationForm.value.sectorEconomico,
+        actividadPrincipal: this.organizationForm.value.actividadPrincipal,
+        idCreador: this.currentUser.idUsuario
       };
 
-      const id = this.organization.idOrganizacion!;
-      this.organizacionesApi.update(id, updatedData).subscribe({
+      const id = this.currentOrganizacionId;
+      const idUsuario = this.currentUser.idUsuario;
+      this.organizacionesApi.update(id, updatedData, idUsuario).subscribe({
         next: (updatedOrg) => {
           if (updatedOrg) {
             this.organization = updatedOrg;
@@ -98,6 +127,7 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
         error: (error) => {
           console.error('Error al actualizar organización:', error);
           alert('Error al actualizar la organización');
+          console.log(updatedData)
         }
       });
     } else {
@@ -106,9 +136,11 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   }
 
   deleteOrganization(): void {
-    if (this.organization && confirm('¿Estás seguro de que quieres eliminar esta organización?')) {
-      const id = this.organization.idOrganizacion!;
-      this.organizacionesApi.delete(id).subscribe({
+    const id = this.currentOrganizacionId;
+    const idUsuario = this.currentUser.idUsuario;
+
+    if (id && confirm('¿Estás seguro de que quieres eliminar esta organización?')) {
+      this.organizacionesApi.delete(id, idUsuario).subscribe({
         next: (success) => {
           this.organizationDeleted.emit(id);
           this.closeModal();

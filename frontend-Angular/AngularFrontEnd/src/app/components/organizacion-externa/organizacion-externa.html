@@ -44,9 +44,6 @@
           <button type="button" class="action-btn view-btn" title="Ver detalles" (click)="viewOrganizationDetails(org)">
             <img src="assets/images/search.png" alt="Ver detalles">
           </button>
-          <button type="button" class="action-btn add-btn" title="Agregar nueva organización" (click)="addNewOrganization()">
-            <img src="assets/images/plus_square.png" alt="Agregar organización">
-          </button>
         </div>
       </div>
       
@@ -66,3 +63,10 @@
   (organizationUpdated)="onOrganizationUpdated($event)"
   (organizationDeleted)="onOrganizationDeleted($event)">
 </app-organization-details>
+
+<!-- Modal para crear nueva organización -->
+<app-nueva-orga-ext
+  [showModal]="showNewOrgModal"
+  (modalClosed)="closeNewOrgModal()"
+  (organizationCreated)="onNewOrganizationCreated($event)">
+</app-nueva-orga-ext>

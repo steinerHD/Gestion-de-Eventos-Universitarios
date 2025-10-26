@@ -1,22 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../services/organizaciones.api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-nueva-orga-ext',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './nueva-orga-ext.html',
+  templateUrl: './nueva-orga-ext.html'
 })
 export class NuevaOrgaExtComponent implements OnInit {
+  @Input() showModal: boolean = false;
+  @Output() modalClosed = new EventEmitter<void>();
+  @Output() organizationCreated = new EventEmitter<OrganizacionExternaDTO>();
+
   organizationForm: FormGroup;
+  currentUser: any=null ; // Aquí deberías obtener el ID del usuario actual desde el servicio de autenticación
+
+  
 
   constructor(
     private fb: FormBuilder,
     private organizacionesApi: OrganizacionesApiService,
-    private router: Router
+    private authService: AuthService
   ) {
     this.organizationForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -27,8 +34,17 @@ export class NuevaOrgaExtComponent implements OnInit {
       sectorEconomico: ['', Validators.required],
       actividadPrincipal: ['', Validators.required]
     });
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+        console.log('👤 Usuario logueado actual:', this.currentUser);
+      },
+      error: (error) => {
+        console.error('❌ Error al obtener usuario logueado:', error);
+      }
+    })
   }
-
+  
   ngOnInit(): void {}
 
   onSubmit(): void {
@@ -41,17 +57,17 @@ export class NuevaOrgaExtComponent implements OnInit {
         representanteLegal: organizationData.representanteLegal,
         telefono: organizationData.telefono,
         sectorEconomico: organizationData.sectorEconomico,
-        actividadPrincipal: organizationData.actividadPrincipal
+        actividadPrincipal: organizationData.actividadPrincipal,
+        idCreador: this.currentUser.idUsuario // Asignar el ID del usuario actual como creador
       };
 
       this.organizacionesApi.create(payload).subscribe({
         next: (organization: OrganizacionExternaDTO) => {
-          console.log('Organización registrada exitosamente:', organization);
           alert('Organización registrada exitosamente');
-          this.router.navigate(['/add-event']);
+          this.organizationCreated.emit(organization);
+          this.organizationForm.reset();
         },
         error: (error: any) => {
-          console.error('Error al registrar organización:', error);
           alert('Error al registrar la organización');
         }
       });
@@ -61,6 +77,7 @@ export class NuevaOrgaExtComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/add-event']);
+    this.organizationForm.reset();
+    this.modalClosed.emit();
   }
 }
