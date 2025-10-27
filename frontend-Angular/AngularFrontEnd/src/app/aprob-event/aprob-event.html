@@ -1,13 +1,13 @@
 <header class="headerSec">
-    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img" routerLink="/home">
-<h1>Eventos a evaluar</h1> 
-<div class="header-actions">
+  <img src="assets/images/logo.jpg" alt="Logo" class="logo-img" routerLink="/home">
+  <h1>Eventos a evaluar</h1>
+  <div class="header-actions">
     <i class="ri-account-circle-fill" id="perfilBtn" routerLink="/profile-menu"></i>
   </div>
 </header>
 
 <div class="container my-events-container">
-  
+
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-message">
     <p>Cargando eventos...</p>
@@ -26,11 +26,11 @@
 
   <!-- Events Content -->
   <div *ngIf="!loading && !error && events.length > 0">
-    
+
 
     <!-- Eventos Pendientes -->
     <div *ngIf="pendingEvents.length > 0">
-      <h2>Mis Eventos Pendientes de Validación</h2>
+      <h2>Eventos Pendientes de Validación</h2>
       <div *ngFor="let event of pendingEvents" [class]="getEstadoCardClass(event.estado)">
         <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
         <h3>{{ event.titulo }}</h3>
@@ -38,13 +38,14 @@
         <p><strong>Fecha:</strong> {{ event.fecha }}</p>
         <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
         <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
-        
+
         <div class="event-actions">
-          <button id='editarBtn' *ngIf="canEdit(event)" 
-                  class="btn btn-secondary btn-sm" 
-                  (click)="editEvent(event)">
+          <button id='editarBtn' *ngIf="canEdit(event)" class="btn btn-secondary btn-sm" (click)="editEvent(event)">
             Editar Evento
           </button>
+          <button class="btn btn-success btn-sm" (click)="approveEvent(event)">Aprobar</button>
+          <button class="btn btn-warning btn-sm" (click)="rejectEvent(event)">Rechazar</button>
+          <button class="btn btn-info btn-sm" [routerLink]="['/eventos/detalle', event.idEvento]" aria-label="Ver detalles">Ver</button>
         </div>
       </div>
     </div>
@@ -52,7 +53,7 @@
 
     <!-- Eventos Rechazados -->
     <div *ngIf="rejectedEvents.length > 0">
-      <h2>Mis Eventos Rechazados</h2>
+      <h2>Eventos Rechazados</h2>
       <div *ngFor="let event of rejectedEvents" [class]="getEstadoCardClass(event.estado)">
         <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
         <h3>{{ event.titulo }}</h3>
@@ -60,11 +61,9 @@
         <p><strong>Fecha:</strong> {{ event.fecha }}</p>
         <p><strong>Hora inicio:</strong> {{ event.horaInicio }}</p>
         <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
-        
+
         <div class="event-actions">
-          <button *ngIf="canEdit(event)" 
-                  class="btn btn-secondary btn-sm" 
-                  (click)="editEvent(event)">
+          <button *ngIf="canEdit(event)" class="btn btn-secondary btn-sm" (click)="editEvent(event)">
             Editar Evento
           </button>
         </div>
@@ -73,7 +72,7 @@
 
     <!-- Eventos Aprobados -->
     <div *ngIf="approvedEvents.length > 0">
-      <h2>Mis Eventos Aprobados</h2>
+      <h2>Eventos Aprobados</h2>
       <div *ngFor="let event of approvedEvents" [class]="getEstadoCardClass(event.estado)">
         <div [class]="getEstadoBadgeClass(event.estado)">{{ event.estado }}</div>
         <h3>{{ event.titulo }}</h3>
@@ -86,3 +85,5 @@
 
   </div>
 </div>
+
+<!-- Detached details view now lives in the 'detalle-aprob-event' route -->

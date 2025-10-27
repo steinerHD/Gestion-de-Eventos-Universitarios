@@ -263,4 +263,20 @@ public class EventoService {
         evento.setEstado(Evento.EstadoEvento.Pendiente);
         eventoRepository.save(evento);
     }
+
+    public void aprobarEvento(Long idEvento) {
+        Evento evento = eventoRepository.findById(idEvento)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        evento.setEstado(Evento.EstadoEvento.Aprobado);
+        eventoRepository.save(evento);
+    }
+
+    public void rechazarEvento(Long idEvento) {
+        Evento evento = eventoRepository.findById(idEvento)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        evento.setEstado(Evento.EstadoEvento.Rechazado);
+        eventoRepository.save(evento);
+    }
 }

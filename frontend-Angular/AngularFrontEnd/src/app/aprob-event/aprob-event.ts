@@ -40,6 +40,7 @@ export class AprobEvent implements OnInit {
     private router: Router
   ) {}
   currentUser: any = null;
+  
   ngOnInit(): void {
     this.loadEvents(),
     // Lógica de seguridad para esta vista
@@ -91,9 +92,10 @@ export class AprobEvent implements OnInit {
     // basado en campos del evento o llamadas adicionales a la API
     // Por ejemplo, si el evento tiene un campo 'estado' o 'evaluacion'
     
+    // Si el backend ya envía el campo estado, lo usamos; si no, fallback a Borrador
     return {
       ...evento,
-      estado: estado
+      estado: evento.estado || estado
     };
   }
 
@@ -154,6 +156,39 @@ export class AprobEvent implements OnInit {
     // Navegar a la ruta de edición con el id en la ruta (definida en app.routes.ts)
     this.router.navigate(['/eventos/editar', evento.idEvento]);
   }
+
+  approveEvent(evento: EventoDTO): void {
+    if (!evento.idEvento) return;
+    if (!confirm(`¿Deseas aprobar el evento "${evento.titulo}"?`)) return;
+    this.eventosApiService.approve(evento.idEvento).subscribe({
+      next: () => {
+        evento.estado = 'Aprobado';
+        this.filterEventsByStatus();
+        alert('Evento aprobado correctamente.');
+      },
+      error: (err) => {
+        console.error('Error aprobando evento:', err);
+        alert('No se pudo aprobar el evento. Revisa la consola.');
+      }
+    });
+  }
+
+  rejectEvent(evento: EventoDTO): void {
+    if (!evento.idEvento) return;
+    if (!confirm(`¿Deseas rechazar el evento "${evento.titulo}"?`)) return;
+    this.eventosApiService.reject(evento.idEvento).subscribe({
+      next: () => {
+        evento.estado = 'Rechazado';
+        this.filterEventsByStatus();
+        alert('Evento rechazado correctamente.');
+      },
+      error: (err) => {
+        console.error('Error rechazando evento:', err);
+        alert('No se pudo rechazar el evento. Revisa la consola.');
+      }
+    });
+  }
+
 
   deleteEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;

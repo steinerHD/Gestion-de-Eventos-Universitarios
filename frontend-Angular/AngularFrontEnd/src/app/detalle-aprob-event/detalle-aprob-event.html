@@ -1,0 +1,120 @@
+<div class="container detalle-evento-container mt-4">
+  <div class="row">
+    <div class="col-12 mb-3">
+      <button class="btn btn-outline-secondary" (click)="back()">
+        <i class="ri-arrow-left-line"></i> Volver
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-4">Cargando detalles del evento...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && evento" class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="card-title mb-0">{{ evento.titulo }}</h4>
+            <small *ngIf="organizerInfo" class="text-muted">{{ organizerInfo.nombre }} — {{ organizerInfo.correo }}</small>
+            <small *ngIf="!organizerInfo" class="text-muted">Organizador ID: {{ evento.idOrganizador }}</small>
+          </div>
+          <div>
+            <span [ngClass]="{
+                'badge bg-secondary': evento.estado === 'Borrador',
+                'badge bg-warning text-dark': evento.estado === 'Pendiente',
+                'badge bg-success': evento.estado === 'Aprobado',
+                'badge bg-danger': evento.estado === 'Rechazado'
+              }" class="py-2 px-3">{{ evento.estado }}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="organizerInfo" class="mb-3">
+            <h5>Organizador</h5>
+            <p class="mb-1"><strong>Nombre:</strong> {{ organizerInfo.nombre }}</p>
+            <p class="mb-1"><strong>Correo:</strong> {{ organizerInfo.correo }}</p>
+            <div *ngIf="organizerInfo.cargo || organizerInfo.facultad || organizerInfo.docente" class="mb-1">
+              <!-- Parece ser un docente (campo plano o anidado en `docente`) -->
+              <p class="mb-0"><strong>Cargo:</strong> {{ organizerInfo.cargo || organizerInfo.docente?.cargo || '—' }}</p>
+              <p class="mb-0"><strong>Facultad:</strong> {{ organizerInfo.facultad || organizerInfo.docente?.facultad || '—' }}</p>
+              <p class="mb-0"><strong>Unidad académica:</strong> {{ organizerInfo.unidadAcademica || organizerInfo.docente?.unidadAcademica || '—' }}</p>
+            </div>
+            <div *ngIf="organizerInfo.codigoEstudiantil || organizerInfo.programa || organizerInfo.estudiante" class="mb-1">
+              <!-- Parece ser un estudiante (campo plano o anidado en `estudiante`) -->
+              <p class="mb-0"><strong>Código estudiantil:</strong> {{ organizerInfo.codigoEstudiantil || organizerInfo.estudiante?.codigoEstudiantil || '—' }}</p>
+              <p class="mb-0"><strong>Programa:</strong> {{ organizerInfo.programa || organizerInfo.estudiante?.programa || '—' }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item"><strong>Tipo:</strong> {{ evento.tipoEvento }}</li>
+                <li class="list-group-item"><strong>Fecha:</strong> {{ evento.fecha }}</li>
+                <li class="list-group-item"><strong>Hora inicio:</strong> {{ evento.horaInicio }}</li>
+                <li class="list-group-item"><strong>Hora fin:</strong> {{ evento.horaFin }}</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item">
+                  <strong>Instalaciones:</strong>
+                  <ul class="mb-0">
+                    <li *ngFor="let inst of instalacionesList">
+                      <strong>{{ inst.nombre }}</strong> — {{ inst.tipo }} • {{ inst.ubicacion }} • Capacidad: {{ inst.capacidad }}
+                    </li>
+                    <li *ngIf="(instalacionesList || []).length === 0" class="text-muted">No hay instalaciones cargadas</li>
+                  </ul>
+                </li>
+                <li class="list-group-item">
+                  <strong>Coorganizadores:</strong>
+                  <span *ngIf="(coorganizadoresList || []).length > 0">{{ coorganizadoresList.join(', ') }}</span>
+                  <span *ngIf="(coorganizadoresList || []).length === 0" class="text-muted">No hay coorganizadores asociados</span>
+                </li>
+                <li class="list-group-item"><strong>Tipo Aval:</strong> {{ evento.tipoAval || '—' }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h5>Aval</h5>
+            <p>
+              <a *ngIf="evento.avalPdf" [href]="evento.avalPdf" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                Ver/Descargar aval
+              </a>
+              <span *ngIf="!evento.avalPdf" class="text-muted">No disponible</span>
+            </p>
+          </div>
+
+          <div *ngIf="(participacionesDetailed || []).length">
+            <h5>Participaciones Organizaciones Externas</h5>
+            <div class="list-group">
+              <div *ngFor="let pd of participacionesDetailed" class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <div>
+                    <h6 class="mb-1">{{ pd.org?.nombre || pd.original.nombreOrganizacion || ('ID ' + pd.original.idOrganizacion) }}</h6>
+                    <small class="text-muted">NIT: {{ pd.org?.nit || '—' }}</small>
+                  </div>
+                  <div>
+                    <button *ngIf="pd.original.certificadoPdf" class="btn btn-sm btn-outline-primary" (click)="openPdf(pd.original.certificadoPdf)">Ver PDF</button>
+                  </div>
+                </div>
+
+                <p class="mb-1">Certificado: <span class="text-break">{{ pd.original.certificadoPdf || '—' }}</span></p>
+
+                <div class="mt-2">
+                  <strong>Representante:</strong>
+                  <div *ngIf="pd.original.representanteDiferente">
+                    <p class="mb-0"> Asiste un representante diferente: {{ pd.original.nombreRepresentanteDiferente || 'Datos no proporcionados' }}</p>
+                  </div>
+                  <div *ngIf="!pd.original.representanteDiferente">
+                    <p class="mb-0">Asiste el representante legal: {{ pd.org?.representanteLegal || '—' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>

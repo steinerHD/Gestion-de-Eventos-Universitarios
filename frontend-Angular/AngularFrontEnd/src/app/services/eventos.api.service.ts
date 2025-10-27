@@ -99,6 +99,14 @@ export class EventosApiService {
   sendToValidation(idEvento: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${idEvento}/enviar-validacion`, {});
   }
+
+  approve(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/aprobar`, {});
+  }
+
+  reject(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/rechazar`, {});
+  }
 }
 
 

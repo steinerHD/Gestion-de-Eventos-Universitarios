@@ -141,6 +141,38 @@ public class EventoController {
         }
     }
 
+    @PostMapping("/{id}/aprobar")
+    public ResponseEntity<Void> aprobarEvento(@PathVariable Long id) {
+        try {
+            System.out.println("[DEBUG] POST /api/eventos/" + id + "/aprobar");
+            eventoService.aprobarEvento(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error aprobarEvento: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado aprobarEvento: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{id}/rechazar")
+    public ResponseEntity<Void> rechazarEvento(@PathVariable Long id) {
+        try {
+            System.out.println("[DEBUG] POST /api/eventos/" + id + "/rechazar");
+            eventoService.rechazarEvento(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error rechazarEvento: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado rechazarEvento: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // ------------------------- PARTICIPACIONES ORGANIZACIONES -------------------------
     @PostMapping("/{id}/participaciones")
     public ResponseEntity<?> agregarParticipacionOrganizacion(
