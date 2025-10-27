@@ -1,11 +1,14 @@
 import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { UsuarioDTO } from '../services/usuarios.api.service';
 import { AuthService } from '../services/auth.service';
+import { OrganizacionesApiService } from '../services/organizaciones.api.service';
+import { UsuariosApiService } from '../services/usuarios.api.service';
+import { InstalacionesApiService } from '../services/instalaciones.api.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
@@ -31,12 +34,18 @@ export class AddEventComponent {
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
   currentUser: any = null; // Usuario logueado actual
+  isEdit: boolean = false;
+  editingEventId?: number;
 
   constructor(
     private fb: FormBuilder,
     private eventosApiService: EventosApiService,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
+    private organizacionesApiService: OrganizacionesApiService,
+    private usuariosApiService: UsuariosApiService,
+    private instalacionesApiService: InstalacionesApiService,
     private cdr: ChangeDetectorRef
   ) 
   
@@ -77,7 +86,94 @@ export class AddEventComponent {
           this.router.navigate(['/home']);
         }
       });
+
+      // Revisar si estamos en modo edición (ruta con id)
+      const idParam = this.route.snapshot.paramMap.get('id');
+      if (idParam) {
+        const id = Number(idParam);
+        if (!isNaN(id)) {
+          this.isEdit = true;
+          this.editingEventId = id;
+          this.loadEventForEdit(id);
+        }
       }
+      }
+
+  private loadEventForEdit(id: number): void {
+    this.eventosApiService.getById(id).subscribe({
+      next: (event) => {
+        console.log('🔁 Cargando evento para edición:', event);
+        // Mapear campos básicos
+        this.eventForm.patchValue({
+          eventName: event.titulo || '',
+          eventType: event.tipoEvento && event.tipoEvento.toLowerCase().includes('acad') ? 'academico' : 'ludico',
+          eventStatus: event.estado || 'Pendiente',
+          avalPdf: event.avalPdf || '',
+          tipoAval: event.tipoAval || '',
+          externalOrgParticipation: (event.participacionesOrganizaciones || []).length > 0
+        });
+
+        // Cargar coorganizadores (usuarios)
+        this.selectedUsers = [];
+        (event.coorganizadores || []).forEach((uId) => {
+          this.usuariosApiService.getById(uId).subscribe({
+            next: (u) => {
+              this.selectedUsers.push(u);
+              this.cdr.detectChanges();
+            },
+            error: (err) => console.warn('No se pudo cargar usuario coorganizador id=', uId, err)
+          });
+        });
+
+        // Cargar organizaciones externas seleccionadas (si las hay)
+        this.selectedOrganizations = [];
+        (event.participacionesOrganizaciones || []).forEach((p) => {
+          const orgId = p.idOrganizacion;
+          if (orgId) {
+            this.organizacionesApiService.getById(orgId).subscribe({
+              next: (org) => {
+                this.selectedOrganizations.push(org);
+                this.cdr.detectChanges();
+              },
+              error: (err) => console.warn('No se pudo cargar organización id=', orgId, err)
+            });
+          }
+        });
+
+        // Reconstruir encuentros básicos a partir de la información disponible
+        this.encounters = [];
+        const fecha = event.fecha;
+        const horaInicio = event.horaInicio ? event.horaInicio.substring(0,5) : '';
+        const horaFin = event.horaFin ? event.horaFin.substring(0,5) : '';
+
+        (event.instalaciones || []).forEach((idInst) => {
+          this.instalacionesApiService.getById(idInst).subscribe({
+            next: (inst) => {
+              this.encounters.push({
+                id: Date.now().toString() + '_' + idInst,
+                date: fecha,
+                startTime: horaInicio,
+                endTime: horaFin,
+                location: inst
+              });
+              this.cdr.detectChanges();
+            },
+            error: (err) => {
+              console.warn('No se pudo cargar instalación id=', idInst, err);
+              // Si falla la carga de instalación, igual crear un encuentro sin location
+              this.encounters.push({ id: Date.now().toString() + '_fallback', date: fecha, startTime: horaInicio, endTime: horaFin, location: null });
+              this.cdr.detectChanges();
+            }
+          });
+        });
+      },
+      error: (err) => {
+        console.error('Error al cargar evento para edición:', err);
+        notyf.error('No se pudo cargar el evento para edición.');
+        this.router.navigate(['/my-events']);
+      }
+    });
+  }
   submitEvent(): void {
     console.log('=== VALIDACIÓN DEL FORMULARIO DE EVENTO ===');
     console.log('📋 Estado del formulario:', this.eventForm.value);
@@ -102,18 +198,36 @@ export class AddEventComponent {
 
     console.log('📤 Enviando evento al backend:', eventoData);
 
-    this.eventosApiService.create(eventoData).subscribe({
-      next: (createdEvent) => {
-        console.log('✅ Evento creado exitosamente:', createdEvent);
-        alert('Evento creado exitosamente.');
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        console.error('❌ Error al crear evento:', error);
-        console.log(eventoData)
-        alert('Error al crear el evento. Verifique la consola para más detalles.');
-      }
-    });
+    // Sanitizar el DTO: eliminar propiedades undefined antes de enviar
+    const payload = JSON.parse(JSON.stringify(eventoData));
+    console.log('📦 Payload a enviar (sanitizado):', JSON.stringify(payload, null, 2));
+
+    if (this.isEdit && this.editingEventId) {
+      this.eventosApiService.update(this.editingEventId, payload).subscribe({
+        next: (updated) => {
+          console.log('✅ Evento actualizado:', updated);
+          alert('Evento actualizado correctamente.');
+          this.router.navigate(['/my-events']);
+        },
+        error: (err) => {
+          console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
+          alert('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+        }
+      });
+    } else {
+      this.eventosApiService.create(payload).subscribe({
+        next: (createdEvent) => {
+          console.log('✅ Evento creado exitosamente:', createdEvent);
+          alert('Evento creado exitosamente.');
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
+          console.log(eventoData)
+          alert('Error al crear el evento. Verifique la consola para más detalles.');
+        }
+      });
+    }
   }
 
   private validateForm(): string[] {
@@ -224,8 +338,8 @@ export class AddEventComponent {
       avalPdf: form.get('avalPdf')?.value || '',
       tipoAval: form.get('tipoAval')?.value || undefined,
 
-      // 👇 puedes inicializar el estado si lo manejas localmente
-      estado: 'Pendiente'
+      // En edición, si hay un valor en el formulario para estado, respetarlo
+      estado: form.get('eventStatus')?.value || 'Borrador'
     };
 
     console.log('📤 EventoDTO construido (final):', eventoData);

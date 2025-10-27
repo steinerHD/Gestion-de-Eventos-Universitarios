@@ -2,7 +2,7 @@
   <button type="button" aria-label="Ir al inicio" routerLink="/home">
     <img src="assets/images/logo.jpg" alt="Logo" class="logo-img">
   </button>
-  <h1>Nuevo Evento</h1>
+  <h1>{{ isEdit ? 'Editar Evento' : 'Nuevo Evento' }}</h1>
   <button type="button" aria-label="Perfil de usuario" routerLink="/profile-menu">
     <img src="assets/images/profile.png" alt="Perfil" class="profile-img">
   </button>
@@ -96,7 +96,7 @@
     <legend class="sr-only">Estado</legend>
     <div class="input-group">
       <p class="label-status">Estado del evento</p>
-      <p class="status">{{ eventForm.get('eventStatus')?.value }}</p>
+      <p class="status"> Borrador </p>
     </div>
   </fieldset>
 
@@ -129,7 +129,7 @@
   </section>
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || encounters.length === 0 ">Crear</button>
+    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || encounters.length === 0 ">{{ isEdit ? 'Guardar cambios' : 'Crear' }}</button>
     <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
   </div>
 </form>

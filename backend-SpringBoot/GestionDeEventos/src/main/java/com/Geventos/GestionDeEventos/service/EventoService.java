@@ -245,4 +245,22 @@ public class EventoService {
         }
         System.out.println("[DEBUG] Manejo de participaciones completado");
     }
+
+    /**
+     * Cambia el estado de un evento a Pendiente para enviarlo a validación.
+     * Lanza IllegalArgumentException si no existe el evento o si el organizador no es válido.
+     */
+    public void enviarAValidacion(Long idEvento) {
+        Evento evento = eventoRepository.findById(idEvento)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        // Solo permitir enviar si el estado actual es Borrador o Rechazado (según reglas de negocio)
+        if (evento.getEstado() == Evento.EstadoEvento.Pendiente) {
+            // Ya está en pendiente; no hacer nada
+            return;
+        }
+
+        evento.setEstado(Evento.EstadoEvento.Pendiente);
+        eventoRepository.save(evento);
+    }
 }

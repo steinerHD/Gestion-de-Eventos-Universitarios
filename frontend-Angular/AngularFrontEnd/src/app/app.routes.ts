@@ -22,7 +22,12 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'add-event', component: AddEventComponent, canActivate: [AuthGuard] },
   { path: 'new-organ-ext', component: NuevaOrgaExtComponent, canActivate: [AuthGuard] },
-  {path: 'my-events', component: MyEventsComponent, canActivate: [AuthGuard]},
-  {path: 'aprobar-eventos', component: AprobEvent, canActivate:[AuthGuard]},
+  { path: 'my-events', component: MyEventsComponent, canActivate: [AuthGuard] },
+  { path: 'aprobar-eventos', component: AprobEvent, canActivate: [AuthGuard] },
+  {
+    path: 'eventos/editar/:id',
+    component: AddEventComponent
+  },
+
   { path: '**', redirectTo: 'signin' }
 ];

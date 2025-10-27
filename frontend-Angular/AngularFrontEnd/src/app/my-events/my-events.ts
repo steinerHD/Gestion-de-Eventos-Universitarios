@@ -18,35 +18,7 @@ import { Router, RouterModule } from '@angular/router';
 export class MyEventsComponent implements OnInit {
 
   // events: EventoConEstado[] = []; 💢
-  events: EventoDTO[] = [
-    {
-  titulo: "Foro de Tecnología 2025",
-  tipoEvento: "Académico",
-  fecha: "2025-11-15",
-  horaInicio: "09:00:00",
-  horaFin: "13:00:00",
-  idOrganizador: 1,
-  instalaciones: [2, 5],
-  coorganizadores: [3, 4],
-  participacionesOrganizaciones: [
-    {
-      idOrganizacion: 7,
-      certificadoPdf: "JVBERi0xLjQKJcfsj6IK...", // Base64 del certificado
-      representanteDiferente: true,
-      nombreRepresentanteDiferente: "María López"
-    },
-    {
-      idOrganizacion: 9,
-      certificadoPdf: "JVBERi0xLjQKJcfsj6IK...",
-      representanteDiferente: false
-    }
-  ],
-
-  avalPdf: "JVBERi0xLjQKJcfsj6IK...",
-  tipoAval: "Director_Docencia",
-  estado: "Pendiente"
-}
-  ];
+  events: EventoDTO[] = [];
   filteredEvents: EventoDTO[] = [];
   draftEvents: EventoDTO[] = [];
   rejectedEvents: EventoDTO[] = [];
@@ -77,29 +49,29 @@ export class MyEventsComponent implements OnInit {
 
     // <<solo para el evento de ejemplo>>
     // Se comenta la carga real de eventos para permitir la visualización del ejemplo estático.
-    // this.authService.getUserProfile().subscribe({
-    //   next: (userProfile) => {
-    //     const idUsuario = userProfile.idUsuario;
-    //     this.eventosApiService.getByOrganizador(idUsuario).subscribe({
-    //       next: (eventos) => {
-    //         this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
-    //         this.filteredEvents = [...this.events];
-    //         this.filterEventsByStatus();
-    //         this.loading = false;
-    //       },
-    //       error: (error) => {
-    //         console.error('Error cargando eventos:', error);
-    //         this.error = 'Error al cargar los eventos';
-    //         this.loading = false;
-    //       }
-    //     });
-    //   },
-    //   error: (error) => {
-    //     console.error('Error obteniendo perfil de usuario:', error);
-    //     this.error = 'Error al obtener información del usuario';
-    //     this.loading = false;
-    //   }
-    // });
+     this.authService.getUserProfile().subscribe({
+       next: (userProfile) => {
+         const idUsuario = userProfile.idUsuario;
+         this.eventosApiService.getByOrganizador(idUsuario).subscribe({
+           next: (eventos) => {
+             this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
+            this.filteredEvents = [...this.events];
+             this.filterEventsByStatus();
+             this.loading = false;
+           },
+           error: (error) => {
+             console.error('Error cargando eventos:', error);
+             this.error = 'Error al cargar los eventos';
+            this.loading = false;
+           }
+         });
+       },
+       error: (error) => {
+         console.error('Error obteniendo perfil de usuario:', error);
+         this.error = 'Error al obtener información del usuario';
+         this.loading = false;
+      }
+     });
     this.loading = false; // Forzar a que no se muestre "cargando"
     // <<solo para el evento de ejemplo>>
   }
@@ -154,28 +126,28 @@ export class MyEventsComponent implements OnInit {
 
   sendToValidation(evento: EventoDTO): void {
     if (!evento.idEvento) return;
-    
+
+    const confirmSend = confirm(`¿Deseas enviar el evento "${evento.titulo}" a validación?`);
+    if (!confirmSend) return;
+
     this.eventosApiService.sendToValidation(evento.idEvento).subscribe({
       next: () => {
-        // Actualizar el estado del evento localmente
+        // Actualizar estado localmente
         evento.estado = 'Pendiente';
         this.filterEventsByStatus();
-        alert('Evento enviado a validación exitosamente');
+        alert('El evento ha sido enviado a validación correctamente.');
       },
-      error: (error) => {
-        console.error('Error enviando a validación:', error);
-        alert('Error al enviar el evento a validación');
+      error: (err) => {
+        console.error('Error enviando a validación:', err);
+        alert('No se pudo enviar el evento a validación. Revisa la consola.');
       }
     });
-  }
+}
 
   editEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;
-    
-    // Navegar a la página de edición con el ID del evento
-    this.router.navigate(['/add-event'], { 
-      queryParams: { edit: true, id: evento.idEvento } 
-    });
+    // Navegar a la ruta de edición con el id en la ruta (definida en app.routes.ts)
+    this.router.navigate(['/eventos/editar', evento.idEvento]);
   }
 
   deleteEvent(evento: EventoDTO): void {
