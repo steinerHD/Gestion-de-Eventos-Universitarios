@@ -1,17 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // Adjust path based on location
+import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-profile-menu',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './profile-menu.html',
   styleUrls: ['./profile-menu.css']
 })
-export class ProfileMenuComponent {
-  constructor(private authService: AuthService, private router: Router) {}
-
+export class ProfileMenuComponent implements OnInit{
+  constructor(
+    private eventosApiService: EventosApiService,
+    private authService: AuthService,
+    private router: Router   
+  )
+  {}
+    currentUser: any = null;
+    ngOnInit(): void {
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Error al obtener el perfil del usuario', err)
+    });
+  }
+    get isSecretaria(): boolean { return this.currentUser?.tipoUsuario === 'Secretaria'; }
   /**
    * Método que maneja la acción de visualizar los datos del usuario (HU 3.3).
    */
@@ -36,5 +52,11 @@ export class ProfileMenuComponent {
   cerrarMenu(): void {
     this.router.navigate(['/home']);
     console.log('Menú de perfil cerrado.');
+  }
+
+
+  misEventos(): void {
+    this.router.navigate(['/my-events']);
+    console.log('Navegando a Mis Eventos.');
   }
 }

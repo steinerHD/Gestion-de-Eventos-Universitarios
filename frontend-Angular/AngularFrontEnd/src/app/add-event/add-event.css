@@ -276,7 +276,7 @@ header button {
 }
 
 header h1 {
-    font-size: 30px;
+    font-size:150%;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #28AFB0;
   margin: 0; /* Elimina el margen por defecto del h1 */
@@ -284,6 +284,7 @@ header h1 {
 
 .headerSec {
   display: flex;
+  min-height: 7%;
   justify-content: space-between;
   align-items: center;
   padding: 1rem; /* Adjust as needed */
@@ -654,5 +655,29 @@ label, p, .label-status, .status {
 
 .file-info span::before {
   content: "📄";
+  font-size: 16px;
+}
+
+/* Estilos para el mensaje de no organizaciones seleccionadas */
+.no-organizations-selected {
+  margin-top: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 2px solid #ffc107;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+.no-organizations-selected p {
+  margin: 0;
+  color: #856404;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.no-organizations-selected p::before {
+  content: "ℹ️";
+  margin-right: 8px;
   font-size: 16px;
 }

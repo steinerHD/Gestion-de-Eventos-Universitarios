@@ -1,0 +1,435 @@
+/* Estilos para el contenedor principal */
+.my-events-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Estilos para el header */
+.headerSec {
+  position: sticky;
+  top: 0;
+  z-index: 1020; /* Un valor alto para asegurar que esté por encima de otros elementos */
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background: #ffffff;
+  color: #4F5D75;
+  max-height: 80px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.201);
+}
+
+.headerSec h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Empuja este contenedor a la derecha */
+}
+
+
+.logo-img {
+  height: 50px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#perfilBtn {
+  color: #4F5D75;
+  font-size: 50px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.logo-img:hover, .profile-img:hover, #perfilBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Estilos para mensajes de estado */
+.loading-message, .error-message, .no-events-message {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.no-events-message {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Estilos para filtros */
+.filters-section {
+  margin-bottom: 2rem;
+}
+
+.filters-container {
+  display: grid; /* Mantener el layout de rejilla */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Mantener columnas responsivas */
+  gap: 1rem; /* Mantener espaciado */
+  
+  /* Estilos para la transición */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 1rem; /* Padding horizontal para que no se colapse al ocultarse */
+  margin-top: 0;
+  border: none;
+  transition: max-height 0.2s ease-out, opacity 0.2s ease-out, margin-top 0.2s ease-out, padding 0.2s ease-out;
+}
+
+.filters-container.show {
+  max-height: 500px; /* Altura suficiente para mostrar todo el contenido */
+  opacity: 1;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #28AFB0;
+  font-size: 0.9rem;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #28AFB0;
+  box-shadow: 0 0 0 2px rgba(40, 175, 176, 0.2);
+}
+
+/* Estilos para las secciones de eventos */
+h2 {
+  color: #28AFB0;
+  font-size: 1.5rem;
+  margin: 2rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #28AFB0;
+}
+
+/* Estilos para las tarjetas de eventos */
+.event-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #28AFB0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: #28AFB0;
+  background: linear-gradient(90deg, rgba(40, 175, 176, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(40, 175, 176, 0.15) 100%);
+}
+
+.event-card.draft {
+  border-left-color: #6c757d;
+}
+
+.event-card.draft:hover {
+  border-left-color: #6c757d;
+  background: #6C757D;
+  background: linear-gradient(90deg, rgba(108, 117, 125, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(108, 117, 125, 0.15) 100%);
+}
+
+.event-card.pending {
+  border-left-color: #ffc107;
+}
+
+.event-card.pending:hover {
+  border-left-color: #ffc107;
+  background: #FFC107;
+background: linear-gradient(90deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(255, 193, 7, 0.15) 100%);
+}
+
+.event-card.approved {
+  border-left-color: #28a745;
+}
+
+.event-card.approved:hover {
+  border-left-color: #28a745;
+  background: #28A745;
+  background: linear-gradient(90deg, rgba(40, 167, 69, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(40, 167, 69, 0.15) 100%);
+}
+
+
+.event-card.rejected {
+  border-left-color: #dc3545;
+}
+
+.event-card.rejected:hover {
+  border-left-color: #dc3545;
+  background: #DC3545;
+  background: linear-gradient(90deg, rgba(220, 53, 69, 0.15) 0%, rgba(255, 255, 255, 1) 35%, rgba(220, 53, 69, 0.15) 100%);
+}
+
+/* Estilos para badges de estado */
+.status-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.draft {
+  background: #6c757d;
+  color: white;
+}
+
+.status-badge.pending {
+  background: #ffc107;
+  color: #212529;
+}
+
+.status-badge.approved {
+  background: #28a745;
+  color: white;
+}
+
+.status-badge.rejected {
+  background: #dc3545;
+  color: white;
+}
+
+/* Estilos para el contenido de la tarjeta */
+.event-card h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.event-card p {
+  margin: 0.5rem 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.event-card p strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Estilos para los botones de acción */
+.event-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.btn-primary {
+  background: #28AFB0;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1a8a8b;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #1a8a8b;
+  align-content: space-around;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  background: transparent;
+  color: #28AFB0;
+  border-radius: 20px;
+  border: 2px solid #28AFB0;
+}
+
+.btn-outline-primary:hover {
+  background: #28AFB0;
+  color: white;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .headerSec {
+    padding: 1rem;
+  }
+  
+  .headerSec h1 {
+    font-size: 1.4rem;
+  }
+  
+  .my-events-container {
+    padding: 10px;
+  }
+  
+  .filters-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .event-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    justify-content: center;
+  }
+  
+  .event-card {
+    padding: 1rem;
+  }
+  
+  .status-badge {
+    position: static;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerSec h1 {
+    font-size: 1.2rem;
+  }
+  
+  .logo-img, .profile-img {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* Clase para replicar el estilo del botón "+ Crear evento" en otros elementos, como un chat */
+.btn-create-event{
+  /* Propiedades base de .btn */
+  padding: 0.5rem;
+  border: 1px solid #21252976; /* Borde sutil como en btn-light */
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  width: 150px;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-items: center;
+
+  /* Propiedades de .btn-light */
+  background-color: #f8f9fa; /* Fondo claro */
+  color: #212529; /* Texto oscuro */
+}
+
+.btn-create-event:hover {
+  background-color: #3BE5E6; /* Un poco más oscuro al pasar el mouse */
+  border-color: #dae0e5;
+  color: white;
+  font-weight: bold; 
+}
+
+#editarBtn {
+  background-color: #3BE5E6;
+  border-radius: 100px;
+  font-weight: bold;
+  border: 1px solid #2c3e502e;
+}
+
+/* Modal sencillo para detalles del evento */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 2001;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  float: right;
+  cursor: pointer;
+}

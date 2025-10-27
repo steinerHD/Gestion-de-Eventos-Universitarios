@@ -17,19 +17,41 @@ export interface OrganizacionExternaRef {
   nit?: string;
 }
 
+export interface ParticipacionDetalleDTO {
+  idOrganizacion: number;
+  nombreOrganizacion?: string; // Nombre de la organización
+  certificadoPdf: string; 
+  representanteDiferente?: boolean; // Por defecto false
+  nombreRepresentanteDiferente?: string; // Solo si representanteDiferente = true
+}
+
 export interface EventoDTO {
-  idEvento?: number;
+  idEvento?: number; // opcional para actualización
+
+  // Datos principales
   titulo: string;
   tipoEvento: 'Académico' | 'Lúdico';
-  fecha: string; // yyyy-MM-dd
-  horaInicio: string; // HH:mm:ss
-  horaFin: string; // HH:mm:ss
-  instalaciones?: { idInstalacion: number }[];
-  organizacionesExternas?: { idOrganizacion?: number }[]; // estructura simplificada según JSON especificado
-  organizador?: { idUsuario: number }; // estructura según JSON especificado
-  avalPdf?: string; // Base64 string
+  fecha: string; // formato yyyy-MM-dd
+  horaInicio: string; // formato HH:mm:ss
+  horaFin: string; // formato HH:mm:ss
+
+  // Relaciones
+  idOrganizador: number; // ID del usuario organizador
+  instalaciones: number[]; // IDs de instalaciones
+  coorganizadores?: number[]; // IDs de coorganizadores
+
+  // Participaciones con organizaciones externas
+  participacionesOrganizaciones?: ParticipacionDetalleDTO[];
+
+  // Aval
+  avalPdf?: string; // PDF del aval
   tipoAval?: 'Director_Programa' | 'Director_Docencia';
+
+  // Estado del evento
+  estado: 'Aprobado' | 'Rechazado' | 'Pendiente' | 'Borrador';
 }
+
+
 
 @Injectable({ providedIn: 'root' })
 export class EventosApiService {
@@ -68,6 +90,22 @@ export class EventosApiService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getByOrganizador(idOrganizador: number): Observable<EventoDTO[]> {
+    return this.http.get<EventoDTO[]>(`${this.baseUrl}/organizador/${idOrganizador}`);
+  }
+
+  sendToValidation(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/enviar-validacion`, {});
+  }
+
+  approve(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/aprobar`, {});
+  }
+
+  reject(idEvento: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${idEvento}/rechazar`, {});
   }
 }
 

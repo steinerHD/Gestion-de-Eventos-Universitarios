@@ -53,10 +53,18 @@ public class EventoController {
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponse> updateEvento(@PathVariable Long id, @RequestBody EventoRequest request) {
         try {
+            System.out.println("[DEBUG] PUT /api/eventos/" + id + " - Request recibido");
             EventoResponse response = eventoService.updateEvento(id, request);
+            System.out.println("[DEBUG] Evento actualizado con ID: " + response.getIdEvento());
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error en validación (update): " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado (update): " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -114,6 +122,55 @@ public class EventoController {
     @GetMapping("/{id}/aval")
     public ResponseEntity<String> getAvalPdf(@PathVariable Long id) {
         return ResponseEntity.ok(eventoService.findById(id).get().getAvalPdf());
+    }
+
+    // ------------------------- ENVIAR A VALIDACIÓN -------------------------
+    @PostMapping("/{id}/enviar-validacion")
+    public ResponseEntity<Void> enviarAValidacion(@PathVariable Long id) {
+        try {
+            System.out.println("[DEBUG] POST /api/eventos/" + id + "/enviar-validacion");
+            eventoService.enviarAValidacion(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error enviarAValidacion: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado enviarAValidacion: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{id}/aprobar")
+    public ResponseEntity<Void> aprobarEvento(@PathVariable Long id) {
+        try {
+            System.out.println("[DEBUG] POST /api/eventos/" + id + "/aprobar");
+            eventoService.aprobarEvento(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error aprobarEvento: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado aprobarEvento: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{id}/rechazar")
+    public ResponseEntity<Void> rechazarEvento(@PathVariable Long id) {
+        try {
+            System.out.println("[DEBUG] POST /api/eventos/" + id + "/rechazar");
+            eventoService.rechazarEvento(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            System.out.println("[DEBUG] Error rechazarEvento: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.out.println("[DEBUG] Error inesperado rechazarEvento: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // ------------------------- PARTICIPACIONES ORGANIZACIONES -------------------------

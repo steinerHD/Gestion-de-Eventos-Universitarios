@@ -1,0 +1,20 @@
+.detalle-evento-container {
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+}
+
+.badge {
+  font-size: 0.9rem;
+}
+
+.list-group-item strong {
+  width: 130px;
+  display: inline-block;
+}
+
+.btn-outline-secondary i {
+  margin-right: 6px;
+}

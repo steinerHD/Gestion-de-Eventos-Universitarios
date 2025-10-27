@@ -16,7 +16,7 @@
           [checked]="getOrganizationData(org).participaRepresentante"
           (change)="onParticipationChange(org, $event)"
         >
-        <label for="participaRepresentante{{ org.idOrganizacion }}">¿Participa el representante legal?</label>
+        <label>¿Participa el representante legal?</label>
       </div>
       
       <!-- Campos del representante legal si no participa -->
@@ -34,7 +34,7 @@
       
       <!-- Módulo de aval -->
       <div class="aval-section">
-        <div *ngIf="!getOrganizationData(org).avalFile" class="aval-upload">
+        <div *ngIf="!getOrganizationData(org).avalFilePath" class="aval-upload">
           <input 
             type="file" 
             accept=".pdf" 
@@ -52,7 +52,7 @@
           </button>
         </div>
         
-        <div *ngIf="getOrganizationData(org).avalFile" class="aval-selected">
+        <div *ngIf="getOrganizationData(org).avalFilePath" class="aval-selected">
           <span class="aval-text">
             Aval: {{ getOrganizationData(org).avalFileName }}
           </span>

@@ -1,14 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { OrganizationDetailsComponent } from '../organization-details/organization-details';
+import { NuevaOrgaExtComponent } from '../../nueva-orga-ext/nueva-orga-ext';
 
 @Component({
   selector: 'app-organizacion-externa',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrganizationDetailsComponent],
+  imports: [CommonModule, FormsModule, OrganizationDetailsComponent, NuevaOrgaExtComponent],
   templateUrl: './organizacion-externa.html',
   styleUrls: ['./organizacion-externa.css']
 })
@@ -20,13 +20,12 @@ export class OrganizacionExternaComponent implements OnInit {
   organizations: OrganizacionExternaDTO[] = [];
   filteredOrganizations: OrganizacionExternaDTO[] = [];
   searchQuery: string = '';
-  selectedOrganizations: OrganizacionExternaDTO[] = [];
   showDetailsModal: boolean = false;
+  showNewOrgModal: boolean = false;
   selectedOrganization: OrganizacionExternaDTO | null = null;
 
   constructor(
-    private organizacionesApi: OrganizacionesApiService,
-    private router: Router
+    private organizacionesApi: OrganizacionesApiService
   ) {}
 
   ngOnInit(): void {
@@ -56,18 +55,11 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   selectOrganization(organization: OrganizacionExternaDTO): void {
-    // Verificar si ya está seleccionada
-    const isAlreadySelected = this.selectedOrganizations.some(org => org.idOrganizacion === organization.idOrganizacion);
-    
-    if (!isAlreadySelected) {
-      this.selectedOrganizations.push(organization);
-      this.organizationSelected.emit(organization);
-    }
+    // Emitir la organización seleccionada y cerrar el modal
+    this.organizationSelected.emit(organization);
+    this.closeModal();
   }
 
-  removeSelectedOrganization(organization: OrganizacionExternaDTO): void {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.idOrganizacion !== organization.idOrganizacion);
-  }
 
   closeModal(): void {
     this.showModal = false;
@@ -94,9 +86,8 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   onOrganizationDeleted(organizationId: number): void {
-    // Remover la organización de la lista
-    this.organizations = this.organizations.filter(org => org.idOrganizacion !== organizationId);
-    this.filteredOrganizations = this.filteredOrganizations.filter(org => org.idOrganizacion !== organizationId);
+    // Recargamos la lista desde el servidor para reflejar la eliminación
+    this.loadOrganizations();
   }
 
   closeDetailsModal(): void {
@@ -105,6 +96,15 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   addNewOrganization(): void {
-    this.router.navigate(['/new-organ-ext']);
+    this.showNewOrgModal = true;
+  }
+
+  closeNewOrgModal(): void {
+    this.showNewOrgModal = false;
+  }
+
+  onNewOrganizationCreated(newOrg: OrganizacionExternaDTO): void {
+    this.loadOrganizations(); // Recargamos la lista para incluir la nueva organización
+    this.closeNewOrgModal();
   }
 }
