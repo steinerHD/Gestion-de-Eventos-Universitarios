@@ -113,6 +113,11 @@
                   (click)="editEvent(event)">
             Editar Evento
           </button>
+          <button *ngIf="canDelete(event)" 
+                  class="btn btn-danger btn-sm" 
+                  (click)="deleteEvent(event)">
+            Eliminar
+          </button>
         </div>
       </div>
     </div>
@@ -134,6 +139,11 @@
                   class="btn btn-secondary btn-sm" 
                   (click)="editEvent(event)">
             Editar Evento
+          </button>
+          <button *ngIf="canDelete(event)" 
+                  class="btn btn-danger btn-sm" 
+                  (click)="deleteEvent(event)">
+            Eliminar
           </button>
         </div>
       </div>

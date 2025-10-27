@@ -158,9 +158,15 @@ export class MyEventsComponent implements OnInit {
     
     this.eventosApiService.delete(evento.idEvento).subscribe({
       next: () => {
-        // Remover el evento de la lista local
+        // Remover el evento de las listas locales para respuesta inmediata
         this.events = this.events.filter(e => e.idEvento !== evento.idEvento);
+        this.filteredEvents = this.filteredEvents.filter(e => e.idEvento !== evento.idEvento);
+        // Actualizar las listas por estado
         this.filterEventsByStatus();
+
+        // También recargar desde el backend para asegurar sincronía
+        this.loadEvents();
+
         alert('Evento eliminado exitosamente');
       },
       error: (error) => {
