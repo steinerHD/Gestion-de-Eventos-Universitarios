@@ -20,7 +20,7 @@
     </button>
 
     <!-- Opción 4: Eliminar cuenta (Relacionada a HU 3.4) -->
-    <button class="opcion-btn" (click)="misEventos()">
+    <button class="opcion-btn" *ngIf="!isSecretaria" (click)="misEventos()">
       Mis eventos
     </button>
   </div>

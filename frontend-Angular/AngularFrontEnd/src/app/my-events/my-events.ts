@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { notyf } from '../app'; 
 
 
 
@@ -38,10 +39,20 @@ export class MyEventsComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {}
-
+  currentUser: any = null;
   ngOnInit(): void {
-    this.loadEvents();
+    this.loadEvents(),
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        if (!user || user.tipoUsuario == 'Secretaria') {
+          notyf.error("Secretaria no tiene eventos asociados");
+          this.router.navigate(['/home']);
+        }
+      },
+      error: (err) => console.error('Error al obtener el perfil del usuario', err)
+    });
   }
+  get isSecretaria(): boolean { return this.currentUser?.tipoUsuario === 'Secretaria'; }
 
   loadEvents(): void {
     this.loading = true;
