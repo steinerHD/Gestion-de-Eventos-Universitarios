@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
+import { AuthService } from '../services/auth.service';
 
 
 @Component({
@@ -13,12 +14,24 @@ import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 })
 export class HomeComponent implements OnInit {
   events: EventoDTO[] = [];
+  currentUser: any = null;
 
-  constructor(private eventosApiService: EventosApiService) {}
+  constructor(
+    private eventosApiService: EventosApiService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadEvents();
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Error al obtener el perfil del usuario', err)
+    });
   }
+
+  get isSecretaria(): boolean { return this.currentUser?.tipoUsuario === 'Secretaria'; }
 
   loadEvents(): void {
     this.eventosApiService.getAll().subscribe({

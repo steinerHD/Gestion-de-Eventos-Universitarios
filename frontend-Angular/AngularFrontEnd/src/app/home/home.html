@@ -10,21 +10,18 @@
     </div>
 
     <div class="navbar-icons">
-      <div class="navbar-profile">
-        <i class="ri-notification-3-fill"></i>
-        <i class="ri-arrow-right-up-line"></i>
-      </div>
-      <button class="btn btn-light btn-create" routerLink="/add-event">+ Crear evento</button>
-      <div class="navbar-profile">
-        <img src="assets/images/profile.png" alt="Perfil" class="profile-img" routerLink="/profile-menu" />
-      </div>
+      <button class="btn btn-light btn-create" *ngIf="isSecretaria" routerLink="/aprobar-eventos"><i class="ri-todo-line"></i> Califica los eventos</button>
+      <button class="btn btn-light btn-create" *ngIf="!isSecretaria" routerLink="/add-event">+ Crear evento</button>
+      <i class="ri-account-circle-fill" id="perfilBtn" routerLink="/profile-menu"></i>
     </div>
   </nav>
 </div>
 
-<div class="events-container">
-  <h2>Eventos</h2>
-  <div *ngIf="events.length === 0">
-    <p>No hay eventos disponibles.</p>
+<div *ngIf="!isSecretaria">
+  <div class="events-container">
+    <h2>Eventos</h2>
+    <div *ngIf="events.length === 0">
+      <p>No hay eventos disponibles.</p>
+    </div>
   </div>
 </div>

@@ -11,6 +11,7 @@ import { SelectedOrganizationsComponent } from '../components/selected-organizat
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
 import { SelectedUsersComponent } from '../components/selected-users/selected-users';
 import { EncountersComponent, Encounter } from '../components/encounters/encounters';
+import { notyf } from '../app'; 
 
 @Component({
   selector: 'app-add-event',
@@ -37,7 +38,9 @@ export class AddEventComponent {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {
+  ) 
+  
+  {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
       eventLocation: [''],
@@ -62,7 +65,19 @@ export class AddEventComponent {
       }
     });
   }
-
+      ngOnInit(): void {
+        this.authService.getUserProfile().subscribe({
+        next: (user) => {
+          if (!user || user.tipoUsuario == 'Secretaria') {
+            notyf.error("Secretaria no puede hacer eventos 💀");
+            this.router.navigate(['/home']);
+          }
+        },
+        error: (err) => {
+          this.router.navigate(['/home']);
+        }
+      });
+      }
   submitEvent(): void {
     console.log('=== VALIDACIÓN DEL FORMULARIO DE EVENTO ===');
     console.log('📋 Estado del formulario:', this.eventForm.value);
@@ -95,6 +110,7 @@ export class AddEventComponent {
       },
       error: (error) => {
         console.error('❌ Error al crear evento:', error);
+        console.log(eventoData)
         alert('Error al crear el evento. Verifique la consola para más detalles.');
       }
     });
