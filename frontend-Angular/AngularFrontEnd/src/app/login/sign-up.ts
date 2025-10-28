@@ -29,9 +29,11 @@ export class SignUpComponent {
   }
 
   constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
+    const allowedEmailPattern = /^[^\s@]+@uao\.edu\.co$/i;
+
     this.signUpForm = this.fb.group({
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(allowedEmailPattern)]],
       userType: ['', Validators.required],
       academicUnit: [''],
       codigoEstudiantil: [''],

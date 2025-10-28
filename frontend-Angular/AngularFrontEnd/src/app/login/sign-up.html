@@ -39,8 +39,12 @@
         <div
           *ngIf="signUpForm.get('email')?.invalid && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)"
           class="invalid-feedback d-block">
-          El correo es obligatorio y debe ser válido.
+        El correo es obligatorio y debe ser válido.
         </div>
+      <div *ngIf="signUpForm.get('email')?.hasError('pattern') && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)"
+         class="invalid-feedback d-block">
+      El correo debe pertenecer al dominio institucional <strong>@uao.edu.co</strong>.
+      </div>
       </div>
 
       <!-- Tipo de usuario -->

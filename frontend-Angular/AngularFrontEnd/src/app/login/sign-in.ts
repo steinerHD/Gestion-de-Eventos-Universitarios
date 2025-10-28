@@ -15,8 +15,10 @@ export class SignInComponent {
   loginForm: FormGroup;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    const allowedEmailPattern = /^[^\s@]+@uao\.edu\.co$/i;
+
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(allowedEmailPattern)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }

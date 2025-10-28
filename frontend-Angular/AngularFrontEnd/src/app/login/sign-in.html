@@ -19,6 +19,10 @@
            class="invalid-feedback d-block">
         El correo debe ser válido.
       </div>
+      <div *ngIf="loginForm.get('email')?.hasError('pattern') && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"
+           class="invalid-feedback d-block">
+        El correo debe pertenecer al dominio institucional <strong>@uao.edu.co</strong>.
+      </div>
     </div>
     <div class="mb-3">
       <label for="password" class="form-label">Contraseña</label>
