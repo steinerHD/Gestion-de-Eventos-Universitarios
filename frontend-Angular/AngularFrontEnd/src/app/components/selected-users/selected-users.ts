@@ -18,15 +18,19 @@ export class SelectedUsersComponent {
   }
 
   getUsuarioTypeLabel(usuario: UsuarioDTO): string {
-    switch (usuario.tipoUsuario) {
+    // Algunos usuarios pueden describir su tipo en `tipoUsuario` o vía una propiedad anidada `secretaria`.
+    const tipo = (usuario as any).tipoUsuario || ((usuario as any).secretaria ? 'secretaria' : undefined);
+    switch (tipo) {
       case 'estudiante':
         return `Estudiante - ${usuario.programa || 'Programa'}`;
       case 'docente':
         return `Docente - ${usuario.unidadAcademica || 'Unidad'}`;
       case 'secretaria':
-        return `Secretaría - ${usuario.facultad || 'Facultad'}`;
+        // intentar obtener la facultad desde la forma anidada si existe
+        const facultad = (usuario as any).facultad || (usuario as any).secretaria?.facultad || 'Facultad';
+        return `Secretaría - ${facultad}`;
       default:
-        return usuario.tipoUsuario;
+        return (usuario as any).tipoUsuario || 'Usuario';
     }
   }
 }

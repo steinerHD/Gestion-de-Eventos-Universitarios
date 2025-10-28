@@ -118,7 +118,15 @@ export class AddEventComponent {
         (event.coorganizadores || []).forEach((uId) => {
           this.usuariosApiService.getById(uId).subscribe({
             next: (u) => {
-              this.selectedUsers.push(u);
+              // Omitir usuarios con rol 'secretaria' al cargar coorganizadores en edición.
+              // Algunos usuarios pueden indicar el rol en `tipoUsuario` o tener la propiedad anidada `secretaria`.
+              const isTipoSecretaria = (u as any).tipoUsuario === 'secretaria';
+              const hasNestedSecretaria = (u as any).secretaria !== undefined;
+              if (!isTipoSecretaria && !hasNestedSecretaria) {
+                this.selectedUsers.push(u);
+              } else {
+                console.warn('Usuario coorganizador con rol secretaria omitido:', u);
+              }
               this.cdr.detectChanges();
             },
             error: (err) => console.warn('No se pudo cargar usuario coorganizador id=', uId, err)
@@ -279,7 +287,14 @@ export class AddEventComponent {
     
     // Los coorganizadores son usuarios seleccionados que NO sean el usuario logueado
     const coorganizadores = this.selectedUsers
-      .filter(user => user.idUsuario !== this.currentUser?.idUsuario)
+      // Excluir el propio organizador y cualquier usuario con rol 'secretaria'.
+      // Algunos objetos pueden tener el rol como `tipoUsuario` o como propiedad anidada `secretaria`.
+      .filter(user => {
+        const isSelf = user.idUsuario === this.currentUser?.idUsuario;
+        const isTipoSecretaria = (user as any).tipoUsuario === 'secretaria';
+        const hasNestedSecretaria = (user as any).secretaria !== undefined;
+        return !isSelf && !isTipoSecretaria && !hasNestedSecretaria;
+      })
       .map(user => user.idUsuario);
 
     console.log('👤 Usuario logueado (organizador):', organizador);
