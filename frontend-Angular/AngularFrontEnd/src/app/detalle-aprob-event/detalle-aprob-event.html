@@ -78,9 +78,9 @@
           <div class="mb-3">
             <h5>Aval</h5>
             <p>
-              <a *ngIf="evento.avalPdf" [href]="evento.avalPdf" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+              <button *ngIf="evento.avalPdf" class="btn btn-sm btn-outline-primary" (click)="openPdf(evento.avalPdf)">
                 Ver/Descargar aval
-              </a>
+              </button>
               <span *ngIf="!evento.avalPdf" class="text-muted">No disponible</span>
             </p>
           </div>

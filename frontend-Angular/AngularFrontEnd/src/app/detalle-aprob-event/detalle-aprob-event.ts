@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { EventosApiService, EventoDTO, ParticipacionDetalleDTO } from '../services/eventos.api.service';
+import { API_BASE_URL } from '../config/api.config';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { InstalacionesApiService, InstalacionDTO } from '../services/instalaciones.api.service';
 import { UsuariosApiService, UsuarioDTO } from '../services/usuarios.api.service';
@@ -143,7 +144,9 @@ export class DetalleAprobEvent implements OnInit {
   openPdf(url?: string | null): void {
     if (!url) return;
     try {
-      window.open(url, '_blank');
+      // If the URL is a relative assets path (starts with 'assets/'), prepend backend base URL
+      const finalUrl = url.startsWith('http') ? url : `${API_BASE_URL}/${url}`;
+      window.open(finalUrl, '_blank');
     } catch (err) {
       console.error('No se pudo abrir el PDF:', err);
     }

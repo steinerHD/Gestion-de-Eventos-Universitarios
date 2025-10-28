@@ -88,6 +88,16 @@ export class EventosApiService {
     return this.http.put<EventoDTO>(`${this.baseUrl}/${id}`, evento);
   }
 
+  /**
+   * Upload an aval PDF and return the path to be stored in the Evento. 
+   * Backend returns { path: 'assets/uploads/avales/xxxx.pdf' }
+   */
+  uploadAval(file: File): Observable<{ path: string, filename?: string }> {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    return this.http.post<{ path: string, filename?: string }>(buildApiUrl('/api/avales'), fd);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

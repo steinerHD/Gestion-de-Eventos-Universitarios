@@ -61,8 +61,8 @@
            class="invalid-feedback">
         El aval PDF es obligatorio.
       </div>
-      <div *ngIf="selectedFile" class="file-info">
-        <span>Archivo seleccionado: {{ selectedFile.name }}</span>
+      <div *ngIf="getDisplayedAvalName()" class="file-info">
+        <span>Archivo seleccionado: {{ getDisplayedAvalName() }}</span>
       </div>
     </div>
     <div class="input-group">
@@ -119,6 +119,7 @@
     <app-selected-organizations 
       *ngIf="eventForm.get('externalOrgParticipation')?.value && selectedOrganizations.length > 0"
       [selectedOrganizations]="selectedOrganizations"
+      [initialOrganizationData]="initialOrgData"
       (organizationRemoved)="onOrganizationRemoved($event)">
     </app-selected-organizations>
     

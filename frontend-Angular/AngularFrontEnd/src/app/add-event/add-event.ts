@@ -30,6 +30,14 @@ export class AddEventComponent {
   showOrgModal: boolean = false;
   showUserModal: boolean = false;
   selectedOrganizations: OrganizacionExternaDTO[] = [];
+  // initial organization data to pass to SelectedOrganizationsComponent when editing
+  initialOrgData: { [key: string]: { 
+    participaRepresentante?: boolean,
+    nombreRepresentante?: string,
+    cedulaRepresentante?: string,
+    avalFilePath?: string,
+    avalFileName?: string
+  }} = {};
   selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
@@ -135,18 +143,30 @@ export class AddEventComponent {
 
         // Cargar organizaciones externas seleccionadas (si las hay)
         this.selectedOrganizations = [];
-        (event.participacionesOrganizaciones || []).forEach((p) => {
-          const orgId = p.idOrganizacion;
-          if (orgId) {
-            this.organizacionesApiService.getById(orgId).subscribe({
-              next: (org) => {
-                this.selectedOrganizations.push(org);
-                this.cdr.detectChanges();
-              },
-              error: (err) => console.warn('No se pudo cargar organización id=', orgId, err)
-            });
-          }
-        });
+          (event.participacionesOrganizaciones || []).forEach((p) => {
+            const orgId = p.idOrganizacion;
+            if (orgId) {
+              this.organizacionesApiService.getById(orgId).subscribe({
+                next: (org) => {
+                  this.selectedOrganizations.push(org);
+                  // Collect initial organization data so SelectedOrganizationsComponent can display
+                  // pre-uploaded avals when in edit mode. We'll set this.initialOrgData and pass it
+                  // to the child component via binding in the template.
+                  const orgIdStr = String(orgId);
+                  const filename = p.certificadoPdf ? (String(p.certificadoPdf).split('/').pop() || '') : '';
+                  this.initialOrgData[orgIdStr] = {
+                    participaRepresentante: p.representanteDiferente !== undefined ? !p.representanteDiferente : undefined,
+                    nombreRepresentante: p.nombreRepresentanteDiferente || '',
+                    cedulaRepresentante: '',
+                    avalFilePath: p.certificadoPdf || '',
+                    avalFileName: filename
+                  };
+                  this.cdr.detectChanges();
+                },
+                error: (err) => console.warn('No se pudo cargar organización id=', orgId, err)
+              });
+            }
+          });
 
         // Reconstruir encuentros básicos a partir de la información disponible
         this.encounters = [];
@@ -202,39 +222,60 @@ export class AddEventComponent {
       return;
     }
 
-    const eventoData: EventoDTO = this.buildEventoDTO();
+    // If a file was selected, upload it first and then proceed with creating/updating the event
+    const doCreateOrUpdate = () => {
+      const eventoData: EventoDTO = this.buildEventoDTO();
+      console.log('📤 Enviando evento al backend:', eventoData);
 
-    console.log('📤 Enviando evento al backend:', eventoData);
+      // Sanitizar el DTO: eliminar propiedades undefined antes de enviar
+      const payload = JSON.parse(JSON.stringify(eventoData));
+      console.log('📦 Payload a enviar (sanitizado):', JSON.stringify(payload, null, 2));
 
-    // Sanitizar el DTO: eliminar propiedades undefined antes de enviar
-    const payload = JSON.parse(JSON.stringify(eventoData));
-    console.log('📦 Payload a enviar (sanitizado):', JSON.stringify(payload, null, 2));
+      if (this.isEdit && this.editingEventId) {
+        this.eventosApiService.update(this.editingEventId, payload).subscribe({
+          next: (updated) => {
+            console.log('✅ Evento actualizado:', updated);
+            alert('Evento actualizado correctamente.');
+            this.router.navigate(['/my-events']);
+          },
+          error: (err) => {
+            console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
+            alert('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+          }
+        });
+      } else {
+        this.eventosApiService.create(payload).subscribe({
+          next: (createdEvent) => {
+            console.log('✅ Evento creado exitosamente:', createdEvent);
+            alert('Evento creado exitosamente.');
+            this.router.navigate(['/home']);
+          },
+          error: (error) => {
+            console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
+            console.log(eventoData)
+            alert('Error al crear el evento. Verifique la consola para más detalles.');
+          }
+        });
+      }
+    };
 
-    if (this.isEdit && this.editingEventId) {
-      this.eventosApiService.update(this.editingEventId, payload).subscribe({
-        next: (updated) => {
-          console.log('✅ Evento actualizado:', updated);
-          alert('Evento actualizado correctamente.');
-          this.router.navigate(['/my-events']);
+    if (this.selectedFile) {
+      console.log('📤 Subiendo archivo de aval antes de crear/actualizar...');
+      this.eventosApiService.uploadAval(this.selectedFile).subscribe({
+        next: (resp) => {
+          console.log('✅ Aval subido, path recibido:', resp.path);
+          // Guardar la ruta devuelta en el formulario para que buildEventoDTO la incluya
+          this.eventForm.patchValue({ avalPdf: resp.path });
+          // Proceder con la creación/actualización
+          doCreateOrUpdate();
         },
         error: (err) => {
-          console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
-          alert('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+          console.error('❌ Error al subir aval:', err);
+          alert('Error al subir el archivo del aval. Revise la consola.');
         }
       });
     } else {
-      this.eventosApiService.create(payload).subscribe({
-        next: (createdEvent) => {
-          console.log('✅ Evento creado exitosamente:', createdEvent);
-          alert('Evento creado exitosamente.');
-          this.router.navigate(['/home']);
-        },
-        error: (error) => {
-          console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
-          console.log(eventoData)
-          alert('Error al crear el evento. Verifique la consola para más detalles.');
-        }
-      });
+      doCreateOrUpdate();
     }
   }
 
@@ -464,12 +505,29 @@ export class AddEventComponent {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // file.path NO está disponible por seguridad en navegadores
-      // solo en Electron o Node.js
-      const fakePath = event.target.value; // ejemplo: "C:\\fakepath\\archivo.pdf"
-      this.eventForm.patchValue({ avalPdf: fakePath });
+      // Store the File object so we can upload it before creating/updating the event
+      this.selectedFile = file;
+      // Show a friendly file name in the form (the real path will be set after upload)
+      this.eventForm.patchValue({ avalPdf: file.name });
     } else {
       this.eventForm.patchValue({ avalPdf: '' });
+    }
+  }
+
+  /**
+   * Returns a display name for the currently selected event aval. If a File was selected in this session
+   * returns its name. Otherwise, if the form contains a path (assets/.../file.pdf) returns the filename part.
+   */
+  getDisplayedAvalName(): string | null {
+    if (this.selectedFile) return this.selectedFile.name;
+    const val = this.eventForm.get('avalPdf')?.value;
+    if (!val) return null;
+    // If it's a path like 'assets/uploads/avales/123_file.pdf' return just the filename
+    try {
+      const parts = String(val).split('/');
+      return parts[parts.length - 1] || String(val);
+    } catch (e) {
+      return String(val);
     }
   }
 }
