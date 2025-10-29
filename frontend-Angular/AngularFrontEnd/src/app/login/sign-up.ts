@@ -130,7 +130,10 @@ export class SignUpComponent {
 
       })
     ).subscribe({
-      next: () => this.router.navigate(['/signin']),
+      next: () => {
+        notyf.success("Cuenta creada exitosamente. Por favor, inicia sesión.");
+        this.router.navigate(['/signin']);
+      },
       error: (err) => {
         console.error(err);
         const msg = err?.error || err?.message || 'Error al registrar usuario o perfil asociado';

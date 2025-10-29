@@ -29,7 +29,7 @@ export class SignInComponent {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe({
         next: () => this.router.navigate(['/home']),
-        error: () => alert('Error al iniciar sesión. Verifica tus credenciales.')
+        error: () => notyf.error('Error al iniciar sesión. Verifica tus credenciales.')
       });
     }
   }
