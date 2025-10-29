@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service'; // Updated path
 import { AuthApiService } from '../services/auth-api.service'; // Import AuthApiService
 import { Router, RouterLink } from '@angular/router';
+import { notyf } from '../app';
 
 @Component({
   selector: 'app-forgetpassword',
@@ -27,7 +28,7 @@ export class ForgetPasswordComponent {
       this.authApiService.recuperarContrasena(this.forgetPasswordForm.value.email).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
-          alert(response.mensaje);
+          notyf.success(response.mensaje);
           this.router.navigate(['/signin']); 
           
         },

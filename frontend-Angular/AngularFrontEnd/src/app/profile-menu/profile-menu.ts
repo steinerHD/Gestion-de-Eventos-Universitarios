@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // Adjust path based on location
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { CommonModule } from '@angular/common';
+import { notyf } from '../app';
 
 @Component({
   selector: 'app-profile-menu',

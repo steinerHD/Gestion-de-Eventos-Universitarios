@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsuariosApiService, UsuarioDTO } from '../../services/usuarios.api.service';
+import { notyf } from '../../app';
 
 @Component({
   selector: 'app-usuario-selection',

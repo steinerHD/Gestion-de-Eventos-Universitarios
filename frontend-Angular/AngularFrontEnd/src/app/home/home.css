@@ -10,25 +10,30 @@ body {
 .main-navbar {
   position: sticky;
   top: 0;
-  max-height: 8%;
+  min-height: clamp(56px, 8vh, 80px);
   z-index: 1000;
   width: 100%;
+}
+
+/* Evitar que el contenido quede debajo de la navbar */
+.main-navbar + * {
+  margin-top: clamp(56px, 8vh, 80px);
 }
 
 .navbar-custom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #28AFB0;
-  color: #F4FFFD;
-  padding: 0rem 2rem;
+  background: #ffffff;
+  color: var(--color-slate, #4F5D75);
+  padding: 0.25rem 1rem;
   box-shadow: 0 2px 8px rgba(30,64,175,0.08);
 }
 
 .navbar-logo .logo-img {
-  max-width: 78px;
-  max-height: 78px;
-  border-radius: 8px;
+  height: clamp(28px, 6vw, 56px);
+  width: auto;
+  object-fit: contain;
 }
 
 .navbar-search {
@@ -37,8 +42,8 @@ body {
   background: #F4FFFD;
   border-radius: 24px;
   padding: 0.2rem 0.8rem;
-  color: #28AFB0;
-  min-width: 220px;
+  color: var(--bs-primary, #28AFB0);
+  min-width: clamp(140px, 30vw, 260px);
 }
 
 .search-input {
@@ -46,8 +51,8 @@ body {
   outline: none;
   background: transparent;
   margin-left: 0.5rem;
-  color: #28AFB0;
-  width: 140px;
+  color: var(--bs-primary, #28AFB0);
+  width: clamp(90px, 20vw, 180px);
 }
 
 .navbar-icons {
@@ -59,21 +64,15 @@ body {
 .btn-create {
   font-weight: 600;
   border-radius: 1rem;
-  padding: 0.3rem 1rem;
-  color: #28AFB0;
+  padding: 0.25rem 0.9rem;
+  color: var(--bs-primary, #28AFB0);
   background: #F4FFFD;
   border: none;
   box-shadow: 0 1px 4px rgba(30,64,175,0.08);
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
 }
 
 
-.navbar-profile .profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #F4FFFD;
-  object-fit: cover;
-}
 
 .navbar-clock .clock-img {
   width: 40px;
@@ -195,16 +194,16 @@ label, p, .label-status, .status {
 }
 
 #RevEve {
-  color: #ffffff;
-  font-size: 35px;
+  color: var(--bs-primary, #28AFB0);
+  font-size: clamp(20px, 5vw, 32px);
   cursor: pointer;
   transition: transform 0.2s;
 }
 
 
 #perfilBtn{
-  color: #ffffff;
-  font-size: 50px;
+  color: var(--bs-primary, #28AFB0);
+  font-size: clamp(24px, 6vw, 40px);
   cursor: pointer;
   transition: transform 0.2s;
 }

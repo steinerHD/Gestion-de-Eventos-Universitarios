@@ -10,18 +10,10 @@ import 'notyf/notyf.min.css';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `
-    <router-outlet></router-outlet>
-    <script>const notyf = new Notyf()</script>
-  `
+  template: '<router-outlet></router-outlet>'
 })
 
 export class AppComponent {}
-
-export const appConfig = {
-  
-  providers: [provideRouter(routes)]
-};
 
 export const notyf = new Notyf({
   duration: 5000,

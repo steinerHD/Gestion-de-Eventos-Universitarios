@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { AuthService } from '../services/auth.service';
+import { notyf } from '../app'; 
 
 
 @Component({
@@ -39,7 +40,7 @@ export class HomeComponent implements OnInit {
         this.events = events;
         console.log('Eventos cargados:', events);
       },
-      error: (error: Error) => console.error('Error al cargar eventos:', error)
+      error: (error: Error) => notyf.error('Error al cargar eventos:'+ error)
     });
   }
 
@@ -51,7 +52,7 @@ export class HomeComponent implements OnInit {
     
     this.eventosApiService.getByTitulo(query).subscribe({
       next: (events) => this.events = events,
-      error: (error: Error) => console.error('Error al buscar eventos:', error)
+      error: (error: Error) => notyf.error('Error al buscar eventos'+ error)
     });
   }
   

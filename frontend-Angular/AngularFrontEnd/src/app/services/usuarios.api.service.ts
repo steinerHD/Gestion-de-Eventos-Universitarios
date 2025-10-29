@@ -44,4 +44,8 @@ export class UsuariosApiService {
   searchByCorreo(correo: string): Observable<UsuarioDTO[]> {
     return this.http.get<UsuarioDTO[]>(`${this.baseUrl}/correo/${encodeURIComponent(correo)}`);
   }
+
+  update(id: number, payload: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
+    return this.http.put<UsuarioDTO>(`${this.baseUrl}/${id}`, payload);
+  }
 }

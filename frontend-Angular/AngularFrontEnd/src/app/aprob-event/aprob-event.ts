@@ -142,11 +142,11 @@ export class AprobEvent implements OnInit {
         // Actualizar estado localmente
         evento.estado = 'Pendiente';
         this.filterEventsByStatus();
-        alert('El evento ha sido enviado a validación correctamente.');
+        notyf.success('El evento ha sido enviado a validación correctamente.');
       },
       error: (err) => {
         console.error('Error enviando a validación:', err);
-        alert('No se pudo enviar el evento a validación. Revisa la consola.');
+        notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
       }
     });
 }
@@ -164,11 +164,11 @@ export class AprobEvent implements OnInit {
       next: () => {
         evento.estado = 'Aprobado';
         this.filterEventsByStatus();
-        alert('Evento aprobado correctamente.');
+        notyf.success('Evento aprobado correctamente.');
       },
       error: (err) => {
         console.error('Error aprobando evento:', err);
-        alert('No se pudo aprobar el evento. Revisa la consola.');
+        notyf.error('No se pudo aprobar el evento. Revisa la consola.');
       }
     });
   }
@@ -180,11 +180,11 @@ export class AprobEvent implements OnInit {
       next: () => {
         evento.estado = 'Rechazado';
         this.filterEventsByStatus();
-        alert('Evento rechazado correctamente.');
+        notyf.success('Evento rechazado correctamente.');
       },
       error: (err) => {
         console.error('Error rechazando evento:', err);
-        alert('No se pudo rechazar el evento. Revisa la consola.');
+        notyf.error('No se pudo rechazar el evento. Revisa la consola.');
       }
     });
   }
@@ -207,11 +207,11 @@ export class AprobEvent implements OnInit {
         // También recargar desde el backend para asegurar sincronía
         this.loadEvents();
 
-        alert('Evento eliminado exitosamente');
+        notyf.success('Evento eliminado exitosamente');
       },
       error: (error) => {
         console.error('Error eliminando evento:', error);
-        alert('Error al eliminar el evento');
+        notyf.error('Error al eliminar el evento');
       }
     });
   }

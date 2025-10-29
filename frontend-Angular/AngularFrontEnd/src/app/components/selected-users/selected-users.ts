@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsuarioDTO } from '../../services/usuarios.api.service';
+import { notyf } from '../../app';
 
 @Component({
   selector: 'app-selected-users',

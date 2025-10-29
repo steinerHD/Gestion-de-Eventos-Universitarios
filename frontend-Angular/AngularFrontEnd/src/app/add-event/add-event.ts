@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 import { OrganizacionesApiService } from '../services/organizaciones.api.service';
 import { UsuariosApiService } from '../services/usuarios.api.service';
 import { InstalacionesApiService } from '../services/instalaciones.api.service';
+import { InputValidationService, forbidDangerousContent } from '../services/input-validation.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
@@ -54,17 +55,18 @@ export class AddEventComponent {
     private organizacionesApiService: OrganizacionesApiService,
     private usuariosApiService: UsuariosApiService,
     private instalacionesApiService: InstalacionesApiService,
+    private inputValidation: InputValidationService,
     private cdr: ChangeDetectorRef
   ) 
   
   {
     this.eventForm = this.fb.group({
-      eventName: ['', Validators.required],
-      eventLocation: [''],
+      eventName: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      eventLocation: ['', [forbidDangerousContent(this.inputValidation)]],
       eventType: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
-      externalOrgName: [''],
-      externalOrgNit: [''],
+      externalOrgName: ['', [forbidDangerousContent(this.inputValidation)]],
+      externalOrgNit: ['', [forbidDangerousContent(this.inputValidation)]],
       externalOrgParticipation: [false],
       // Campos para el backend
       avalPdf: ['', Validators.required],
@@ -210,15 +212,26 @@ export class AddEventComponent {
     console.log('📋 Usuarios seleccionados:', this.selectedUsers);
     console.log('📋 Coorganizadores seleccionados:', this.selectedOrganizations);
 
-    const formErrors = this.validateForm();
-    if (formErrors.length > 0) {
-      console.error('❌ Errores en el formulario:', formErrors);
-      alert('Por favor, complete todos los campos obligatorios.');
-      return;
+    if (!this.eventForm.valid) {
+      this.eventForm.markAllAsTouched();
+      
+      // Verificar si hay errores de contenido peligroso
+      const dangerousFields = this.getDangerousFields();
+      if (dangerousFields.length > 0) {
+        notyf.error(`Hay campos que tienen símbolos o contenido malicioso: ${dangerousFields.join(', ')}`);
+        return;
+      }
+      
+      const formErrors = this.validateForm();
+      if (formErrors.length > 0) {
+        console.error('❌ Errores en el formulario:', formErrors);
+        notyf.error('Por favor, complete todos los campos obligatorios.');
+        return;
+      }
     }
 
     if (this.encounters.length === 0) {
-      alert('El evento debe tener al menos un encuentro.');
+      notyf.error('El evento debe tener al menos un encuentro.');
       return;
     }
 
@@ -235,25 +248,25 @@ export class AddEventComponent {
         this.eventosApiService.update(this.editingEventId, payload).subscribe({
           next: (updated) => {
             console.log('✅ Evento actualizado:', updated);
-            alert('Evento actualizado correctamente.');
+            notyf.error('Evento actualizado correctamente.');
             this.router.navigate(['/my-events']);
           },
           error: (err) => {
             console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
-            alert('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+            notyf.error('Error al actualizar el evento. Revisa la consola y el log del servidor.');
           }
         });
       } else {
         this.eventosApiService.create(payload).subscribe({
           next: (createdEvent) => {
             console.log('✅ Evento creado exitosamente:', createdEvent);
-            alert('Evento creado exitosamente.');
+            notyf.error('Evento creado exitosamente.');
             this.router.navigate(['/home']);
           },
           error: (error) => {
             console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
             console.log(eventoData)
-            alert('Error al crear el evento. Verifique la consola para más detalles.');
+            notyf.error('Error al crear el evento. Verifique la consola para más detalles.');
           }
         });
       }
@@ -271,7 +284,7 @@ export class AddEventComponent {
         },
         error: (err) => {
           console.error('❌ Error al subir aval:', err);
-          alert('Error al subir el archivo del aval. Revise la consola.');
+          notyf.error('Error al subir el archivo del aval. Revise la consola.');
         }
       });
     } else {
@@ -529,5 +542,24 @@ export class AddEventComponent {
     } catch (e) {
       return String(val);
     }
+  }
+
+  private getDangerousFields(): string[] {
+    const dangerousFields: string[] = [];
+    const fieldNames: { [key: string]: string } = {
+      'eventName': 'Nombre del Evento',
+      'eventLocation': 'Ubicación del Evento',
+      'externalOrgName': 'Nombre de Organización Externa',
+      'externalOrgNit': 'NIT de Organización Externa'
+    };
+
+    Object.keys(fieldNames).forEach(fieldName => {
+      const control = this.eventForm.get(fieldName);
+      if (control && control.hasError('dangerousContent')) {
+        dangerousFields.push(fieldNames[fieldName]);
+      }
+    });
+
+    return dangerousFields;
   }
 }

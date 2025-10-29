@@ -27,8 +27,16 @@
             id="nombre" 
             formControlName="nombre" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('nombre')?.invalid && organizationForm.get('nombre')?.touched}"
           >
+          <div *ngIf="organizationForm.get('nombre')?.hasError('required') && organizationForm.get('nombre')?.touched && isEditing"
+               class="invalid-feedback">
+            El nombre es obligatorio.
+          </div>
+          <div *ngIf="organizationForm.get('nombre')?.hasError('dangerousContent') && organizationForm.get('nombre')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('nombre')?.errors?.['dangerousContent']?.message || 'El nombre contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
@@ -38,8 +46,16 @@
             id="nit" 
             formControlName="nit" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('nit')?.invalid && organizationForm.get('nit')?.touched}"
           >
+          <div *ngIf="organizationForm.get('nit')?.hasError('required') && organizationForm.get('nit')?.touched && isEditing"
+               class="invalid-feedback">
+            El NIT es obligatorio.
+          </div>
+          <div *ngIf="organizationForm.get('nit')?.hasError('dangerousContent') && organizationForm.get('nit')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('nit')?.errors?.['dangerousContent']?.message || 'El NIT contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
@@ -49,8 +65,16 @@
             id="ubicacion" 
             formControlName="ubicacion" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('ubicacion')?.invalid && organizationForm.get('ubicacion')?.touched}"
           >
+          <div *ngIf="organizationForm.get('ubicacion')?.hasError('required') && organizationForm.get('ubicacion')?.touched && isEditing"
+               class="invalid-feedback">
+            La ubicación es obligatoria.
+          </div>
+          <div *ngIf="organizationForm.get('ubicacion')?.hasError('dangerousContent') && organizationForm.get('ubicacion')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('ubicacion')?.errors?.['dangerousContent']?.message || 'La ubicación contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
@@ -60,8 +84,16 @@
             id="representanteLegal" 
             formControlName="representanteLegal" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('representanteLegal')?.invalid && organizationForm.get('representanteLegal')?.touched}"
           >
+          <div *ngIf="organizationForm.get('representanteLegal')?.hasError('required') && organizationForm.get('representanteLegal')?.touched && isEditing"
+               class="invalid-feedback">
+            El representante legal es obligatorio.
+          </div>
+          <div *ngIf="organizationForm.get('representanteLegal')?.hasError('dangerousContent') && organizationForm.get('representanteLegal')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('representanteLegal')?.errors?.['dangerousContent']?.message || 'El representante legal contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
@@ -71,19 +103,41 @@
             id="telefono" 
             formControlName="telefono" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('telefono')?.invalid && organizationForm.get('telefono')?.touched}"
           >
+          <div *ngIf="organizationForm.get('telefono')?.hasError('required') && organizationForm.get('telefono')?.touched && isEditing"
+               class="invalid-feedback">
+            El teléfono es obligatorio.
+          </div>
+          <div *ngIf="organizationForm.get('telefono')?.hasError('dangerousContent') && organizationForm.get('telefono')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('telefono')?.errors?.['dangerousContent']?.message || 'El teléfono contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
           <label for="sectorEconomico">Sector económico:</label>
-          <input 
-            type="text" 
+          <select 
             id="sectorEconomico" 
             formControlName="sectorEconomico" 
-            [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [disabled]="!isEditing"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('sectorEconomico')?.invalid && organizationForm.get('sectorEconomico')?.touched}"
           >
+            <option value="" disabled>Seleccione un sector económico</option>
+            <option value="Primario">Primario</option>
+            <option value="Secundario">Secundario</option>
+            <option value="Terciario">Terciario</option>
+            <option value="Cuaternario">Cuaternario</option>
+            <option value="Quinario">Quinario</option>
+          </select>
+          <div *ngIf="organizationForm.get('sectorEconomico')?.hasError('required') && organizationForm.get('sectorEconomico')?.touched && isEditing"
+               class="invalid-feedback">
+            El sector económico es obligatorio.
+          </div>
+          <div *ngIf="organizationForm.get('sectorEconomico')?.hasError('dangerousContent') && organizationForm.get('sectorEconomico')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('sectorEconomico')?.errors?.['dangerousContent']?.message || 'El sector económico contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <div class="form-group">
@@ -93,8 +147,16 @@
             id="actividadPrincipal" 
             formControlName="actividadPrincipal" 
             [readonly]="!isEditing"
-            [ngClass]="{'readonly': !isEditing}"
+            [ngClass]="{'readonly': !isEditing, 'is-invalid': organizationForm.get('actividadPrincipal')?.invalid && organizationForm.get('actividadPrincipal')?.touched}"
           >
+          <div *ngIf="organizationForm.get('actividadPrincipal')?.hasError('required') && organizationForm.get('actividadPrincipal')?.touched && isEditing"
+               class="invalid-feedback">
+            La actividad principal es obligatoria.
+          </div>
+          <div *ngIf="organizationForm.get('actividadPrincipal')?.hasError('dangerousContent') && organizationForm.get('actividadPrincipal')?.touched && isEditing"
+               class="invalid-feedback">
+            {{ organizationForm.get('actividadPrincipal')?.errors?.['dangerousContent']?.message || 'La actividad principal contiene caracteres no permitidos.' }}
+          </div>
         </div>
 
         <!-- Botones de acción cuando está editando -->

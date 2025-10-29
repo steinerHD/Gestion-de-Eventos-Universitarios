@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { DOCUMENT } from '@angular/common';
 import { EventosApiService } from '../../services/eventos.api.service';
+import { notyf } from '../../app';
 
 @Component({
   selector: 'app-selected-organizations',
@@ -116,11 +117,11 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
         },
         error: (err) => {
           console.error('Error subiendo aval de organización:', err);
-          alert('Error al subir el aval de la organización. Revisa la consola.');
+          notyf.error('Error al subir el aval de la organización. Revisa la consola.');
         }
       });
     } else {
-      alert('Por favor selecciona un archivo PDF válido.');
+      notyf.error('Por favor selecciona un archivo PDF válido.');
     }
   }
 

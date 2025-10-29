@@ -34,6 +34,10 @@ export class MyEventsComponent implements OnInit {
   filterFecha: string = '';
   showFilters: boolean = false;
 
+  // Modal de confirmación para enviar a validación
+  showConfirmModal: boolean = false;
+  eventToSend: EventoDTO | null = null;
+
   constructor(
     private eventosApiService: EventosApiService,
     private authService: AuthService,
@@ -135,25 +139,38 @@ export class MyEventsComponent implements OnInit {
     this.showFilters = !this.showFilters;
   }
 
-  sendToValidation(evento: EventoDTO): void {
-    if (!evento.idEvento) return;
+  openConfirmModal(evento: EventoDTO): void {
+    this.eventToSend = evento;
+    this.showConfirmModal = true;
+  }
 
-    const confirmSend = confirm(`¿Deseas enviar el evento "${evento.titulo}" a validación?`);
-    if (!confirmSend) return;
+  cancelSend(): void {
+    this.showConfirmModal = false;
+    this.eventToSend = null;
+  }
 
-    this.eventosApiService.sendToValidation(evento.idEvento).subscribe({
+  confirmSend(): void {
+    if (!this.eventToSend || !this.eventToSend.idEvento) {
+      this.cancelSend();
+      return;
+    }
+
+    const target = this.eventToSend;
+    const id = target.idEvento as number;
+    this.eventosApiService.sendToValidation(id).subscribe({
       next: () => {
-        // Actualizar estado localmente
-        evento.estado = 'Pendiente';
+        target.estado = 'Pendiente';
         this.filterEventsByStatus();
-        alert('El evento ha sido enviado a validación correctamente.');
+        this.cancelSend();
+        notyf.success('El evento ha sido enviado a validación correctamente.');
       },
       error: (err) => {
         console.error('Error enviando a validación:', err);
-        alert('No se pudo enviar el evento a validación. Revisa la consola.');
+        this.cancelSend();
+        notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
       }
     });
-}
+  }
 
   editEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;
@@ -178,11 +195,11 @@ export class MyEventsComponent implements OnInit {
         // También recargar desde el backend para asegurar sincronía
         this.loadEvents();
 
-        alert('Evento eliminado exitosamente');
+        notyf.success('Evento eliminado exitosamente');
       },
       error: (error) => {
         console.error('Error eliminando evento:', error);
-        alert('Error al eliminar el evento');
+        notyf.error('Error al eliminar el evento');
       }
     });
   }

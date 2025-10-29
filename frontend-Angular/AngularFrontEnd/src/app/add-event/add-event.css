@@ -254,8 +254,14 @@ header {
   border-bottom: 2px solid #4f5d7565;
   box-shadow: 0 4px 16px hsla(0, 0%, 0%, 0.07);
   background: #ffffff;
-  height: 5vw;
+  height: clamp(56px, 8vh, 80px);
   margin: 0;
+  box-sizing: border-box;
+}
+
+/* Separación para que el contenido no quede tapado por el header fijo */
+header + .container {
+  margin-top: clamp(56px, 8vh, 80px);
 }
 
 .external-org .input-group {
@@ -680,4 +686,15 @@ label, p, .label-status, .status {
   content: "ℹ️";
   margin-right: 8px;
   font-size: 16px;
+}
+
+#perfilBtn{
+  color: var(--bs-primary, #28AFB0);
+  font-size: clamp(24px, 6vw, 40px);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#perfilBtn:hover #RevEve:hover{
+  transform: scale(1.1);
 }

@@ -23,6 +23,11 @@
           class="invalid-feedback d-block">
           El nombre es obligatorio.
         </div>
+        <div
+          *ngIf="signUpForm.get('name')?.hasError('dangerousContent') && (signUpForm.get('name')?.dirty || signUpForm.get('name')?.touched)"
+          class="invalid-feedback d-block">
+          {{ signUpForm.get('name')?.errors?.['dangerousContent']?.message || 'El nombre contiene caracteres no permitidos.' }}
+        </div>
       </div>
 
       <!-- Correo -->
@@ -44,6 +49,10 @@
       <div *ngIf="signUpForm.get('email')?.hasError('pattern') && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)"
          class="invalid-feedback d-block">
       El correo debe pertenecer al dominio institucional <strong>@uao.edu.co</strong>.
+      </div>
+      <div *ngIf="signUpForm.get('email')?.hasError('dangerousContent') && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)"
+         class="invalid-feedback d-block">
+      {{ signUpForm.get('email')?.errors?.['dangerousContent']?.message || 'El correo contiene caracteres no permitidos.' }}
       </div>
       </div>
 
@@ -80,6 +89,9 @@
           placeholder="Escribe tu cargo"
           formControlName="cargo"
           required>
+        <div *ngIf="signUpForm.get('cargo')?.hasError('dangerousContent') && (signUpForm.get('cargo')?.dirty || signUpForm.get('cargo')?.touched)" class="invalid-feedback d-block">
+          {{ signUpForm.get('cargo')?.errors?.['dangerousContent']?.message || 'El cargo contiene caracteres no permitidos.' }}
+        </div>
         <label for="signupAcademic" class="form-label">Unidad académica</label>
         <input
           type="text"
@@ -94,6 +106,9 @@
           class="invalid-feedback d-block">
           La unidad académica es obligatoria.
         </div>
+        <div *ngIf="signUpForm.get('academicUnit')?.hasError('dangerousContent') && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)" class="invalid-feedback d-block">
+          {{ signUpForm.get('academicUnit')?.errors?.['dangerousContent']?.message || 'La unidad académica contiene caracteres no permitidos.' }}
+        </div>
       </div>
 
       <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'Estudiante'">
@@ -106,6 +121,9 @@
           placeholder="Escribe tu código estudiantil"
           formControlName="codigoEstudiantil"
           required>
+        <div *ngIf="signUpForm.get('codigoEstudiantil')?.hasError('dangerousContent') && (signUpForm.get('codigoEstudiantil')?.dirty || signUpForm.get('codigoEstudiantil')?.touched)" class="invalid-feedback d-block">
+          {{ signUpForm.get('codigoEstudiantil')?.errors?.['dangerousContent']?.message || 'El código contiene caracteres no permitidos.' }}
+        </div>
         <label for="signupProgram" class="form-label">Programa</label>
         <input
           type="text"
@@ -119,6 +137,9 @@
           *ngIf="signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)"
           class="invalid-feedback d-block">
           El programa es obligatorio.
+        </div>
+        <div *ngIf="signUpForm.get('program')?.hasError('dangerousContent') && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)" class="invalid-feedback d-block">
+          {{ signUpForm.get('program')?.errors?.['dangerousContent']?.message || 'El programa contiene caracteres no permitidos.' }}
         </div>
       </div>
 
@@ -136,6 +157,9 @@
           *ngIf="signUpForm.get('faculty')?.invalid && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)"
           class="invalid-feedback d-block">
           La facultad es obligatoria.
+        </div>
+        <div *ngIf="signUpForm.get('faculty')?.hasError('dangerousContent') && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)" class="invalid-feedback d-block">
+          {{ signUpForm.get('faculty')?.errors?.['dangerousContent']?.message || 'La facultad contiene caracteres no permitidos.' }}
         </div>
       </div>
 

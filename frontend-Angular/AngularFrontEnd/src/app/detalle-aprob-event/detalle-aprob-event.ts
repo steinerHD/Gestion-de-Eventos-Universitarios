@@ -6,6 +6,8 @@ import { API_BASE_URL } from '../config/api.config';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { InstalacionesApiService, InstalacionDTO } from '../services/instalaciones.api.service';
 import { UsuariosApiService, UsuarioDTO } from '../services/usuarios.api.service';
+import { notyf } from '../app';
+
 
 // Extiende UsuarioDTO con posibles formas anidadas que la API puede devolver
 type OrganizerExtended = UsuarioDTO & {

@@ -44,20 +44,12 @@
       <div class="form-group">
         <label><strong>Email:</strong></label>
         <input type="email" class="form-control" formControlName="email" required
-               [ngClass]="{'is-invalid': profileForm.get('email')?.invalid && profileForm.get('email')?.touched}">
-        <div *ngIf="profileForm.get('email')?.hasError('required') && profileForm.get('email')?.touched"
-             class="invalid-feedback">
-          El email es obligatorio.
-        </div>
-        <div *ngIf="profileForm.get('email')?.hasError('email') && profileForm.get('email')?.touched"
-             class="invalid-feedback">
-          El email debe ser válido.
-        </div>
+               [ngClass]="{'is-invalid': profileForm.get('email')?.invalid && profileForm.get('email')?.touched}" readonly>
       </div>
       <ng-container *ngIf="profileForm.get('tipoUsuario')?.value === 'Estudiante'">
         <div class="form-group">
           <label><strong>Código estudiantil:</strong></label>
-          <input type="text" class="form-control" formControlName="codigoEstudiantil">
+          <input type="text" class="form-control" formControlName="codigoEstudiantil" readonly>
         </div>
         <div class="form-group">
           <label><strong>Programa:</strong></label>

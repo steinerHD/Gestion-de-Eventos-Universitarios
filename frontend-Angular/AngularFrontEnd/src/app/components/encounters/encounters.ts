@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InstalacionesApiService, InstalacionDTO } from '../../services/instalaciones.api.service';
+import { notyf } from '../../app';
+
 
 export interface Encounter {
   id: string;
@@ -65,7 +67,7 @@ export class EncountersComponent implements OnInit {
       this.encounters = this.encounters.filter(encounter => encounter.id !== encounterId);
       this.emitChanges();
     } else {
-      alert('El evento debe tener al menos un encuentro.');
+      notyf.error('El evento debe tener al menos un encuentro.');
     }
   }
 

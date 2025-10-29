@@ -1,9 +1,99 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
-    --light-blue: #e0f7fa;
-    --dark-blue: #00897b;
-    --main-color: #61b3d8;
+    --color-cyan: #3BE5E6; /* primary accent */
+    --color-teal: #28AFB0; /* primary */
+    --color-slate: #4F5D75; /* dark text */
+    --color-mint: #F4FFFD; /* background */
+
     --text-color: #333;
     --border-radius: 8px;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+}
+
+/* Bootstrap color overrides (CSS variables used by v5.3) */
+:root {
+    --bs-primary: var(--color-teal);
+    --bs-primary-rgb: 40, 175, 176;
+    --bs-secondary: var(--color-slate);
+    --bs-secondary-rgb: 79, 93, 117;
+    --bs-info: var(--color-cyan);
+    --bs-info-rgb: 59, 229, 230;
+    --bs-light: var(--color-mint);
+    --bs-body-bg: var(--color-mint);
+    --bs-body-color: var(--text-color);
+    --bs-border-radius: var(--border-radius);
+}
+
+body {
+    background: var(--color-mint);
+    color: var(--bs-body-color);
+}
+
+/* Cards */
+.card {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(0,0,0,0.05);
+    background-color: #fff;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn-primary:hover {
+    filter: brightness(0.95);
+}
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn-outline-primary:hover {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+}
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 .2rem rgba(40,175,176,.25);
+    border-color: var(--bs-primary);
+}
+
+/* Typography helpers */
+.h1, .h2, .h3, h1, h2, h3 {
+    color: var(--color-slate);
+}
+
+/* Images: keep original aspect ratio but responsive */
+.img-fluid, img.responsive-img {
+    max-width: 100%;
+    height: auto; /* preserve original ratio */
+    object-fit: contain; /* do not crop */
+}
+
+/* Header/nav helpers (if any) */
+.navbar {
+    box-shadow: var(--shadow);
+}
+
+/* Utility spacing for sections */
+.section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Containers responsive tweaks */
+.container, .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Support dark text on light background */
+.text-muted { color: #6c757d !important; }
+
+/* Override invalid feedback visibility to ensure layout stability */
+.invalid-feedback.d-block { font-size: .9rem; }
