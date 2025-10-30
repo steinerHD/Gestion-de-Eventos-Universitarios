@@ -167,7 +167,9 @@ export class MyEventsComponent implements OnInit {
       error: (err) => {
         console.error('Error enviando a validación:', err);
         this.cancelSend();
-        notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
+        if (!(err && (err as any)._notyfHandled)) {
+          notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
+        }
       }
     });
   }
@@ -199,7 +201,9 @@ export class MyEventsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error eliminando evento:', error);
-        notyf.error('Error al eliminar el evento');
+        if (!(error && (error as any)._notyfHandled)) {
+          notyf.error('Error al eliminar el evento');
+        }
       }
     });
   }

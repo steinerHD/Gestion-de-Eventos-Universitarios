@@ -117,10 +117,13 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
         },
         error: (err) => {
           console.error('Error subiendo aval de organización:', err);
-          notyf.error('Error al subir el aval de la organización. Revisa la consola.');
+          if (!(err && (err as any)._notyfHandled)) {
+            notyf.error('Error al subir el aval de la organización. Revisa la consola.');
+          }
         }
       });
     } else {
+      // client-side validation - always show this
       notyf.error('Por favor selecciona un archivo PDF válido.');
     }
   }

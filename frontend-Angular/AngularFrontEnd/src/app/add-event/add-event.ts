@@ -253,7 +253,9 @@ export class AddEventComponent {
           },
           error: (err) => {
             console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
-            notyf.error('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+            if (!(err && (err as any)._notyfHandled)) {
+              notyf.error('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+            }
           }
         });
       } else {
@@ -266,7 +268,9 @@ export class AddEventComponent {
           error: (error) => {
             console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
             console.log(eventoData)
-            notyf.error('Error al crear el evento. Verifique la consola para más detalles.');
+            if (!(error && (error as any)._notyfHandled)) {
+              notyf.error('Error al crear el evento. Verifique la consola para más detalles.');
+            }
           }
         });
       }
@@ -284,7 +288,9 @@ export class AddEventComponent {
         },
         error: (err) => {
           console.error('❌ Error al subir aval:', err);
-          notyf.error('Error al subir el archivo del aval. Revise la consola.');
+          if (!(err && (err as any)._notyfHandled)) {
+            notyf.error('Error al subir el archivo del aval. Revise la consola.');
+          }
         }
       });
     } else {

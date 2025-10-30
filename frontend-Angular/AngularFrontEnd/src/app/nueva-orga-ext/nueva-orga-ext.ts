@@ -83,7 +83,9 @@ export class NuevaOrgaExtComponent implements OnInit {
         this.organizationForm.reset();
       },
       error: (error: any) => {
-        notyf.error('Error al registrar la organización');
+        if (!(error && (error as any)._notyfHandled)) {
+          notyf.error('Error al registrar la organización');
+        }
       }
     });
   }
