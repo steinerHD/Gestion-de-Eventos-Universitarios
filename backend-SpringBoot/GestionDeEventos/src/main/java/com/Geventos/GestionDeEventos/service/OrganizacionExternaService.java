@@ -6,6 +6,7 @@ import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.mappers.OrganizacionExternaMapper;
 import com.Geventos.GestionDeEventos.repository.OrganizacionExternaRepository;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
+import com.Geventos.GestionDeEventos.repository.ParticipacionOrganizacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class OrganizacionExternaService {
 
     private final OrganizacionExternaRepository organizacionExternaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
 
     public List<OrganizacionExterna> findAll() {
         return organizacionExternaRepository.findAll();
@@ -101,6 +103,12 @@ public class OrganizacionExternaService {
 
         if (!existing.getCreador().getIdUsuario().equals(idUsuarioActual)) {
             throw new SecurityException("No tienes permiso para eliminar esta organización");
+        }
+
+        // Prevent deletion if the organization participates in any event
+        var participaciones = participacionOrganizacionRepository.findByOrganizacionId(id);
+        if (participaciones != null && !participaciones.isEmpty()) {
+            throw new IllegalStateException("No se puede eliminar la organización porque participa en uno o más eventos");
         }
 
         organizacionExternaRepository.delete(existing);

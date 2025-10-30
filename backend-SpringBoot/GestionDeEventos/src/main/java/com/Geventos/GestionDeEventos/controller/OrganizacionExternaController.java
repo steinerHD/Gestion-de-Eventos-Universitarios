@@ -91,6 +91,9 @@ public class OrganizacionExternaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            // Conflict: resource cannot be deleted due to existing relations
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 }
