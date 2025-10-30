@@ -48,4 +48,8 @@ export class UsuariosApiService {
   update(id: number, payload: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
     return this.http.put<UsuarioDTO>(`${this.baseUrl}/${id}`, payload);
   }
+
+  updatePerfil(id: number, payload: Partial<UsuarioDTO>): Observable<UsuarioDTO> {
+    return this.http.put<UsuarioDTO>(`${this.baseUrl}/${id}/perfil`, payload);
+  }
 }

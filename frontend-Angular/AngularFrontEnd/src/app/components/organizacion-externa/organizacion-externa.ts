@@ -39,6 +39,9 @@ export class OrganizacionExternaComponent implements OnInit {
       next: (orgs) => {
         this.organizations = orgs;
         this.filteredOrganizations = orgs;
+        if (this.searchQuery && this.searchQuery.trim() !== '') {
+          this.searchOrganizations();
+        }
       },
       error: (error) => console.error('Error al cargar organizaciones:', error)
     });
@@ -79,12 +82,9 @@ export class OrganizacionExternaComponent implements OnInit {
   }
 
   onOrganizationUpdated(updatedOrg: OrganizacionExternaDTO): void {
-    // Actualizar la organización en la lista
-    const index = this.organizations.findIndex(org => org.idOrganizacion === updatedOrg.idOrganizacion);
-    if (index !== -1) {
-      this.organizations[index] = updatedOrg;
-      this.filteredOrganizations = [...this.organizations];
-    }
+    // Para evitar inconsistencias/duplicados, recargar desde el servidor
+    this.loadOrganizations();
+    this.closeDetailsModal();
   }
 
   onOrganizationDeleted(organizationId: number): void {
@@ -95,6 +95,8 @@ export class OrganizacionExternaComponent implements OnInit {
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.selectedOrganization = null;
+    // Asegurar datos consistentes al cerrar el modal
+    this.loadOrganizations();
   }
 
   addNewOrganization(): void {

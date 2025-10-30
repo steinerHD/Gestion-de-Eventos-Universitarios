@@ -95,7 +95,7 @@ export class ProfileComponent implements OnInit {
     delete updatedProfileData.codigoEstudiantil;
     delete updatedProfileData.tipoUsuario;
 
-    this.usuariosApiService.update(this.currentUser.idUsuario, updatedProfileData).subscribe({
+    this.usuariosApiService.updatePerfil(this.currentUser.idUsuario, updatedProfileData).subscribe({
       next: (updatedUser: any) => {
         notyf.success('Perfil actualizado correctamente.');
         this.currentUser = { ...this.currentUser, ...updatedUser };

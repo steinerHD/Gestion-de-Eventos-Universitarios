@@ -2,9 +2,16 @@ package com.Geventos.GestionDeEventos.service;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.UsuarioRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
+import com.Geventos.GestionDeEventos.DTOs.Requests.PerfilUpdateRequest;
 import com.Geventos.GestionDeEventos.entity.Usuario;
+import com.Geventos.GestionDeEventos.entity.Estudiante;
+import com.Geventos.GestionDeEventos.entity.Docente;
+import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.mappers.UsuarioMapper;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
+import com.Geventos.GestionDeEventos.repository.EstudianteRepository;
+import com.Geventos.GestionDeEventos.repository.DocenteRepository;
+import com.Geventos.GestionDeEventos.repository.SecretariaAcademicaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +27,9 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final EstudianteRepository estudianteRepository;
+    private final DocenteRepository docenteRepository;
+    private final SecretariaAcademicaRepository secretariaAcademicaRepository;
 
     public List<UsuarioResponse> findAll() {
         return usuarioRepository.findAll()
@@ -53,16 +63,55 @@ public class UsuarioService {
         Usuario existingUsuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        if (!existingUsuario.getCorreo().equals(request.getCorreo()) &&
+        if (request.getCorreo() != null && !existingUsuario.getCorreo().equals(request.getCorreo()) &&
                 usuarioRepository.existsByCorreo(request.getCorreo())) {
             throw new IllegalArgumentException("El correo ya está registrado por otro usuario");
         }
 
-        existingUsuario.setNombre(request.getNombre());
-        existingUsuario.setCorreo(request.getCorreo());
-        existingUsuario.setContrasenaHash(request.getContrasenaHash());
+        if (request.getNombre() != null) existingUsuario.setNombre(request.getNombre());
+        if (request.getCorreo() != null) existingUsuario.setCorreo(request.getCorreo());
+        if (request.getContrasenaHash() != null) existingUsuario.setContrasenaHash(request.getContrasenaHash());
 
         return usuarioMapper.toResponse(usuarioRepository.save(existingUsuario));
+    }
+
+    public UsuarioResponse updatePerfil(Long id, PerfilUpdateRequest request) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        if (request.getNombre() != null) {
+            usuario.setNombre(request.getNombre());
+        }
+
+        Estudiante estudiante = usuario.getEstudiante();
+        if (estudiante != null) {
+            if (request.getPrograma() != null) {
+                estudiante.setPrograma(request.getPrograma());
+            }
+            estudianteRepository.save(estudiante);
+        }
+
+        Docente docente = usuario.getDocente();
+        if (docente != null) {
+            if (request.getUnidadAcademica() != null) {
+                docente.setUnidadAcademica(request.getUnidadAcademica());
+            }
+            if (request.getCargo() != null) {
+                docente.setCargo(request.getCargo());
+            }
+            docenteRepository.save(docente);
+        }
+
+        SecretariaAcademica secretaria = usuario.getSecretariaAcademica();
+        if (secretaria != null) {
+            if (request.getFacultad() != null) {
+                secretaria.setFacultad(request.getFacultad());
+            }
+            secretariaAcademicaRepository.save(secretaria);
+        }
+
+        Usuario saved = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(saved);
     }
 
     public void deleteById(Long id) {

@@ -248,7 +248,7 @@ export class AddEventComponent {
         this.eventosApiService.update(this.editingEventId, payload).subscribe({
           next: (updated) => {
             console.log('✅ Evento actualizado:', updated);
-            notyf.error('Evento actualizado correctamente.');
+            notyf.success('Evento actualizado correctamente.');
             this.router.navigate(['/my-events']);
           },
           error: (err) => {
@@ -260,7 +260,7 @@ export class AddEventComponent {
         this.eventosApiService.create(payload).subscribe({
           next: (createdEvent) => {
             console.log('✅ Evento creado exitosamente:', createdEvent);
-            notyf.error('Evento creado exitosamente.');
+            notyf.success('Evento creado exitosamente.');
             this.router.navigate(['/home']);
           },
           error: (error) => {
