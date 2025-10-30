@@ -95,7 +95,7 @@ export class ProfileComponent implements OnInit {
     delete updatedProfileData.codigoEstudiantil;
     delete updatedProfileData.tipoUsuario;
 
-    this.usuariosApiService.update(this.currentUser.idUsuario, updatedProfileData).subscribe({
+    this.usuariosApiService.updatePerfil(this.currentUser.idUsuario, updatedProfileData).subscribe({
       next: (updatedUser: any) => {
         notyf.success('Perfil actualizado correctamente.');
         this.currentUser = { ...this.currentUser, ...updatedUser };
@@ -104,7 +104,9 @@ export class ProfileComponent implements OnInit {
         this.profileForm.patchValue(this.currentUser);
       },
       error: (err: any) => {
-        notyf.error('Error al actualizar el perfil.');
+        if (!(err && (err as any)._notyfHandled)) {
+          notyf.error('Error al actualizar el perfil.');
+        }
         console.error('Error updating profile:', err);
       }
     });

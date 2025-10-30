@@ -150,7 +150,9 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error al actualizar organización:', error);
-          notyf.error('Error al actualizar la organización');
+          if (!(error && (error as any)._notyfHandled)) {
+            notyf.error('Error al actualizar la organización');
+          }
           console.log(updatedData)
         }
       });
@@ -172,7 +174,9 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error al eliminar organización:', error);
-          notyf.error('Error al eliminar la organización');
+          if (!(error && (error as any)._notyfHandled)) {
+            notyf.error('Error al eliminar la organización');
+          }
         }
       });
     }

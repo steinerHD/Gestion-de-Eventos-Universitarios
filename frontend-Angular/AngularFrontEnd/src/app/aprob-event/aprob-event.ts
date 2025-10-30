@@ -47,7 +47,9 @@ export class AprobEvent implements OnInit {
     this.authService.getUserProfile().subscribe({
       next: (user) => {
         if (!user || user.tipoUsuario !== 'Secretaria') {
-          notyf.error('Acceso denegado. Esta página es solo para secretaría.');
+          if (!(user && (user as any)._notyfHandled)) {
+            notyf.error('Acceso denegado. Esta página es solo para secretaría.');
+          }
           this.router.navigate(['/signin']);
         }
         // Guardamos el usuario para usarlo en la plantilla si es necesario
@@ -146,7 +148,9 @@ export class AprobEvent implements OnInit {
       },
       error: (err) => {
         console.error('Error enviando a validación:', err);
-        notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
+        if (!(err && (err as any)._notyfHandled)) {
+          notyf.error('No se pudo enviar el evento a validación. Revisa la consola.');
+        }
       }
     });
 }
@@ -168,7 +172,9 @@ export class AprobEvent implements OnInit {
       },
       error: (err) => {
         console.error('Error aprobando evento:', err);
-        notyf.error('No se pudo aprobar el evento. Revisa la consola.');
+        if (!(err && (err as any)._notyfHandled)) {
+          notyf.error('No se pudo aprobar el evento. Revisa la consola.');
+        }
       }
     });
   }
@@ -184,7 +190,9 @@ export class AprobEvent implements OnInit {
       },
       error: (err) => {
         console.error('Error rechazando evento:', err);
-        notyf.error('No se pudo rechazar el evento. Revisa la consola.');
+        if (!(err && (err as any)._notyfHandled)) {
+          notyf.error('No se pudo rechazar el evento. Revisa la consola.');
+        }
       }
     });
   }
@@ -211,7 +219,9 @@ export class AprobEvent implements OnInit {
       },
       error: (error) => {
         console.error('Error eliminando evento:', error);
-        notyf.error('Error al eliminar el evento');
+        if (!(error && (error as any)._notyfHandled)) {
+          notyf.error('Error al eliminar el evento');
+        }
       }
     });
   }

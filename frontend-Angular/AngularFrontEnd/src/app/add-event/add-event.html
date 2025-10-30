@@ -148,6 +148,7 @@
 <app-usuario-selection 
   [showModal]="showUserModal"
   [currentUserId]="currentUser?.idUsuario"
+  [selectedUsuarios]="selectedUsers"
   (modalClosed)="closeUserModal()"
   (usuarioSelected)="onUserSelected($event)">
 </app-usuario-selection>

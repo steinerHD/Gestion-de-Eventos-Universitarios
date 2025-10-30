@@ -15,6 +15,7 @@ import { notyf } from '../../app';
 export class UsuarioSelectionComponent implements OnInit, OnChanges {
   @Input() showModal: boolean = false;
   @Input() currentUserId?: number; // ID del usuario logueado para excluirlo
+  @Input() selectedUsuarios: UsuarioDTO[] = [];
   @Output() modalClosed = new EventEmitter<void>();
   @Output() usuarioSelected = new EventEmitter<UsuarioDTO>();
 
@@ -76,7 +77,9 @@ export class UsuarioSelectionComponent implements OnInit, OnChanges {
   }
 
   selectUsuario(usuario: UsuarioDTO): void {
-    this.usuarioSelected.emit(usuario);
+    if (!this.isSelected(usuario)) {
+      this.usuarioSelected.emit(usuario);
+    }
   }
 
   closeModal(): void {
@@ -100,5 +103,9 @@ export class UsuarioSelectionComponent implements OnInit, OnChanges {
       default:
         return usuario.tipoUsuario;
     }
+  }
+
+  isSelected(usuario: UsuarioDTO): boolean {
+    return this.selectedUsuarios?.some(u => u.idUsuario === usuario.idUsuario) || false;
   }
 }

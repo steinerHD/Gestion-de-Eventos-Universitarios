@@ -30,6 +30,7 @@
       <div 
         *ngFor="let usuario of filteredUsuarios" 
         class="usuario-item"
+        [ngClass]="{ 'selected': isSelected(usuario) }"
         (click)="selectUsuario(usuario)"
       >
         <div class="usuario-info">
@@ -41,9 +42,14 @@
           </div>
         </div>
         <div class="usuario-actions">
-          <button type="button" class="action-btn select-btn" title="Seleccionar">
-            <img src="assets/images/plus_square.png" alt="Seleccionar">
-          </button>
+          <ng-container *ngIf="!isSelected(usuario); else seleccionadoTpl">
+            <button type="button" class="action-btn select-btn" title="Seleccionar">
+              <img src="assets/images/plus_square.png" alt="Seleccionar">
+            </button>
+          </ng-container>
+          <ng-template #seleccionadoTpl>
+            <span class="selected-badge">Seleccionado</span>
+          </ng-template>
         </div>
       </div>
       

@@ -1,6 +1,7 @@
 package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.AuthRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.PerfilUpdateRequest;
 import com.Geventos.GestionDeEventos.DTOs.Requests.UsuarioRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.UsuarioResponse;
 import com.Geventos.GestionDeEventos.JWT.JwtUtil;
@@ -47,6 +48,16 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id, @RequestBody UsuarioRequest request) {
         try {
             UsuarioResponse updated = usuarioService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/perfil")
+    public ResponseEntity<UsuarioResponse> updatePerfil(@PathVariable Long id, @RequestBody PerfilUpdateRequest request) {
+        try {
+            UsuarioResponse updated = usuarioService.updatePerfil(id, request);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
