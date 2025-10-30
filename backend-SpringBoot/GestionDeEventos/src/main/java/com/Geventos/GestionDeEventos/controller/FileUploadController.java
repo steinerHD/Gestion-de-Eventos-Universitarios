@@ -43,7 +43,11 @@ public class FileUploadController {
                 Files.createDirectories(uploadPath);
             }
 
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid filename"));
+            }
+            originalFilename = StringUtils.cleanPath(originalFilename);
             String timestamp = String.valueOf(Instant.now().toEpochMilli());
             String filename = timestamp + "_" + originalFilename;
 

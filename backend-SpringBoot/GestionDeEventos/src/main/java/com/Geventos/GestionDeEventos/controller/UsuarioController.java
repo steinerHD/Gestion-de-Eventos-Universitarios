@@ -55,7 +55,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}/perfil")
-    public ResponseEntity<UsuarioResponse> updatePerfil(@PathVariable Long id, @RequestBody PerfilUpdateRequest request) {
+    public ResponseEntity<?> updatePerfil(@PathVariable Long id, @RequestBody PerfilUpdateRequest request) {
         try {
             UsuarioResponse updated = usuarioService.updatePerfil(id, request);
             return ResponseEntity.ok(updated);
