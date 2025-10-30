@@ -10,6 +10,7 @@ import { NuevaOrgaExtComponent } from './nueva-orga-ext/nueva-orga-ext';
 import { AuthGuard } from './services/auth.guard';
 import { MyEventsComponent } from './my-events/my-events';
 import { AprobEvent } from './aprob-event/aprob-event';
+import { DetalleAprobEvent } from './detalle-aprob-event/detalle-aprob-event';
 
 
 export const routes: Routes = [
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'new-organ-ext', component: NuevaOrgaExtComponent, canActivate: [AuthGuard] },
   { path: 'my-events', component: MyEventsComponent, canActivate: [AuthGuard] },
   { path: 'aprobar-eventos', component: AprobEvent, canActivate: [AuthGuard] },
+  { path: 'eventos/detalle/:id', component: DetalleAprobEvent, canActivate: [AuthGuard] },
   {
     path: 'eventos/editar/:id',
     component: AddEventComponent
