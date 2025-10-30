@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { notyf } from '../app';
 
 @Component({
   selector: 'app-login',
@@ -15,8 +16,10 @@ export class SignInComponent {
   loginForm: FormGroup;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    const allowedEmailPattern = /^[^\s@]+@uao\.edu\.co$/i;
+
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(allowedEmailPattern)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -26,7 +29,7 @@ export class SignInComponent {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password).subscribe({
         next: () => this.router.navigate(['/home']),
-        error: () => alert('Error al iniciar sesión. Verifica tus credenciales.')
+        error: () => notyf.error('Error al iniciar sesión. Verifica tus credenciales.')
       });
     }
   }

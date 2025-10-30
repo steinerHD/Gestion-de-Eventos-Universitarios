@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { OrganizationDetailsComponent } from '../organization-details/organization-details';
 import { NuevaOrgaExtComponent } from '../../nueva-orga-ext/nueva-orga-ext';
+import { notyf } from '../../app';
+
 
 @Component({
   selector: 'app-organizacion-externa',

@@ -5,6 +5,9 @@ import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { concatMap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { InputValidationService, forbidDangerousContent } from '../services/input-validation.service';
+import { notyf } from '../app';
+
 
 
 @Component({
@@ -28,16 +31,18 @@ export class SignUpComponent {
     this.onSubmit.emit();
   }
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService, private inputValidation: InputValidationService) {
+    const allowedEmailPattern = /^[^\s@]+@uao\.edu\.co$/i;
+
     this.signUpForm = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(allowedEmailPattern), forbidDangerousContent(this.inputValidation)]],
       userType: ['', Validators.required],
-      academicUnit: [''],
-      codigoEstudiantil: [''],
-      cargo: [''],
-      program: [''],
-      faculty: [''],
+      academicUnit: ['', [forbidDangerousContent(this.inputValidation)]],
+      codigoEstudiantil: ['', [forbidDangerousContent(this.inputValidation)]],
+      cargo: ['', [forbidDangerousContent(this.inputValidation)]],
+      program: ['', [forbidDangerousContent(this.inputValidation)]],
+      faculty: ['', [forbidDangerousContent(this.inputValidation)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
     }, { validators: this.passwordsMatch });
@@ -83,10 +88,27 @@ export class SignUpComponent {
   onSignUp() {
     if (!this.signUpForm.valid) {
       this.signUpForm.markAllAsTouched();
+      
+      // Verificar si hay errores de contenido peligroso
+      const dangerousFields = this.getDangerousFields();
+      if (dangerousFields.length > 0) {
+        notyf.error(`Hay campos que tienen símbolos o contenido malicioso: ${dangerousFields.join(', ')}`);
+        return;
+      }
+      
       return;
     }
 
-    const { name, email, password, userType, academicUnit, program, faculty, cargo, codigoEstudiantil } = this.signUpForm.value;
+    const raw = this.signUpForm.value;
+    const name = this.inputValidation.sanitize(raw.name);
+    const email = this.inputValidation.sanitize(raw.email);
+    const password = raw.password; // do not sanitize password beyond backend rules
+    const userType = raw.userType;
+    const academicUnit = this.inputValidation.sanitize(raw.academicUnit);
+    const program = this.inputValidation.sanitize(raw.program);
+    const faculty = this.inputValidation.sanitize(raw.faculty);
+    const cargo = this.inputValidation.sanitize(raw.cargo);
+    const codigoEstudiantil = this.inputValidation.sanitize(raw.codigoEstudiantil);
 
     // Registro sin endpoints protegidos: crear usuario y luego asignar rol
     this.authService.registrarUsuario(name, email, password).pipe(
@@ -108,12 +130,37 @@ export class SignUpComponent {
 
       })
     ).subscribe({
-      next: () => this.router.navigate(['/signin']),
+      next: () => {
+        notyf.success("Cuenta creada exitosamente. Por favor, inicia sesión.");
+        this.router.navigate(['/signin']);
+      },
       error: (err) => {
         console.error(err);
         const msg = err?.error || err?.message || 'Error al registrar usuario o perfil asociado';
-        alert(msg);
+        notyf.error(msg);
       }
     });
+  }
+
+  private getDangerousFields(): string[] {
+    const dangerousFields: string[] = [];
+    const fieldNames: { [key: string]: string } = {
+      'name': 'Nombre',
+      'email': 'Correo',
+      'academicUnit': 'Unidad Académica',
+      'codigoEstudiantil': 'Código Estudiantil',
+      'cargo': 'Cargo',
+      'program': 'Programa',
+      'faculty': 'Facultad'
+    };
+
+    Object.keys(fieldNames).forEach(fieldName => {
+      const control = this.signUpForm.get(fieldName);
+      if (control && control.hasError('dangerousContent')) {
+        dangerousFields.push(fieldNames[fieldName]);
+      }
+    });
+
+    return dangerousFields;
   }
 }

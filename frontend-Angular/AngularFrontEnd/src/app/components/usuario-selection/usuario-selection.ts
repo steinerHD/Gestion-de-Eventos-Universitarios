@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsuariosApiService, UsuarioDTO } from '../../services/usuarios.api.service';
+import { notyf } from '../../app';
 
 @Component({
   selector: 'app-usuario-selection',
@@ -44,11 +45,17 @@ export class UsuarioSelectionComponent implements OnInit, OnChanges {
         console.log('📋 Todos los usuarios del sistema:', usuarios);
         console.log('👤 Usuario logueado a excluir (ID):', this.currentUserId);
         
-        // Filtrar al usuario logueado de la lista
-        this.usuarios = usuarios.filter(usuario => usuario.idUsuario !== this.currentUserId);
+        // Filtrar al usuario logueado y a usuarios con rol 'secretaria' (no pueden ser coorganizadores).
+        // Algunos usuarios pueden venir con el rol indicado en `tipoUsuario` o con una propiedad anidada `secretaria`.
+        this.usuarios = usuarios.filter(usuario => {
+          const isLoggedUser = usuario.idUsuario === this.currentUserId;
+          const isTipoSecretaria = (usuario as any).tipoUsuario === 'secretaria';
+          const hasNestedSecretaria = (usuario as any).secretaria !== undefined;
+          return !isLoggedUser && !isTipoSecretaria && !hasNestedSecretaria;
+        });
         this.filteredUsuarios = this.usuarios;
         
-        console.log('👥 Usuarios cargados (sin usuario logueado):', this.usuarios);
+        console.log('👥 Usuarios cargados (sin usuario logueado y sin secretarias):', this.usuarios);
         console.log('👥 Cantidad de usuarios disponibles:', this.usuarios.length);
       },
       error: (error) => console.error('Error al cargar usuarios:', error)

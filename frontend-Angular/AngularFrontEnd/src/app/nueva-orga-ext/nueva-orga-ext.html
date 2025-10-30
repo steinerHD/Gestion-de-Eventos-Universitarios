@@ -24,6 +24,10 @@
                     class="invalid-feedback">
                   El nombre es obligatorio.
                 </div>
+                <div *ngIf="organizationForm.get('nombre')?.hasError('dangerousContent') && organizationForm.get('nombre')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('nombre')?.errors?.['dangerousContent']?.message || 'El nombre contiene caracteres no permitidos.' }}
+                </div>
               </div>
 
               <div class="mb-3">
@@ -39,6 +43,10 @@
                 <div *ngIf="organizationForm.get('nit')?.hasError('required') && organizationForm.get('nit')?.touched"
                     class="invalid-feedback">
                   El NIT es obligatorio.
+                </div>
+                <div *ngIf="organizationForm.get('nit')?.hasError('dangerousContent') && organizationForm.get('nit')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('nit')?.errors?.['dangerousContent']?.message || 'El NIT contiene caracteres no permitidos.' }}
                 </div>
               </div>
 
@@ -56,6 +64,10 @@
                     class="invalid-feedback">
                   El teléfono es obligatorio.
                 </div>
+                <div *ngIf="organizationForm.get('telefono')?.hasError('dangerousContent') && organizationForm.get('telefono')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('telefono')?.errors?.['dangerousContent']?.message || 'El teléfono contiene caracteres no permitidos.' }}
+                </div>
               </div>
 
               <div class="mb-3">
@@ -71,6 +83,10 @@
                 <div *ngIf="organizationForm.get('direccion')?.hasError('required') && organizationForm.get('direccion')?.touched"
                     class="invalid-feedback">
                   La dirección es obligatoria.
+                </div>
+                <div *ngIf="organizationForm.get('direccion')?.hasError('dangerousContent') && organizationForm.get('direccion')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('direccion')?.errors?.['dangerousContent']?.message || 'La dirección contiene caracteres no permitidos.' }}
                 </div>
               </div>
             </div>
@@ -91,21 +107,34 @@
                     class="invalid-feedback">
                   El representante legal es obligatorio.
                 </div>
+                <div *ngIf="organizationForm.get('representanteLegal')?.hasError('dangerousContent') && organizationForm.get('representanteLegal')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('representanteLegal')?.errors?.['dangerousContent']?.message || 'El representante legal contiene caracteres no permitidos.' }}
+                </div>
               </div>
 
               <div class="mb-3">
                 <label for="sectorEconomico" class="form-label">Sector económico</label>
-                <input 
-                  type="text" 
+                <select 
                   id="sectorEconomico" 
-                  class="form-control"
+                  class="form-select"
                   formControlName="sectorEconomico" 
-                  placeholder="Ej: Tecnología, Salud, Educación"
                   [ngClass]="{'is-invalid': organizationForm.get('sectorEconomico')?.invalid && organizationForm.get('sectorEconomico')?.touched}"
                 >
+                  <option value="" disabled>Seleccione un sector económico</option>
+                  <option value="Primario">Primario</option>
+                  <option value="Secundario">Secundario</option>
+                  <option value="Terciario">Terciario</option>
+                  <option value="Cuaternario">Cuaternario</option>
+                  <option value="Quinario">Quinario</option>
+                </select>
                 <div *ngIf="organizationForm.get('sectorEconomico')?.hasError('required') && organizationForm.get('sectorEconomico')?.touched"
                     class="invalid-feedback">
                   El sector económico es obligatorio.
+                </div>
+                <div *ngIf="organizationForm.get('sectorEconomico')?.hasError('dangerousContent') && organizationForm.get('sectorEconomico')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('sectorEconomico')?.errors?.['dangerousContent']?.message || 'El sector económico contiene caracteres no permitidos.' }}
                 </div>
               </div>
 
@@ -122,6 +151,10 @@
                 <div *ngIf="organizationForm.get('actividadPrincipal')?.hasError('required') && organizationForm.get('actividadPrincipal')?.touched"
                     class="invalid-feedback">
                   La actividad principal es obligatoria.
+                </div>
+                <div *ngIf="organizationForm.get('actividadPrincipal')?.hasError('dangerousContent') && organizationForm.get('actividadPrincipal')?.touched"
+                    class="invalid-feedback">
+                  {{ organizationForm.get('actividadPrincipal')?.errors?.['dangerousContent']?.message || 'La actividad principal contiene caracteres no permitidos.' }}
                 </div>
               </div>
             </div>

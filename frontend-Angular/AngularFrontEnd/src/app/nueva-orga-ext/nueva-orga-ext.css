@@ -35,7 +35,8 @@ label {
   color: #333;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 12px;
   border: 2px solid #e0e0e0;
@@ -43,14 +44,17 @@ input {
   font-size: 16px;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
+  background-color: white;
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #007bff;
 }
 
-input.is-invalid {
+input.is-invalid,
+select.is-invalid {
   border-color: #dc3545;
 }
 

@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 import { OrganizacionesApiService } from '../services/organizaciones.api.service';
 import { UsuariosApiService } from '../services/usuarios.api.service';
 import { InstalacionesApiService } from '../services/instalaciones.api.service';
+import { InputValidationService, forbidDangerousContent } from '../services/input-validation.service';
 import { OrganizacionExternaComponent } from '../components/organizacion-externa/organizacion-externa';
 import { SelectedOrganizationsComponent } from '../components/selected-organizations/selected-organizations';
 import { UsuarioSelectionComponent } from '../components/usuario-selection/usuario-selection';
@@ -30,6 +31,14 @@ export class AddEventComponent {
   showOrgModal: boolean = false;
   showUserModal: boolean = false;
   selectedOrganizations: OrganizacionExternaDTO[] = [];
+  // initial organization data to pass to SelectedOrganizationsComponent when editing
+  initialOrgData: { [key: string]: { 
+    participaRepresentante?: boolean,
+    nombreRepresentante?: string,
+    cedulaRepresentante?: string,
+    avalFilePath?: string,
+    avalFileName?: string
+  }} = {};
   selectedUsers: UsuarioDTO[] = [];
   encounters: Encounter[] = [];
   selectedFile: File | null = null;
@@ -46,17 +55,18 @@ export class AddEventComponent {
     private organizacionesApiService: OrganizacionesApiService,
     private usuariosApiService: UsuariosApiService,
     private instalacionesApiService: InstalacionesApiService,
+    private inputValidation: InputValidationService,
     private cdr: ChangeDetectorRef
   ) 
   
   {
     this.eventForm = this.fb.group({
-      eventName: ['', Validators.required],
-      eventLocation: [''],
+      eventName: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      eventLocation: ['', [forbidDangerousContent(this.inputValidation)]],
       eventType: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
-      externalOrgName: [''],
-      externalOrgNit: [''],
+      externalOrgName: ['', [forbidDangerousContent(this.inputValidation)]],
+      externalOrgNit: ['', [forbidDangerousContent(this.inputValidation)]],
       externalOrgParticipation: [false],
       // Campos para el backend
       avalPdf: ['', Validators.required],
@@ -118,7 +128,15 @@ export class AddEventComponent {
         (event.coorganizadores || []).forEach((uId) => {
           this.usuariosApiService.getById(uId).subscribe({
             next: (u) => {
-              this.selectedUsers.push(u);
+              // Omitir usuarios con rol 'secretaria' al cargar coorganizadores en edición.
+              // Algunos usuarios pueden indicar el rol en `tipoUsuario` o tener la propiedad anidada `secretaria`.
+              const isTipoSecretaria = (u as any).tipoUsuario === 'secretaria';
+              const hasNestedSecretaria = (u as any).secretaria !== undefined;
+              if (!isTipoSecretaria && !hasNestedSecretaria) {
+                this.selectedUsers.push(u);
+              } else {
+                console.warn('Usuario coorganizador con rol secretaria omitido:', u);
+              }
               this.cdr.detectChanges();
             },
             error: (err) => console.warn('No se pudo cargar usuario coorganizador id=', uId, err)
@@ -127,18 +145,30 @@ export class AddEventComponent {
 
         // Cargar organizaciones externas seleccionadas (si las hay)
         this.selectedOrganizations = [];
-        (event.participacionesOrganizaciones || []).forEach((p) => {
-          const orgId = p.idOrganizacion;
-          if (orgId) {
-            this.organizacionesApiService.getById(orgId).subscribe({
-              next: (org) => {
-                this.selectedOrganizations.push(org);
-                this.cdr.detectChanges();
-              },
-              error: (err) => console.warn('No se pudo cargar organización id=', orgId, err)
-            });
-          }
-        });
+          (event.participacionesOrganizaciones || []).forEach((p) => {
+            const orgId = p.idOrganizacion;
+            if (orgId) {
+              this.organizacionesApiService.getById(orgId).subscribe({
+                next: (org) => {
+                  this.selectedOrganizations.push(org);
+                  // Collect initial organization data so SelectedOrganizationsComponent can display
+                  // pre-uploaded avals when in edit mode. We'll set this.initialOrgData and pass it
+                  // to the child component via binding in the template.
+                  const orgIdStr = String(orgId);
+                  const filename = p.certificadoPdf ? (String(p.certificadoPdf).split('/').pop() || '') : '';
+                  this.initialOrgData[orgIdStr] = {
+                    participaRepresentante: p.representanteDiferente !== undefined ? !p.representanteDiferente : undefined,
+                    nombreRepresentante: p.nombreRepresentanteDiferente || '',
+                    cedulaRepresentante: '',
+                    avalFilePath: p.certificadoPdf || '',
+                    avalFileName: filename
+                  };
+                  this.cdr.detectChanges();
+                },
+                error: (err) => console.warn('No se pudo cargar organización id=', orgId, err)
+              });
+            }
+          });
 
         // Reconstruir encuentros básicos a partir de la información disponible
         this.encounters = [];
@@ -182,51 +212,83 @@ export class AddEventComponent {
     console.log('📋 Usuarios seleccionados:', this.selectedUsers);
     console.log('📋 Coorganizadores seleccionados:', this.selectedOrganizations);
 
-    const formErrors = this.validateForm();
-    if (formErrors.length > 0) {
-      console.error('❌ Errores en el formulario:', formErrors);
-      alert('Por favor, complete todos los campos obligatorios.');
-      return;
+    if (!this.eventForm.valid) {
+      this.eventForm.markAllAsTouched();
+      
+      // Verificar si hay errores de contenido peligroso
+      const dangerousFields = this.getDangerousFields();
+      if (dangerousFields.length > 0) {
+        notyf.error(`Hay campos que tienen símbolos o contenido malicioso: ${dangerousFields.join(', ')}`);
+        return;
+      }
+      
+      const formErrors = this.validateForm();
+      if (formErrors.length > 0) {
+        console.error('❌ Errores en el formulario:', formErrors);
+        notyf.error('Por favor, complete todos los campos obligatorios.');
+        return;
+      }
     }
 
     if (this.encounters.length === 0) {
-      alert('El evento debe tener al menos un encuentro.');
+      notyf.error('El evento debe tener al menos un encuentro.');
       return;
     }
 
-    const eventoData: EventoDTO = this.buildEventoDTO();
+    // If a file was selected, upload it first and then proceed with creating/updating the event
+    const doCreateOrUpdate = () => {
+      const eventoData: EventoDTO = this.buildEventoDTO();
+      console.log('📤 Enviando evento al backend:', eventoData);
 
-    console.log('📤 Enviando evento al backend:', eventoData);
+      // Sanitizar el DTO: eliminar propiedades undefined antes de enviar
+      const payload = JSON.parse(JSON.stringify(eventoData));
+      console.log('📦 Payload a enviar (sanitizado):', JSON.stringify(payload, null, 2));
 
-    // Sanitizar el DTO: eliminar propiedades undefined antes de enviar
-    const payload = JSON.parse(JSON.stringify(eventoData));
-    console.log('📦 Payload a enviar (sanitizado):', JSON.stringify(payload, null, 2));
+      if (this.isEdit && this.editingEventId) {
+        this.eventosApiService.update(this.editingEventId, payload).subscribe({
+          next: (updated) => {
+            console.log('✅ Evento actualizado:', updated);
+            notyf.error('Evento actualizado correctamente.');
+            this.router.navigate(['/my-events']);
+          },
+          error: (err) => {
+            console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
+            notyf.error('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+          }
+        });
+      } else {
+        this.eventosApiService.create(payload).subscribe({
+          next: (createdEvent) => {
+            console.log('✅ Evento creado exitosamente:', createdEvent);
+            notyf.error('Evento creado exitosamente.');
+            this.router.navigate(['/home']);
+          },
+          error: (error) => {
+            console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
+            console.log(eventoData)
+            notyf.error('Error al crear el evento. Verifique la consola para más detalles.');
+          }
+        });
+      }
+    };
 
-    if (this.isEdit && this.editingEventId) {
-      this.eventosApiService.update(this.editingEventId, payload).subscribe({
-        next: (updated) => {
-          console.log('✅ Evento actualizado:', updated);
-          alert('Evento actualizado correctamente.');
-          this.router.navigate(['/my-events']);
+    if (this.selectedFile) {
+      console.log('📤 Subiendo archivo de aval antes de crear/actualizar...');
+      this.eventosApiService.uploadAval(this.selectedFile).subscribe({
+        next: (resp) => {
+          console.log('✅ Aval subido, path recibido:', resp.path);
+          // Guardar la ruta devuelta en el formulario para que buildEventoDTO la incluya
+          this.eventForm.patchValue({ avalPdf: resp.path });
+          // Proceder con la creación/actualización
+          doCreateOrUpdate();
         },
         error: (err) => {
-          console.error('❌ Error al actualizar evento:', err, 'error.error=', err?.error);
-          alert('Error al actualizar el evento. Revisa la consola y el log del servidor.');
+          console.error('❌ Error al subir aval:', err);
+          notyf.error('Error al subir el archivo del aval. Revise la consola.');
         }
       });
     } else {
-      this.eventosApiService.create(payload).subscribe({
-        next: (createdEvent) => {
-          console.log('✅ Evento creado exitosamente:', createdEvent);
-          alert('Evento creado exitosamente.');
-          this.router.navigate(['/home']);
-        },
-        error: (error) => {
-          console.error('❌ Error al crear evento:', error, 'error.error=', error?.error);
-          console.log(eventoData)
-          alert('Error al crear el evento. Verifique la consola para más detalles.');
-        }
-      });
+      doCreateOrUpdate();
     }
   }
 
@@ -279,7 +341,14 @@ export class AddEventComponent {
     
     // Los coorganizadores son usuarios seleccionados que NO sean el usuario logueado
     const coorganizadores = this.selectedUsers
-      .filter(user => user.idUsuario !== this.currentUser?.idUsuario)
+      // Excluir el propio organizador y cualquier usuario con rol 'secretaria'.
+      // Algunos objetos pueden tener el rol como `tipoUsuario` o como propiedad anidada `secretaria`.
+      .filter(user => {
+        const isSelf = user.idUsuario === this.currentUser?.idUsuario;
+        const isTipoSecretaria = (user as any).tipoUsuario === 'secretaria';
+        const hasNestedSecretaria = (user as any).secretaria !== undefined;
+        return !isSelf && !isTipoSecretaria && !hasNestedSecretaria;
+      })
       .map(user => user.idUsuario);
 
     console.log('👤 Usuario logueado (organizador):', organizador);
@@ -449,12 +518,48 @@ export class AddEventComponent {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // file.path NO está disponible por seguridad en navegadores
-      // solo en Electron o Node.js
-      const fakePath = event.target.value; // ejemplo: "C:\\fakepath\\archivo.pdf"
-      this.eventForm.patchValue({ avalPdf: fakePath });
+      // Store the File object so we can upload it before creating/updating the event
+      this.selectedFile = file;
+      // Show a friendly file name in the form (the real path will be set after upload)
+      this.eventForm.patchValue({ avalPdf: file.name });
     } else {
       this.eventForm.patchValue({ avalPdf: '' });
     }
+  }
+
+  /**
+   * Returns a display name for the currently selected event aval. If a File was selected in this session
+   * returns its name. Otherwise, if the form contains a path (assets/.../file.pdf) returns the filename part.
+   */
+  getDisplayedAvalName(): string | null {
+    if (this.selectedFile) return this.selectedFile.name;
+    const val = this.eventForm.get('avalPdf')?.value;
+    if (!val) return null;
+    // If it's a path like 'assets/uploads/avales/123_file.pdf' return just the filename
+    try {
+      const parts = String(val).split('/');
+      return parts[parts.length - 1] || String(val);
+    } catch (e) {
+      return String(val);
+    }
+  }
+
+  private getDangerousFields(): string[] {
+    const dangerousFields: string[] = [];
+    const fieldNames: { [key: string]: string } = {
+      'eventName': 'Nombre del Evento',
+      'eventLocation': 'Ubicación del Evento',
+      'externalOrgName': 'Nombre de Organización Externa',
+      'externalOrgNit': 'NIT de Organización Externa'
+    };
+
+    Object.keys(fieldNames).forEach(fieldName => {
+      const control = this.eventForm.get(fieldName);
+      if (control && control.hasError('dangerousContent')) {
+        dangerousFields.push(fieldNames[fieldName]);
+      }
+    });
+
+    return dangerousFields;
   }
 }

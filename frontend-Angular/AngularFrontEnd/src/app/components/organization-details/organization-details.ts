@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../../services/organizaciones.api.service';
 import { AuthApiService } from '../../services/auth-api.service';
 import { AuthService } from '../../services/auth.service';
+import { InputValidationService, forbidDangerousContent } from '../../services/input-validation.service';
+import { notyf } from '../../app';
 
 @Component({
   selector: 'app-organization-details',
@@ -29,18 +31,19 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
   constructor(
     private fb: FormBuilder,
     private organizacionesApi: OrganizacionesApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private inputValidation: InputValidationService
   ) {
     this.organizationForm = this.fb.group({
-      nombre: ['', Validators.required],
-      nit: ['', Validators.required],
-      ubicacion: ['', Validators.required],
-      representanteLegal: ['', Validators.required],
-      telefono: ['', Validators.required],
-      sectorEconomico: ['', Validators.required],
-      actividadPrincipal: ['', Validators.required]
+      nombre: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      nit: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      ubicacion: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      representanteLegal: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      telefono: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      sectorEconomico: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      actividadPrincipal: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]]
     });
-  
+    this.organizationForm.disable(); // Deshabilitar por defecto
   }
 
   ngOnInit(): void {
@@ -92,24 +95,44 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
 
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
-    if (!this.isEditing) {
+    if (this.isEditing) {
+      this.organizationForm.enable();
+    } else {
+      this.organizationForm.disable();
       this.loadOrganizationData(); // Reset form if canceling edit
     }
   }
 
   saveChanges(): void {
+    if (!this.isEditing) {
+      return;
+    }
+
     // Obtenemos el ID de forma segura, ya que puede venir como 'id' o 'idOrganizacion'
     const organizationId = this.organization?.idOrganizacion || (this.organization as any)?.id;
 
-    if (this.organizationForm.valid && organizationId) {
+    if (!this.organizationForm.valid) {
+      this.organizationForm.markAllAsTouched();
+      
+      // Verificar si hay errores de contenido peligroso
+      const dangerousFields = this.getDangerousFields();
+      if (dangerousFields.length > 0) {
+        notyf.error(`Hay campos que tienen símbolos o contenido malicioso: ${dangerousFields.join(', ')}`);
+        return;
+      }
+      
+      return;
+    }
+
+    if (organizationId) {
       const updatedData: OrganizacionExternaDTO = {
-        nit: this.organizationForm.value.nit,
-        nombre: this.organizationForm.value.nombre,
-        representanteLegal: this.organizationForm.value.representanteLegal,
-        telefono: this.organizationForm.value.telefono,
-        ubicacion: this.organizationForm.value.ubicacion,
-        sectorEconomico: this.organizationForm.value.sectorEconomico,
-        actividadPrincipal: this.organizationForm.value.actividadPrincipal,
+        nit: this.inputValidation.sanitize(this.organizationForm.value.nit),
+        nombre: this.inputValidation.sanitize(this.organizationForm.value.nombre),
+        representanteLegal: this.inputValidation.sanitize(this.organizationForm.value.representanteLegal),
+        telefono: this.inputValidation.sanitize(this.organizationForm.value.telefono),
+        ubicacion: this.inputValidation.sanitize(this.organizationForm.value.ubicacion),
+        sectorEconomico: this.inputValidation.sanitize(this.organizationForm.value.sectorEconomico),
+        actividadPrincipal: this.inputValidation.sanitize(this.organizationForm.value.actividadPrincipal),
         idCreador: this.currentUser.idUsuario
       };
 
@@ -121,12 +144,13 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
             this.organization = updatedOrg;
             this.organizationUpdated.emit(updatedOrg);
             this.isEditing = false;
-            alert('Organización actualizada exitosamente');
+            this.organizationForm.disable();
+            notyf.success('Organización actualizada exitosamente');
           }
         },
         error: (error) => {
           console.error('Error al actualizar organización:', error);
-          alert('Error al actualizar la organización');
+          notyf.error('Error al actualizar la organización');
           console.log(updatedData)
         }
       });
@@ -144,11 +168,11 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
         next: (success) => {
           this.organizationDeleted.emit(this.currentOrganizacionId);
           this.closeModal();
-          alert('Organización eliminada exitosamente');
+          notyf.success('Organización eliminada exitosamente');
         },
         error: (error) => {
           console.error('Error al eliminar organización:', error);
-          alert('Error al eliminar la organización');
+          notyf.error('Error al eliminar la organización');
         }
       });
     }
@@ -158,5 +182,27 @@ export class OrganizationDetailsComponent implements OnInit, OnChanges {
     this.showModal = false;
     this.isEditing = false;
     this.modalClosed.emit();
+  }
+
+  private getDangerousFields(): string[] {
+    const dangerousFields: string[] = [];
+    const fieldNames: { [key: string]: string } = {
+      'nombre': 'Nombre',
+      'nit': 'NIT',
+      'ubicacion': 'Ubicación',
+      'representanteLegal': 'Representante Legal',
+      'telefono': 'Teléfono',
+      'sectorEconomico': 'Sector Económico',
+      'actividadPrincipal': 'Actividad Principal'
+    };
+
+    Object.keys(fieldNames).forEach(fieldName => {
+      const control = this.organizationForm.get(fieldName);
+      if (control && control.hasError('dangerousContent')) {
+        dangerousFields.push(fieldNames[fieldName]);
+      }
+    });
+
+    return dangerousFields;
   }
 }

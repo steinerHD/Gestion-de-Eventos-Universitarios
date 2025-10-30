@@ -27,10 +27,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/eventos/test-auth").permitAll()
-                        .anyRequest().authenticated())
+        .authorizeHttpRequests(authz -> authz
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/eventos/test-auth").permitAll()
+            // Allow public access to uploaded aval assets
+            .requestMatchers("/assets/uploads/avales/**").permitAll()
+            .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling(e -> e

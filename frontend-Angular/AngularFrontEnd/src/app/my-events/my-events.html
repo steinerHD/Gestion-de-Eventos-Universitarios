@@ -1,5 +1,5 @@
 <header class="headerSec">
-    <img src="assets/images/logo.jpg" alt="Logo" class="logo-img" routerLink="/home">
+    <img src="assets/images/U_events.png" alt="Logo" class="logo-img" routerLink="/home">
   <h1>Mis Eventos</h1> 
   <div class="header-actions">
     <button class="btn-create-event" routerLink="/add-event">+ Crear evento</button>
@@ -79,7 +79,7 @@
         <div class="event-actions">
           <button *ngIf="canSendToValidation(event)" 
                   class="btn btn-primary btn-sm" 
-                  (click)="sendToValidation(event)">
+                  (click)="openConfirmModal(event)">
             Enviar a Validación
           </button>
           <button *ngIf="canEdit(event)" 
@@ -164,3 +164,23 @@
 
   </div>
 </div>
+
+<!-- Modal de confirmación para enviar a validación -->
+<div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmación</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="cancelSend()"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Quieres enviar el evento <strong>{{ eventToSend?.titulo }}</strong> a validación?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelSend()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="confirmSend()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showConfirmModal" *ngIf="showConfirmModal"></div>
