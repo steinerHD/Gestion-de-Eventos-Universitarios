@@ -46,6 +46,9 @@ export class AddEventComponent {
   isEdit: boolean = false;
   editingEventId?: number;
 
+  // Add this property to store the error message
+  timeError: string = '';
+
   constructor(
     private fb: FormBuilder,
     private eventosApiService: EventosApiService,
@@ -206,6 +209,19 @@ export class AddEventComponent {
   }
   submitEvent(): void {
     console.log('=== VALIDACIÓN DEL FORMULARIO DE EVENTO ===');
+    
+    // Validate installations
+    if (!this.validateInstallations()) {
+      notyf.error('Cada encuentro debe tener una instalación seleccionada');
+      return;
+    }
+
+    // Validate times
+    if (!this.validateTimes()) {
+      notyf.error('La hora de inicio debe ser menor que la hora de fin en todos los encuentros');
+      return;
+    }
+
     console.log('📋 Estado del formulario:', this.eventForm.value);
     console.log('📋 Formulario válido:', this.eventForm.valid);
     console.log('📋 Encuentros:', this.encounters);
@@ -515,10 +531,52 @@ export class AddEventComponent {
 
   isFormValid(): boolean {
     const formValid = this.eventForm.valid;
-    const hasEncounters = this.encounters.length > 0;
-    const encountersValid = this.encounters.every(e => e.date && e.startTime && e.endTime && e.location);
+    const hasEncounters = this.encounters && this.encounters.length > 0;
+    const encountersValid = this.encounters.every(e => 
+      e.date && e.startTime && e.endTime && e.location
+    );
+    const timesValid = this.validateTimes();
 
-    return formValid && hasEncounters && encountersValid;
+    // For debugging
+    console.log('Form validation state:', {
+      formValid,
+      hasEncounters,
+      encountersValid,
+      timesValid
+    });
+
+    return formValid && hasEncounters && encountersValid && timesValid;
+  }
+
+  validateInstallations(): boolean {
+    if (!this.encounters || this.encounters.length === 0) return true;
+    return this.encounters.every(encounter => encounter.location !== null && encounter.location !== undefined);
+  }
+
+  validateTimes(): boolean {
+    if (!this.encounters || this.encounters.length === 0) return false;
+
+    this.timeError = ''; // Clear previous error
+    
+    for (let i = 0; i < this.encounters.length; i++) {
+      const encounter = this.encounters[i];
+      if (!encounter.startTime || !encounter.endTime) return false;
+
+      const getMinutes = (timeStr: string) => {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+
+      const startMinutes = getMinutes(encounter.startTime);
+      const endMinutes = getMinutes(encounter.endTime);
+
+      if (startMinutes >= endMinutes) {
+        this.timeError = `Encuentro ${i + 1}: La hora de inicio (${encounter.startTime}) no puede ser mayor o igual que la hora de fin (${encounter.endTime})`;
+        return false;
+      }
+    }
+
+    return true;
   }
 
   onFileSelected(event: any): void {

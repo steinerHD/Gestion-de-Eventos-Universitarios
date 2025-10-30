@@ -94,6 +94,11 @@
     (encountersChanged)="onEncountersChanged($event)">
   </app-encounters>
 
+  <!-- Add this error message display -->
+  <div *ngIf="timeError" class="alert alert-danger">
+    {{ timeError }}
+  </div>
+
   <fieldset class="form-row form-row--last">
     <legend class="sr-only">Estado</legend>
     <div class="input-group">
@@ -132,7 +137,10 @@
   </section>
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || encounters.length === 0 ">{{ isEdit ? 'Guardar cambios' : 'Crear' }}</button>
+    <button type="submit" class="btn btn-primary" 
+      [disabled]="!isFormValid()">
+      {{ isEdit ? 'Guardar cambios' : 'Crear' }}
+    </button>
     <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
   </div>
 </form>
