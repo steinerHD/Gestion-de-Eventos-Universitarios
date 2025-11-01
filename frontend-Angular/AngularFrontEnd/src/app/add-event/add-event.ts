@@ -581,13 +581,23 @@ export class AddEventComponent {
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
+    const input = event.target as HTMLInputElement;
+
     if (file) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        notyf.error('Por favor, selecciona un archivo PDF.');
+        this.selectedFile = null;
+        this.eventForm.patchValue({ avalPdf: '' });
+        if (input) input.value = ''; // Limpiar el input
+        return;
+      }
       // Store the File object so we can upload it before creating/updating the event
       this.selectedFile = file;
       // Show a friendly file name in the form (the real path will be set after upload)
       this.eventForm.patchValue({ avalPdf: file.name });
     } else {
       this.eventForm.patchValue({ avalPdf: '' });
+      this.selectedFile = null;
     }
   }
 

@@ -96,7 +96,13 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
     const file = target.files?.[0];
     const orgId = String(organization.idOrganizacion || (organization as any).id);
     
-    if (file && file.type === 'application/pdf') {
+    if (file) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        notyf.error('Por favor, selecciona un archivo PDF.');
+        if (target) target.value = ''; // Limpiar el input para permitir seleccionar el mismo archivo (corregido) después.
+        return;
+      }
+      
       if (!this.organizationData[orgId]) {
         this.organizationData[orgId] = {
           participaRepresentante: false,
@@ -106,7 +112,7 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
           avalFileName: ''
         };
       }
-
+      
       // Subir el archivo al backend usando el mismo endpoint que el aval del evento
       this.eventosApi.uploadAval(file).subscribe({
         next: (resp) => {
@@ -124,7 +130,8 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
       });
     } else {
       // client-side validation - always show this
-      notyf.error('Por favor selecciona un archivo PDF válido.');
+      // No file was selected, or the selection was cancelled.
+      // No action needed.
     }
   }
 
@@ -169,4 +176,3 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
     };
   }
 }
-
