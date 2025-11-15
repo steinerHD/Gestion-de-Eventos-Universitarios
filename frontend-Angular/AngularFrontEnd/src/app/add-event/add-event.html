@@ -8,7 +8,7 @@
 
 <form [formGroup]="eventForm" class="container" novalidate (ngSubmit)="submitEvent()">
   <fieldset class="form-row">
-    <legend class="sr-only">Información básica del evento</legend>
+    <legend class="sr-only">Informaciï¿½n bï¿½sica del evento</legend>
     <div class="input-group">
       <label for="eventName">Nombre del evento</label>
       <input type="text" id="eventName" formControlName="eventName" placeholder="Nombre..." required
@@ -31,8 +31,8 @@
       <select id="eventType" formControlName="eventType" required
               [ngClass]="{'is-invalid': eventForm.get('eventType')?.invalid && eventForm.get('eventType')?.touched}">
         <option value="" disabled>Seleccione un tipo</option>
-        <option value="academico">Académico</option>
-        <option value="ludico">Lúdico</option>
+        <option value="academico">Acadï¿½mico</option>
+        <option value="ludico">Lï¿½dico</option>
       </select>
       <div *ngIf="eventForm.get('eventType')?.hasError('required') && eventForm.get('eventType')?.touched"
            class="invalid-feedback">
@@ -76,7 +76,8 @@
             </div>
             <div *ngIf="org.errorMessage" class="error-message">{{ org.errorMessage }}</div>
             <label>Tipo de aval</label>
-            <select [(ngModel)]="org.tipoAval" [ngModelOptions]="{standalone: true}"
+            <select (change)="org.tipoAval = $any($event.target).value"
+                    [value]="org.tipoAval"
                     [ngClass]="{'is-invalid': org.requiresAval && !org.tipoAval}">
               <option value="">Seleccione tipo de aval</option>
               <option value="Director_Programa">Director de Programa</option>
@@ -91,7 +92,7 @@
     </div>
   </fieldset>
 
-  <!-- Módulo de Encuentros -->
+  <!-- Mï¿½dulo de Encuentros -->
   <app-encounters 
     [encounters]="encounters"
     (encountersChanged)="onEncountersChanged($event)">
@@ -112,14 +113,14 @@
 
   <section class="form-grid">
     <fieldset class="external-org">
-      <legend>Módulo de organización externa</legend>
+      <legend>Mï¿½dulo de organizaciï¿½n externa</legend>
       <div class="checkbox-group">
         <input type="checkbox" id="externalOrgParticipation" formControlName="externalOrgParticipation" (change)="onParticipationChange()">
-        <label for="externalOrgParticipation">¿Participa una organización externa?</label>
+        <label for="externalOrgParticipation">ï¿½Participa una organizaciï¿½n externa?</label>
       </div>
       <div class="icon-buttons" *ngIf="eventForm.get('externalOrgParticipation')?.value">
         <button type="button" (click)="openModal()" class="icon-button" aria-label="Abrir listado de organizaciones externas">
-          <img src="assets/images/copy.png" alt="Listado de organización externa">
+          <img src="assets/images/copy.png" alt="Listado de organizaciï¿½n externa">
         </button>
       </div>
     </fieldset>
@@ -134,7 +135,7 @@
     
     <!-- Mensaje cuando no hay organizaciones seleccionadas -->
     <div *ngIf="eventForm.get('externalOrgParticipation')?.value && selectedOrganizations.length === 0" class="no-organizations-selected">
-      <p>No hay organizaciones seleccionadas. Haz clic en el botón de arriba para seleccionar organizaciones.</p>
+      <p>No hay organizaciones seleccionadas. Haz clic en el botï¿½n de arriba para seleccionar organizaciones.</p>
     </div>
   </section>
 
@@ -154,11 +155,11 @@
   (organizationSelected)="onOrganizationSelected($event)">
 </app-organizacion-externa>
 
-<!-- Modal de selección de organizadores -->
+<!-- Modal de selecciÃ³n de organizadores -->
 <app-usuario-selection 
   [showModal]="showOrganizerModal"
   [currentUserId]="currentUser?.idUsuario"
-  [selectedUsuarios]="organizadores.map(o => o.usuario)"
+  [selectedUsuarios]="selectedUsers"
   (modalClosed)="closeOrganizerModal()"
   (usuarioSelected)="onOrganizerSelected($event)">
 </app-usuario-selection>

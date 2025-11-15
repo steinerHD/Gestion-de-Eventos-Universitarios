@@ -1,6 +1,7 @@
 import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { OrganizacionExternaDTO } from '../services/organizaciones.api.service';
@@ -30,7 +31,7 @@ export interface Organizador {
 @Component({
   selector: 'app-add-event',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, OrganizacionExternaComponent, SelectedOrganizationsComponent, UsuarioSelectionComponent, EncountersComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, OrganizacionExternaComponent, SelectedOrganizationsComponent, UsuarioSelectionComponent, EncountersComponent],
   templateUrl: './add-event.html',
   styleUrls: ['./add-event.css']
 })
@@ -50,6 +51,10 @@ export class AddEventComponent {
   isEdit: boolean = false;
   editingEventId?: number;
   timeError: string = '';
+
+  get selectedUsers(): UsuarioDTO[] {
+    return this.organizadores.map(org => org.usuario);
+  }
 
   constructor(
     private fb: FormBuilder,
