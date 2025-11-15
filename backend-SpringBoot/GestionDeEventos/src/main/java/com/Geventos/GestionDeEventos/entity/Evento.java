@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 @Table(name = "evento")
 @Data
-@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "coorganizadores", "instalaciones" })
+@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "instaladores", "organizadores", "instalaciones" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evento {
@@ -56,12 +56,7 @@ public class Evento {
     @JsonBackReference(value = "usuario-eventos")
     private Usuario organizador;
 
-    @Column(name = "aval_pdf")
-    private String avalPdf;
-
-    @Convert(converter = TipoAvalConverter.class)
-    @Column(name = "tipo_aval", length = 50)
-    private TipoAval tipoAval;
+    // El aval ahora se guarda en la relación entre usuario y evento
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false, length = 20)
@@ -75,10 +70,9 @@ public class Evento {
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Evaluacion> evaluaciones;
 
-    @ManyToMany
-    @JoinTable(name = "evento_coorganizador", joinColumns = @JoinColumn(name = "id_evento"), inverseJoinColumns = @JoinColumn(name = "id_usuario"))
-    @JsonManagedReference(value = "evento-coorganizadores")
-    private List<Usuario> coorganizadores;
+    @JsonManagedReference(value = "evento-organizadores")
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EventoOrganizador> organizadores;
 
     public enum TipoEvento {
         Académico, Lúdico

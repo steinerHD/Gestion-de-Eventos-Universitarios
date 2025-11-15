@@ -152,8 +152,10 @@ CREATE TABLE evento (
   hora_fin TIME NOT NULL,
   estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
   id_usuario_organizador INT REFERENCES usuario(id_usuario),
-  aval_pdf VARCHAR(255),
-  tipo_aval VARCHAR(50) CHECK (tipo_aval IN ('Director_Programa','Director_Docencia'))
+  -- aval ahora se almacena por usuario-evento en la tabla evento_organizador
+  -- (si quiere mantener información histórica, agregue migración para mover datos existentes)
+  
+  
 );
 
 CREATE TABLE organizacion_externa (
@@ -205,11 +207,15 @@ CREATE TABLE evento_instalacion (
   FOREIGN KEY (id_instalacion) REFERENCES instalacion(id_instalacion) ON DELETE CASCADE
 );
 
--- Tabla intermedia para relación ManyToMany entre Evento y Usuario (coorganizadores)
-CREATE TABLE evento_coorganizador (
+-- Tabla para relación entre Evento y Usuario que almacena aval por cada usuario participante (organizador/coorganizador)
+CREATE TABLE evento_organizador (
+  id_evento_organizador SERIAL PRIMARY KEY,
   id_evento INT NOT NULL,
   id_usuario INT NOT NULL,
-  PRIMARY KEY (id_evento, id_usuario),
+  aval_pdf VARCHAR(255),
+  tipo_aval VARCHAR(50) CHECK (tipo_aval IN ('Director_Programa','Director_Docencia')),
+  rol VARCHAR(20) NOT NULL CHECK (rol IN ('ORGANIZADOR','COORGANIZADOR')),
+  UNIQUE (id_evento, id_usuario),
   FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
   FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
 );
@@ -245,7 +251,8 @@ BEGIN
   FROM evento
   WHERE id_evento = NEW.id_evento;
 
-  IF v_id_organizador = NEW.id_usuario THEN
+  -- Si se intenta insertar la misma persona como coorganizador que el organizador principal, prohibir
+  IF v_id_organizador = NEW.id_usuario AND NEW.rol = 'COORGANIZADOR' THEN
     RAISE EXCEPTION 'El coorganizador no puede ser el mismo que el organizador principal del evento';
   END IF;
 
@@ -254,7 +261,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_validar_coorganizador_evento
-BEFORE INSERT ON evento_coorganizador
+BEFORE INSERT ON evento_organizador
 FOR EACH ROW
 EXECUTE FUNCTION validar_coorganizador_evento();
 

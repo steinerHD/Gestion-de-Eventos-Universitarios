@@ -7,6 +7,7 @@ import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
+import com.Geventos.GestionDeEventos.entity.Estudiante;
 import com.Geventos.GestionDeEventos.repository.*;
 import com.Geventos.GestionDeEventos.mappers.EventoMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class EventoService {
     private final InstalacionRepository instalacionRepository;
     private final OrganizacionExternaRepository organizacionExternaRepository;
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
+    private final EventoOrganizadorRepository eventoOrganizadorRepository;
     private final UsuarioService usuarioService;
 
     // ------------------------- CREATE / UPDATE -------------------------
@@ -36,12 +38,13 @@ public class EventoService {
         Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
 
-        List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
-        List<Usuario> coorganizadores = getUsuariosByIds(request.getCoorganizadores());
+    List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
 
-        Evento evento = EventoMapper.toEntity(request, organizador, instalaciones, coorganizadores);
+    Evento evento = EventoMapper.toEntity(request, organizador, instalaciones);
 
         Evento savedEvento = save(evento); // método privado con todas las validaciones
+    // Crear relación usuario-evento (aval) para organizador y coorganizadores
+    manejarOrganizadores(savedEvento.getIdEvento(), request.getOrganizadores(), request.getIdOrganizador());
         
         // Manejar organizaciones externas después de guardar el evento
         if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
@@ -68,7 +71,6 @@ public class EventoService {
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
 
         List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
-        List<Usuario> coorganizadores = getUsuariosByIds(request.getCoorganizadores());
 
         existingEvento.setTitulo(request.getTitulo());
         existingEvento.setTipoEvento(request.getTipoEvento());
@@ -76,9 +78,7 @@ public class EventoService {
         existingEvento.setHoraInicio(request.getHoraInicio());
         existingEvento.setHoraFin(request.getHoraFin());
         existingEvento.setInstalaciones(instalaciones);
-        existingEvento.setCoorganizadores(coorganizadores);
-        existingEvento.setAvalPdf(request.getAvalPdf());
-        existingEvento.setTipoAval(request.getTipoAval());
+        // organizadores (aval por usuario) se manejan separadamente abajo
         existingEvento.setOrganizador(organizador);
 
         Evento updatedEvento = save(existingEvento);
@@ -87,7 +87,8 @@ public class EventoService {
         if (request.getParticipacionesOrganizaciones() != null) {
             manejarParticipacionesOrganizaciones(id, request.getParticipacionesOrganizaciones());
         }
-        
+    // Actualizar relaciones usuario-evento (borrar y recrear según request.organizadores)
+    manejarOrganizadores(id, request.getOrganizadores(), request.getIdOrganizador());
         // Recargar el evento con las participaciones para devolver la respuesta completa
         return eventoRepository.findByIdWithParticipaciones(id)
                 .map(EventoMapper::toResponse)
@@ -168,15 +169,7 @@ public class EventoService {
         return lista;
     }
 
-    private List<Usuario> getUsuariosByIds(List<Long> ids) {
-        if (ids == null)
-            return List.of();
-        List<Usuario> lista = new ArrayList<>();
-        for (Long id : ids) {
-            usuarioService.findEntityById(id).ifPresent(lista::add);
-        }
-        return lista;
-    }
+
 
     private Evento save(Evento evento) {
         // ---------------- VALIDACIONES ----------------
@@ -246,6 +239,79 @@ public class EventoService {
         System.out.println("[DEBUG] Manejo de participaciones completado");
     }
 
+    @Transactional
+    private void manejarOrganizadores(Long idEvento, java.util.List<com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest> organizadores, Long idOrganizadorPrincipal) {
+        // Eliminar registros previos
+        eventoOrganizadorRepository.deleteByEventoId(idEvento);
+
+        if (organizadores == null || organizadores.isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar al menos el organizador principal en 'organizadores'");
+        }
+
+        // Buscar y validar que existe exactamente un ORGANIZADOR
+        long countOrganizadores = organizadores.stream().filter(o -> "ORGANIZADOR".equalsIgnoreCase(o.getRol())).count();
+        if (countOrganizadores != 1) {
+            throw new IllegalArgumentException("Debe haber exactamente un ORGANIZADOR en la lista 'organizadores'");
+        }
+
+        // El organizador principal enviado en idOrganizadorPrincipal (si se usa) debe coincidir con el rol ORGANIZADOR
+        if (idOrganizadorPrincipal != null) {
+            boolean match = organizadores.stream().anyMatch(o -> "ORGANIZADOR".equalsIgnoreCase(o.getRol()) && idOrganizadorPrincipal.equals(o.getIdUsuario()));
+            if (!match) {
+                throw new IllegalArgumentException("El idOrganizador debe coincidir con el organizador marcado en 'organizadores'");
+            }
+        }
+
+        // Crear entradas para cada organizador/coorganizador
+        Evento eventoEntity = eventoRepository.findById(idEvento).orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        // Obtener programa del organizador principal (si es estudiante)
+        com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest orgReq = organizadores.stream().filter(o -> "ORGANIZADOR".equalsIgnoreCase(o.getRol())).findFirst().get();
+        Usuario organizador = usuarioService.findEntityById(orgReq.getIdUsuario()).orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
+        String programaOrganizador = estudianteRepository.findByUsuarioId(organizador.getIdUsuario()).map(Estudiante::getPrograma).orElse(null);
+
+        // Guardar organizador principal
+        com.Geventos.GestionDeEventos.entity.EventoOrganizador eoOrg = new com.Geventos.GestionDeEventos.entity.EventoOrganizador();
+        eoOrg.setEvento(eventoEntity);
+        eoOrg.setUsuario(organizador);
+        eoOrg.setAvalPdf(orgReq.getAvalPdf());
+        eoOrg.setTipoAval(orgReq.getTipoAval());
+        eoOrg.setRol(com.Geventos.GestionDeEventos.entity.EventoOrganizador.Rol.ORGANIZADOR);
+        eventoOrganizadorRepository.save(eoOrg);
+
+        // Procesar coorganizadores
+        for (com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest r : organizadores) {
+            if ("ORGANIZADOR".equalsIgnoreCase(r.getRol())) continue;
+            if (!"COORGANIZADOR".equalsIgnoreCase(r.getRol())) {
+                throw new IllegalArgumentException("Rol inválido en organizadores: " + r.getRol());
+            }
+
+            Usuario co = usuarioService.findEntityById(r.getIdUsuario()).orElseThrow(() -> new IllegalArgumentException("Coorganizador no encontrado: id=" + r.getIdUsuario()));
+            String programaCo = estudianteRepository.findByUsuarioId(co.getIdUsuario()).map(Estudiante::getPrograma).orElse(null);
+
+            com.Geventos.GestionDeEventos.entity.EventoOrganizador eoCo = new com.Geventos.GestionDeEventos.entity.EventoOrganizador();
+            eoCo.setEvento(eventoEntity);
+            eoCo.setUsuario(co);
+
+            // Si son estudiantes y comparten programa, si coorganizador no envía aval podemos heredar el del organizador
+            if (programaOrganizador != null && programaOrganizador.equals(programaCo)) {
+                // Si frontend envía avalPdf para el coorganizador lo respetamos, sino heredamos
+                eoCo.setAvalPdf(r.getAvalPdf() != null ? r.getAvalPdf() : orgReq.getAvalPdf());
+                eoCo.setTipoAval(r.getTipoAval() != null ? r.getTipoAval() : orgReq.getTipoAval());
+            } else {
+                // Programas distintos -> el coorganizador debe enviar su propio aval
+                if (r.getAvalPdf() == null || r.getAvalPdf().isBlank() || r.getTipoAval() == null) {
+                    throw new IllegalArgumentException("Coorganizador id=" + r.getIdUsuario() + " de distinto programa debe incluir su avalPdf y tipoAval");
+                }
+                eoCo.setAvalPdf(r.getAvalPdf());
+                eoCo.setTipoAval(r.getTipoAval());
+            }
+
+            eoCo.setRol(com.Geventos.GestionDeEventos.entity.EventoOrganizador.Rol.COORGANIZADOR);
+            eventoOrganizadorRepository.save(eoCo);
+        }
+    }
+
     /**
      * Cambia el estado de un evento a Pendiente para enviarlo a validación.
      * Lanza IllegalArgumentException si no existe el evento o si el organizador no es válido.
@@ -278,5 +344,13 @@ public class EventoService {
 
         evento.setEstado(Evento.EstadoEvento.Rechazado);
         eventoRepository.save(evento);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<String> findAvalPdfByEventoAndUsuario(Long idEvento, Long idUsuario) {
+        return eventoOrganizadorRepository.findByEventoId(idEvento).stream()
+                .filter(eo -> eo.getUsuario() != null && eo.getUsuario().getIdUsuario().equals(idUsuario))
+                .map(eo -> eo.getAvalPdf())
+                .findFirst();
     }
 }

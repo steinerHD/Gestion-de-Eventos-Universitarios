@@ -119,9 +119,11 @@ public class EventoController {
     }
 
     // ------------------------- PDFs -------------------------
-    @GetMapping("/{id}/aval")
-    public ResponseEntity<String> getAvalPdf(@PathVariable Long id) {
-        return ResponseEntity.ok(eventoService.findById(id).get().getAvalPdf());
+    @GetMapping("/{id}/aval/{idUsuario}")
+    public ResponseEntity<String> getAvalPdf(@PathVariable Long id, @PathVariable Long idUsuario) {
+        return eventoService.findAvalPdfByEventoAndUsuario(id, idUsuario)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // ------------------------- ENVIAR A VALIDACIÓN -------------------------

@@ -51,15 +51,7 @@ public class UsuarioMapper {
         if (usuario.getEventosOrganizados() != null && !usuario.getEventosOrganizados().isEmpty()) {
             response.setEventosOrganizados(
                 usuario.getEventosOrganizados().stream()
-                        .map(e -> e.getIdEvento())
-                        .toList()
-            );
-        }
-
-        if (usuario.getEventosCoorganizados() != null && !usuario.getEventosCoorganizados().isEmpty()) {
-            response.setEventosCoorganizados(
-                usuario.getEventosCoorganizados().stream()
-                        .map(e -> e.getIdEvento())
+                        .map(eo -> eo.getEvento() != null ? eo.getEvento().getIdEvento() : null)
                         .toList()
             );
         }

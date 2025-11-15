@@ -20,5 +20,5 @@ public class UsuarioResponse {
 
     // Roles en eventos
     private List<Long> eventosOrganizados;   // ids de eventos
-    private List<Long> eventosCoorganizados; // ids de eventos
+    
 }

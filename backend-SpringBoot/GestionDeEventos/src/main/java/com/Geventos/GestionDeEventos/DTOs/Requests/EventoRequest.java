@@ -1,7 +1,6 @@
 package com.Geventos.GestionDeEventos.DTOs.Requests;
 
 import com.Geventos.GestionDeEventos.entity.Evento.EstadoEvento;
-import com.Geventos.GestionDeEventos.entity.Evento.TipoAval;
 import com.Geventos.GestionDeEventos.entity.Evento.TipoEvento;
 import lombok.Data;
 import java.time.LocalDate;
@@ -18,9 +17,9 @@ public class EventoRequest {
     private LocalTime horaFin;
     private Long idOrganizador;
     private List<Long> instalaciones; // ids de instalaciones
-    private List<Long> coorganizadores; // ids de usuarios
+    // Lista de organizadores (organizador principal + coorganizadores) con su aval (path) y tipo
+    private java.util.List<com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest> organizadores;
     private List<ParticipacionDetalleRequest> participacionesOrganizaciones; // detalles de participaciones
-    private String avalPdf;
-    private TipoAval tipoAval;
+    // Nota: avalPdf y tipoAval ahora se reciben por usuario en 'organizadores'
     private EstadoEvento estado;
 }

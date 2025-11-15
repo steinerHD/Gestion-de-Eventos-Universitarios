@@ -15,8 +15,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "usuario")
 @Data
-@EqualsAndHashCode(exclude = { "eventosOrganizados", "eventosCoorganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
-@ToString(exclude = { "eventosOrganizados", "eventosCoorganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
+@EqualsAndHashCode(exclude = { "eventosOrganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
+@ToString(exclude = { "eventosOrganizados", "organizacionesCreadas", "estudiante", "docente", "secretariaAcademica" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
@@ -48,13 +48,9 @@ public class Usuario {
     @JsonManagedReference
     private SecretariaAcademica secretariaAcademica;
 
-    @OneToMany(mappedBy = "organizador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "usuario-eventos")
-    private List<Evento> eventosOrganizados;
-
-    @ManyToMany(mappedBy = "coorganizadores")
-    @JsonBackReference(value = "evento-coorganizadores")
-    private List<Evento> eventosCoorganizados;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "usuario-eventosOrganizados")
+    private List<EventoOrganizador> eventosOrganizados;
 
     @OneToMany(mappedBy = "creador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference(value = "usuario-organizaciones")

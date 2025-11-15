@@ -20,7 +20,8 @@ public class EventoResponse {
     private LocalTime horaFin;
     private Long idOrganizador;
     private List<Long> instalaciones; // ids
-    private List<Long> coorganizadores; // ids
+    // Lista de organizadores y coorganizadores con su aval (usuario-evento)
+    private java.util.List<com.Geventos.GestionDeEventos.DTOs.Responses.EventoOrganizadorResponse> organizadores;
     private List<ParticipacionDetalleResponse> participacionesOrganizaciones; // detalles de participaciones
     private TipoAval tipoAval;
     private String avalPdf;
