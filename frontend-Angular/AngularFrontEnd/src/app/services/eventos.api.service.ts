@@ -25,6 +25,13 @@ export interface ParticipacionDetalleDTO {
   nombreRepresentanteDiferente?: string; // Solo si representanteDiferente = true
 }
 
+export interface EventoOrganizadorRequest {
+  idUsuario: number;
+  avalPdf: string;
+  tipoAval: 'Director_Programa' | 'Director_Docencia';
+  rol: string;
+}
+
 export interface EventoDTO {
   idEvento?: number; // opcional para actualización
 
@@ -39,6 +46,7 @@ export interface EventoDTO {
   idOrganizador: number; // ID del usuario organizador
   instalaciones: number[]; // IDs de instalaciones
   coorganizadores?: number[]; // IDs de coorganizadores
+  organizadores?: EventoOrganizadorRequest[]; // Organizadores con aval individual
 
   // Participaciones con organizaciones externas
   participacionesOrganizaciones?: ParticipacionDetalleDTO[];

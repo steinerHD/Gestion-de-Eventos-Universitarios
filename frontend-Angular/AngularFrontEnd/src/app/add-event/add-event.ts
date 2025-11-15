@@ -215,15 +215,22 @@ export class AddEventComponent {
           externalOrgParticipation: (event.participacionesOrganizaciones || []).length > 0
         });
 
-        if (event.organizadores) {
-          event.organizadores.forEach((orgData: any) => {
-            if (orgData.usuario.idUsuario !== this.currentUser?.idUsuario) {
-              this.organizadores.push({
-                usuario: orgData.usuario,
-                rol: 'ORGANIZADOR',
-                avalPdf: orgData.avalPdf || '',
-                tipoAval: orgData.tipoAval || '',
-                requiresAval: this.calculateRequiresAval(orgData.usuario)
+        // Cargar coorganizadores del evento
+        if (event.coorganizadores && Array.isArray(event.coorganizadores)) {
+          event.coorganizadores.forEach((userId: any) => {
+            if (userId !== this.currentUser?.idUsuario) {
+              this.usuariosApiService.getById(userId).subscribe({
+                next: (user) => {
+                  this.organizadores.push({
+                    usuario: user,
+                    rol: 'ORGANIZADOR',
+                    avalPdf: '',
+                    tipoAval: '',
+                    requiresAval: this.calculateRequiresAval(user)
+                  });
+                  this.cdr.detectChanges();
+                },
+                error: (err) => console.warn('Error al cargar usuario:', userId, err)
               });
             }
           });
@@ -279,7 +286,7 @@ export class AddEventComponent {
 
   submitEvent(): void {
     if (!this.validateInstallations()) {
-      notyf.error('Cada encuentro debe tener una instalación seleccionada');
+      notyf.error('Cada encuentro debe tener una instalaciï¿½n seleccionada');
       return;
     }
     if (!this.validateTimes()) {
@@ -368,7 +375,7 @@ export class AddEventComponent {
   private validateForm(): string[] {
     const errors: string[] = [];
     const form = this.eventForm;
-    if (!form.get('eventName')?.value?.trim()) errors.push('Título requerido');
+    if (!form.get('eventName')?.value?.trim()) errors.push('Tï¿½tulo requerido');
     if (!form.get('eventType')?.value) errors.push('Tipo requerido');
     if (this.encounters.length === 0) errors.push('Al menos un encuentro');
     return errors;
@@ -386,7 +393,7 @@ export class AddEventComponent {
     const organizadoresData = this.organizadores.map(org => ({
       idUsuario: org.usuario.idUsuario,
       avalPdf: org.avalPdf || '',
-      tipoAval: org.tipoAval || '',
+      tipoAval: (org.tipoAval || 'Director_Programa') as 'Director_Programa' | 'Director_Docencia',
       rol: org.rol
     }));
 
@@ -414,7 +421,7 @@ export class AddEventComponent {
 
     return {
       titulo: form.get('eventName')?.value?.trim() || '',
-      tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
+      tipoEvento: form.get('eventType')?.value === 'academico' ? 'AcadÃ©mico' : 'LÃºdico',
       fecha: primerEncuentro.date,
       horaInicio: formatHora(primerEncuentro.startTime),
       horaFin: formatHora(primerEncuentro.endTime),
@@ -516,7 +523,7 @@ export class AddEventComponent {
     const dangerousFields: string[] = [];
     const fieldNames: { [key: string]: string } = {
       'eventName': 'Nombre',
-      'eventLocation': 'Ubicación',
+      'eventLocation': 'Ubicaciï¿½n',
       'externalOrgName': 'Org Externa',
       'externalOrgNit': 'NIT'
     };
@@ -529,3 +536,4 @@ export class AddEventComponent {
     return dangerousFields;
   }
 }
+
