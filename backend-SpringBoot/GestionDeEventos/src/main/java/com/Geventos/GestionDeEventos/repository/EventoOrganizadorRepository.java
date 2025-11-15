@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface EventoOrganizadorRepository extends JpaRepository<EventoOrganizador, Long> {
-    List<EventoOrganizador> findByEventoId(Long idEvento);
-    void deleteByEventoId(Long idEvento);
+    List<EventoOrganizador> findByEvento_IdEvento(Long idEvento);
+    void deleteByEvento_IdEvento(Long idEvento);
 }

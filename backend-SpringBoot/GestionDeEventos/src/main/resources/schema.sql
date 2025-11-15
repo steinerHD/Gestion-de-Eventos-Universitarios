@@ -2,7 +2,6 @@
 --  ESQUEMA SIGEU
 -- =======================
 
-
 CREATE TABLE usuario (
   id_usuario SERIAL PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
@@ -57,12 +56,14 @@ INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Salon 134', 'Salon de clases', 'El edificio numero 1 en el piso 3 en el salon de clases 4', 25),
 ('Salon 135', 'Salon de clases', 'El edificio numero 1 en el piso 3 en el salon de clases 5', 25),
 ('Salon 136', 'Salon de clases', 'El edificio numero 1 en el piso 3 en el salon de clases 6', 25),
+
 ('Salon 141', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 1', 25),
 ('Salon 142', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 2', 25),
 ('Salon 143', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 3', 25),
 ('Salon 144', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 4', 25),
 ('Salon 145', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 5', 25),
 ('Salon 146', 'Salon de clases', 'El edificio numero 1 en el piso 4 en el salon de clases 6', 25),
+
 ('Salon 211', 'Salon de clases', 'El edificio numero 2 en el piso 1 en el salon de clases 1', 25),
 ('Salon 212', 'Salon de clases', 'El edificio numero 2 en el piso 1 en el salon de clases 2', 25),
 ('Salon 213', 'Salon de clases', 'El edificio numero 2 en el piso 1 en el salon de clases 3', 25),
@@ -75,18 +76,21 @@ INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Salon 224', 'Salon de clases', 'El edificio numero 2 en el piso 2 en el salon de clases 4', 25),
 ('Salon 225', 'Salon de clases', 'El edificio numero 2 en el piso 2 en el salon de clases 5', 25),
 ('Salon 226', 'Salon de clases', 'El edificio numero 2 en el piso 2 en el salon de clases 6', 25),
+
 ('Salon 231', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 1', 25),
 ('Salon 232', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 2', 25),
 ('Salon 233', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 3', 25),
 ('Salon 234', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 4', 25),
 ('Salon 235', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 5', 25),
 ('Salon 236', 'Salon de clases', 'El edificio numero 2 en el piso 3 en el salon de clases 6', 25),
+
 ('Salon 241', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 1', 25),
 ('Salon 242', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 2', 25),
 ('Salon 243', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 3', 25),
 ('Salon 244', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 4', 25),
 ('Salon 245', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 5', 25),
 ('Salon 246', 'Salon de clases', 'El edificio numero 2 en el piso 4 en el salon de clases 6', 25),
+
 ('Salon 311', 'Salon de clases', 'El edificio numero 3 en el piso 1 en el salon de clases 1', 25),
 ('Salon 312', 'Salon de clases', 'El edificio numero 3 en el piso 1 en el salon de clases 2', 25),
 ('Salon 313', 'Salon de clases', 'El edificio numero 3 en el piso 1 en el salon de clases 3', 25),
@@ -99,42 +103,49 @@ INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Salon 324', 'Salon de clases', 'El edificio numero 3 en el piso 2 en el salon de clases 4', 25),
 ('Salon 325', 'Salon de clases', 'El edificio numero 3 en el piso 2 en el salon de clases 5', 25),
 ('Salon 326', 'Salon de clases', 'El edificio numero 3 en el piso 2 en el salon de clases 6', 25),
+
 ('Salon 331', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 1', 25),
 ('Salon 332', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 2', 25),
 ('Salon 333', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 3', 25),
 ('Salon 334', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 4', 25),
 ('Salon 335', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 5', 25),
 ('Salon 336', 'Salon de clases', 'El edificio numero 3 en el piso 3 en el salon de clases 6', 25),
+
 ('Salon 341', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 1', 25),
 ('Salon 342', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 2', 25),
 ('Salon 343', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 3', 25),
 ('Salon 344', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 4', 25),
 ('Salon 345', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 5', 25),
 ('Salon 346', 'Salon de clases', 'El edificio numero 3 en el piso 4 en el salon de clases 6', 25),
+
 ('Salon 411', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 1', 25),
 ('Salon 412', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 2', 25),
 ('Salon 413', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 3', 25),
 ('Salon 414', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 4', 25),
 ('Salon 415', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 5', 25),
 ('Salon 416', 'Salon de clases', 'El edificio numero 4 en el piso 1 en el salon de clases 6', 25),
+
 ('Salon 421', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 1', 25),
 ('Salon 422', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 2', 25),
 ('Salon 423', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 3', 25),
 ('Salon 424', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 4', 25),
 ('Salon 425', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 5', 25),
 ('Salon 426', 'Salon de clases', 'El edificio numero 4 en el piso 2 en el salon de clases 6', 25),
+
 ('Salon 431', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 1', 25),
 ('Salon 432', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 2', 25),
 ('Salon 433', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 3', 25),
 ('Salon 434', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 4', 25),
 ('Salon 435', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 5', 25),
 ('Salon 436', 'Salon de clases', 'El edificio numero 4 en el piso 3 en el salon de clases 6', 25),
+
 ('Salon 441', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 1', 25),
 ('Salon 442', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 2', 25),
 ('Salon 443', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 3', 25),
 ('Salon 444', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 4', 25),
 ('Salon 445', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 5', 25),
 ('Salon 446', 'Salon de clases', 'El edificio numero 4 en el piso 4 en el salon de clases 6', 25),
+
 ('Auditorio Indigo', 'Auditorio', 'Bloque 1 (junto a la cafeteria principal del primer piso)', 110),
 ('Auditorio Magenta', 'Auditorio', 'Bloque 1 (subiendo las escaleras del ala este en el segundo piso)', 85),
 ('Auditorio Verde', 'Auditorio', 'Bloque 1 (al fondo del pasillo central del primer piso)', 98),
@@ -142,6 +153,10 @@ INSERT INTO instalacion (nombre, tipo, ubicacion, capacidad) VALUES
 ('Auditorio Purpura', 'Auditorio', 'Bloque 2 (al lado oeste del piso 2)', 77),
 ('Auditorio Cyan', 'Auditorio', 'Bloque 2 (frente a los ascensores del segundo piso)', 105),
 ('Biblioteca Central', 'Biblioteca', 'Bloque 1 en el piso 1 al lado norte', 50);
+
+-- =======================
+--  TABLA EVENTO (CORREGIDA)
+-- =======================
 
 CREATE TABLE evento (
   id_evento SERIAL PRIMARY KEY,
@@ -151,12 +166,10 @@ CREATE TABLE evento (
   hora_inicio TIME NOT NULL,
   hora_fin TIME NOT NULL,
   estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
-  id_usuario_organizador INT REFERENCES usuario(id_usuario),
-  -- aval ahora se almacena por usuario-evento en la tabla evento_organizador
-  -- (si quiere mantener información histórica, agregue migración para mover datos existentes)
-  
-  
+  id_usuario_organizador INT REFERENCES usuario(id_usuario)
 );
+
+-- =======================
 
 CREATE TABLE organizacion_externa (
   id_organizacion SERIAL PRIMARY KEY,
@@ -207,7 +220,7 @@ CREATE TABLE evento_instalacion (
   FOREIGN KEY (id_instalacion) REFERENCES instalacion(id_instalacion) ON DELETE CASCADE
 );
 
--- Tabla para relación entre Evento y Usuario que almacena aval por cada usuario participante (organizador/coorganizador)
+-- Tabla para relación entre Evento y Usuario + aval y rol
 CREATE TABLE evento_organizador (
   id_evento_organizador SERIAL PRIMARY KEY,
   id_evento INT NOT NULL,
@@ -241,7 +254,7 @@ BEFORE INSERT OR UPDATE ON evento
 FOR EACH ROW
 EXECUTE FUNCTION validar_organizador_evento();
 
--- 1.1) El coorganizador no puede ser el mismo que el organizador principal
+-- 1.1) Coorganizador no puede ser igual al organizador
 CREATE OR REPLACE FUNCTION validar_coorganizador_evento()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -251,7 +264,6 @@ BEGIN
   FROM evento
   WHERE id_evento = NEW.id_evento;
 
-  -- Si se intenta insertar la misma persona como coorganizador que el organizador principal, prohibir
   IF v_id_organizador = NEW.id_usuario AND NEW.rol = 'COORGANIZADOR' THEN
     RAISE EXCEPTION 'El coorganizador no puede ser el mismo que el organizador principal del evento';
   END IF;
@@ -282,7 +294,7 @@ BEFORE INSERT OR UPDATE ON evaluacion
 FOR EACH ROW
 EXECUTE FUNCTION validar_secretaria_evaluacion();
 
--- 3) Al insertar evaluación, crear notificación automática al organizador
+-- 3) Crear notificación automática cuando hay evaluación
 CREATE OR REPLACE FUNCTION crear_notificacion_evaluacion()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -290,10 +302,15 @@ DECLARE
   v_estado TEXT;
 BEGIN
   SELECT id_usuario_organizador INTO v_id_usuario FROM evento WHERE id_evento = NEW.id_evento;
+  
   v_estado := NEW.estado;
+
   INSERT INTO notificacion (id_evaluacion, mensaje)
-  VALUES (NEW.id_evaluacion,
-          'El evento ha sido ' || v_estado || ' por la Secretaría Académica.');
+  VALUES (
+      NEW.id_evaluacion,
+      'El evento ha sido ' || v_estado || ' por la Secretaría Académica.'
+  );
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

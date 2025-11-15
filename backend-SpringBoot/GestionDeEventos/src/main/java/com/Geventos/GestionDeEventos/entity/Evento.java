@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 @Table(name = "evento")
 @Data
-@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "instaladores", "organizadores", "instalaciones" })
+@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "organizadores", "instalaciones" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evento {

@@ -242,7 +242,7 @@ public class EventoService {
     @Transactional
     private void manejarOrganizadores(Long idEvento, java.util.List<com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest> organizadores, Long idOrganizadorPrincipal) {
         // Eliminar registros previos
-        eventoOrganizadorRepository.deleteByEventoId(idEvento);
+        eventoOrganizadorRepository.deleteByEvento_IdEvento(idEvento);
 
         if (organizadores == null || organizadores.isEmpty()) {
             throw new IllegalArgumentException("Debe enviar al menos el organizador principal en 'organizadores'");
@@ -348,7 +348,7 @@ public class EventoService {
 
     @Transactional(readOnly = true)
     public java.util.Optional<String> findAvalPdfByEventoAndUsuario(Long idEvento, Long idUsuario) {
-        return eventoOrganizadorRepository.findByEventoId(idEvento).stream()
+        return eventoOrganizadorRepository.findByEvento_IdEvento(idEvento).stream()
                 .filter(eo -> eo.getUsuario() != null && eo.getUsuario().getIdUsuario().equals(idUsuario))
                 .map(eo -> eo.getAvalPdf())
                 .findFirst();
