@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { EventosApiService, EventoDTO, ParticipacionDetalleDTO } from '../services/eventos.api.service';
+import { EventosApiService, EventoDTO, ParticipacionDetalleDTO, EventoOrganizadorResponse } from '../services/eventos.api.service';
 import { API_BASE_URL } from '../config/api.config';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { InstalacionesApiService, InstalacionDTO } from '../services/instalaciones.api.service';
@@ -22,6 +22,14 @@ type OrganizerExtended = UsuarioDTO & {
   };
 };
 
+// Organizador con su información completa y aval
+interface OrganizadorDetallado {
+  usuario: OrganizerExtended | null;
+  avalPdf: string;
+  tipoAval: string;
+  rol: string;
+}
+
 @Component({
   selector: 'app-detalle-aprob-event',
   standalone: true,
@@ -34,6 +42,7 @@ export class DetalleAprobEvent implements OnInit {
   instalacionesList: InstalacionDTO[] = [];
   coorganizadoresList: string[] = [];
   organizerInfo: OrganizerExtended | null = null;
+  organizadoresDetallados: OrganizadorDetallado[] = [];
   participacionesDetailed: Array<{ original: ParticipacionDetalleDTO; org?: OrganizacionExternaDTO | null }> = [];
   loading = false;
   error: string | null = null;
@@ -110,6 +119,30 @@ export class DetalleAprobEvent implements OnInit {
             }
           });
         }
+
+        // Cargar información detallada de todos los organizadores con sus avales
+        this.organizadoresDetallados = [];
+        (e.organizadores || []).forEach((org) => {
+          const entry: OrganizadorDetallado = {
+            usuario: null,
+            avalPdf: org.avalPdf || '',
+            tipoAval: org.tipoAval || '',
+            rol: org.rol || ''
+          };
+          this.organizadoresDetallados.push(entry);
+          
+          if (org.idUsuario) {
+            this.usuariosApi.getById(org.idUsuario).subscribe({
+              next: (u) => {
+                entry.usuario = u;
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.warn('No se pudo cargar usuario organizador id=', org.idUsuario, err);
+              }
+            });
+          }
+        });
 
         // Cargar detalles de participaciones (organización y certificado ya presente en original)
         this.participacionesDetailed = [];

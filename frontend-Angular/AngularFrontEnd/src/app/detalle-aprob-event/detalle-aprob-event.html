@@ -65,24 +65,48 @@
                     <li *ngIf="(instalacionesList || []).length === 0" class="text-muted">No hay instalaciones cargadas</li>
                   </ul>
                 </li>
-                <li class="list-group-item">
-                  <strong>Coorganizadores:</strong>
-                  <span *ngIf="(coorganizadoresList || []).length > 0">{{ coorganizadoresList.join(', ') }}</span>
-                  <span *ngIf="(coorganizadoresList || []).length === 0" class="text-muted">No hay coorganizadores asociados</span>
-                </li>
-                <li class="list-group-item"><strong>Tipo Aval:</strong> {{ evento.tipoAval || '—' }}</li>
               </ul>
             </div>
           </div>
 
           <div class="mb-3">
-            <h5>Aval</h5>
-            <p>
-              <button *ngIf="evento.avalPdf" class="btn btn-sm btn-outline-primary" (click)="openPdf(evento.avalPdf)">
-                Ver/Descargar aval
-              </button>
-              <span *ngIf="!evento.avalPdf" class="text-muted">No disponible</span>
-            </p>
+            <h5>Organizadores y Avales</h5>
+            <div *ngIf="organizadoresDetallados.length === 0" class="text-muted">
+              No hay información de organizadores con avales
+            </div>
+            <div *ngFor="let org of organizadoresDetallados" class="card mb-2">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="mb-2">
+                      <span class="badge bg-primary">{{ org.rol }}</span>
+                      {{ org.usuario?.nombre || 'Cargando...' }}
+                    </h6>
+                    <p class="mb-1"><strong>Correo:</strong> {{ org.usuario?.correo || '—' }}</p>
+                    
+                    <!-- Información de estudiante -->
+                    <div *ngIf="org.usuario?.codigoEstudiantil || org.usuario?.programa || org.usuario?.estudiante">
+                      <p class="mb-0"><strong>Código:</strong> {{ org.usuario?.codigoEstudiantil || org.usuario?.estudiante?.codigoEstudiantil || '—' }}</p>
+                      <p class="mb-0"><strong>Programa:</strong> {{ org.usuario?.programa || org.usuario?.estudiante?.programa || '—' }}</p>
+                    </div>
+                    
+                    <!-- Información de docente -->
+                    <div *ngIf="org.usuario?.cargo || org.usuario?.unidadAcademica || org.usuario?.docente">
+                      <p class="mb-0"><strong>Cargo:</strong> {{ org.usuario?.cargo || org.usuario?.docente?.cargo || '—' }}</p>
+                      <p class="mb-0"><strong>Unidad Académica:</strong> {{ org.usuario?.unidadAcademica || org.usuario?.docente?.unidadAcademica || '—' }}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Tipo de Aval:</strong> {{ org.tipoAval || '—' }}</p>
+                    <button *ngIf="org.avalPdf" class="btn btn-sm btn-outline-primary" (click)="openPdf(org.avalPdf)">
+                      <i class="ri-file-pdf-line"></i> Ver/Descargar Aval
+                    </button>
+                    <span *ngIf="!org.avalPdf" class="text-muted">Sin aval</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div *ngIf="(participacionesDetailed || []).length">
