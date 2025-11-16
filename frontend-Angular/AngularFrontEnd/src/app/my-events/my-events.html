@@ -135,6 +135,11 @@
         <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
         
         <div class="event-actions">
+          <button *ngIf="canSendToValidation(event)" 
+                  class="btn btn-primary btn-sm" 
+                  (click)="openConfirmModal(event)">
+            Enviar a Validación
+          </button>
           <button *ngIf="canEdit(event)" 
                   class="btn btn-secondary btn-sm" 
                   (click)="editEvent(event)">

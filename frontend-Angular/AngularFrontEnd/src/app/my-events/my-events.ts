@@ -92,14 +92,9 @@ export class MyEventsComponent implements OnInit {
   }
 
   private mapEventoWithEstado(evento: EventoDTO): EventoDTO {
-    // Determinar el estado del evento basado en la información disponible
-    // Si el evento tiene una evaluación, usar su estado
-    // Si no, asumir que es borrador
-    let estado: 'Borrador' | 'Pendiente' | 'Aprobado' | 'Rechazado' = 'Borrador';
-    
-    // Aquí puedes agregar lógica adicional para determinar el estado real
-    // basado en campos del evento o llamadas adicionales a la API
-    // Por ejemplo, si el evento tiene un campo 'estado' o 'evaluacion'
+    // Usar el estado que viene del backend, o 'Borrador' por defecto
+    const estado: 'Borrador' | 'Pendiente' | 'Aprobado' | 'Rechazado' = 
+      (evento.estado as 'Borrador' | 'Pendiente' | 'Aprobado' | 'Rechazado') || 'Borrador';
     
     return {
       ...evento,
@@ -213,11 +208,11 @@ export class MyEventsComponent implements OnInit {
   }
 
   canDelete(evento: EventoDTO): boolean {
-    return evento.estado === 'Borrador';
+    return evento.estado === 'Borrador' || evento.estado === 'Rechazado';
   }
 
   canSendToValidation(evento: EventoDTO): boolean {
-    return evento.estado === 'Borrador';
+    return evento.estado === 'Borrador' || evento.estado === 'Rechazado';
   }
 
   getEstadoBadgeClass(estado: string): string {

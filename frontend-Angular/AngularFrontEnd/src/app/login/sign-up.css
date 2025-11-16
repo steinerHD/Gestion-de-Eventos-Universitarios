@@ -96,12 +96,46 @@ body {
   text-align: center;
   transition: border-color 0.2s, box-shadow 0.2s;
   width: 350px;
+  max-width: 100%;
 }
 
-.form-control:focus {
+.form-select {
+  border-radius: 0.5rem;
+  background: #F4FFFD;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 350px;
+  max-width: 100%;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 35px;
+}
+
+.form-control:focus,
+.form-select:focus {
   border-color: #3BE5E6;
   background: #F4FFFD;
   box-shadow: 0 0 0 2px #2563eb22;
+}
+
+.input-group {
+  display: flex;
+  width: 350px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.input-group .form-control {
+  flex: 1;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 ::placeholder {
@@ -445,6 +479,19 @@ label, p, .label-status, .status {
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+/* Estilos para el modal de programas */
+.program-hover {
+  transition: background-color 0.2s ease;
+}
+
+.program-hover:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.program-item {
+  user-select: none;
 }
 
 

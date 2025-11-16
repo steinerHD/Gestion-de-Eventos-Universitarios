@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -13,7 +13,7 @@ import { notyf } from '../app';
 @Component({
   selector: 'app-sign-up',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   templateUrl: './sign-up.html',
   styleUrls: ['./sign-up.css']
 })
@@ -26,6 +26,87 @@ export class SignUpComponent {
   @Input() formGroup!: FormGroup;
   @Output() onSubmit = new EventEmitter<void>();
   @Output() goToSignIn = new EventEmitter<void>();
+
+  // Modal de selección de programa
+  showProgramModal: boolean = false;
+  searchProgram: string = '';
+  
+  // Listas de opciones
+  unidadesAcademicas: string[] = [
+    'Comunicación Social, Periodismo y Medios Digitales',
+    'Ciencias Humanas y Artes',
+    'Ingeniería',
+    'Arquitectura, Urbanismo y Diseño',
+    'Administración',
+    'Instituto de Estudios para la Sostenibilidad'
+  ];
+
+  facultades: string[] = [
+    'Facultad de Comunicación Social, Periodismo y Medios Digitales',
+    'Facultad de Ciencias Humanas y Artes',
+    'Facultad de Ingeniería',
+    'Facultad de Arquitectura, Urbanismo y Diseño',
+    'Facultad de Administración',
+    'Instituto de Estudios para la Sostenibilidad'
+  ];
+
+  programasPorFacultad: { [key: string]: string[] } = {
+    'Comunicación Social, Periodismo y Medios Digitales': [
+      'Cine y Comunicación Digital',
+      'Comunicación Social - Periodismo',
+      'Publicidad',
+      'Publicidad en Medios Digitales (virtual)'
+    ],
+    'Ciencias Humanas y Artes': [
+      'Diseño Gráfico',
+      'Diseño Industrial',
+      'Licenciatura en Artes y Humanidades',
+      'Psicología'
+    ],
+    'Ingeniería': [
+      'Ingeniería Biomédica',
+      'Ingeniería Civil',
+      'Ingeniería de Sistemas',
+      'Ingeniería Eléctrica',
+      'Ingeniería Electrónica',
+      'Ingeniería Industrial',
+      'Ingeniería Mecánica',
+      'Ingeniería Mecatrónica',
+      'Ingeniería Multimedia',
+      'Ingeniería Química'
+    ],
+    'Arquitectura, Urbanismo y Diseño': [
+      'Arquitectura'
+    ],
+    'Administración': [
+      'Administración Ambiental',
+      'Administración de Empresas',
+      'Banca y Finanzas Internacionales',
+      'Contaduría Pública',
+      'Economía',
+      'Mercadeo Global (virtual)',
+      'Mercadeo y Negocios Internacionales',
+      'Negocios Internacionales (virtual)',
+      'Tecnología en Desarrollo de Software (UAOTEC)',
+      'Tecnología en Gestión de Redes y Telecomunicaciones (UAOTEC)'
+    ]
+  };
+
+  // Obtener todos los programas en un solo array
+  get todosLosProgramas(): string[] {
+    return Object.values(this.programasPorFacultad).flat();
+  }
+
+  // Programas filtrados por búsqueda
+  get programasFiltrados(): string[] {
+    if (!this.searchProgram.trim()) {
+      return this.todosLosProgramas;
+    }
+    const search = this.searchProgram.toLowerCase();
+    return this.todosLosProgramas.filter(prog => 
+      prog.toLowerCase().includes(search)
+    );
+  }
 
   submit() {
     this.onSubmit.emit();
@@ -64,10 +145,10 @@ export class SignUpComponent {
 
       if (type === 'Docente') {
         academicUnit?.setValidators([Validators.required]);
-        cargo?.setValidators([Validators.required]);
+        cargo?.setValidators([Validators.required, forbidDangerousContent(this.inputValidation)]);
       } else if (type === 'Estudiante') {
         program?.setValidators([Validators.required]);
-        codigoEstudiantil?.setValidators([Validators.required]);
+        codigoEstudiantil?.setValidators([Validators.required, Validators.pattern(/^\d+$/)]); // Solo números
       } else if (type === 'Secretaria') {
         faculty?.setValidators([Validators.required]);
       }
@@ -162,5 +243,19 @@ export class SignUpComponent {
     });
 
     return dangerousFields;
+  }
+
+  openProgramModal(): void {
+    this.showProgramModal = true;
+    this.searchProgram = '';
+  }
+
+  closeProgramModal(): void {
+    this.showProgramModal = false;
+  }
+
+  selectProgram(programa: string): void {
+    this.signUpForm.patchValue({ program: programa });
+    this.closeProgramModal();
   }
 }

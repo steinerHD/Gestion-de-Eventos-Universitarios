@@ -89,25 +89,27 @@
           placeholder="Escribe tu cargo"
           formControlName="cargo"
           required>
+        <div *ngIf="signUpForm.get('cargo')?.invalid && (signUpForm.get('cargo')?.dirty || signUpForm.get('cargo')?.touched)" class="invalid-feedback d-block">
+          El cargo es obligatorio.
+        </div>
         <div *ngIf="signUpForm.get('cargo')?.hasError('dangerousContent') && (signUpForm.get('cargo')?.dirty || signUpForm.get('cargo')?.touched)" class="invalid-feedback d-block">
           {{ signUpForm.get('cargo')?.errors?.['dangerousContent']?.message || 'El cargo contiene caracteres no permitidos.' }}
         </div>
-        <label for="signupAcademic" class="form-label">Unidad académica</label>
-        <input
-          type="text"
-          class="form-control"
+        
+        <label for="signupAcademic" class="form-label mt-3">Unidad académica</label>
+        <select
+          class="form-select"
           [ngClass]="{'is-invalid': signUpForm.get('academicUnit')?.invalid && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)}"
           id="signupAcademic"
-          placeholder="Escribe tu unidad académica"
           formControlName="academicUnit"
           required>
+          <option value="" disabled>Selecciona tu unidad académica</option>
+          <option *ngFor="let unidad of unidadesAcademicas" [value]="unidad">{{ unidad }}</option>
+        </select>
         <div
           *ngIf="signUpForm.get('academicUnit')?.invalid && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)"
           class="invalid-feedback d-block">
           La unidad académica es obligatoria.
-        </div>
-        <div *ngIf="signUpForm.get('academicUnit')?.hasError('dangerousContent') && (signUpForm.get('academicUnit')?.dirty || signUpForm.get('academicUnit')?.touched)" class="invalid-feedback d-block">
-          {{ signUpForm.get('academicUnit')?.errors?.['dangerousContent']?.message || 'La unidad académica contiene caracteres no permitidos.' }}
         </div>
       </div>
 
@@ -118,48 +120,54 @@
           class="form-control"
           [ngClass]="{'is-invalid': signUpForm.get('codigoEstudiantil')?.invalid && (signUpForm.get('codigoEstudiantil')?.dirty || signUpForm.get('codigoEstudiantil')?.touched)}"
           id="signupCodigoEstudiantil"
-          placeholder="Escribe tu código estudiantil"
+          placeholder="Escribe tu código estudiantil (solo números)"
           formControlName="codigoEstudiantil"
           required>
-        <div *ngIf="signUpForm.get('codigoEstudiantil')?.hasError('dangerousContent') && (signUpForm.get('codigoEstudiantil')?.dirty || signUpForm.get('codigoEstudiantil')?.touched)" class="invalid-feedback d-block">
-          {{ signUpForm.get('codigoEstudiantil')?.errors?.['dangerousContent']?.message || 'El código contiene caracteres no permitidos.' }}
+        <div *ngIf="signUpForm.get('codigoEstudiantil')?.invalid && (signUpForm.get('codigoEstudiantil')?.dirty || signUpForm.get('codigoEstudiantil')?.touched)" class="invalid-feedback d-block">
+          <span *ngIf="signUpForm.get('codigoEstudiantil')?.hasError('required')">El código estudiantil es obligatorio.</span>
+          <span *ngIf="signUpForm.get('codigoEstudiantil')?.hasError('pattern')">El código debe contener solo números.</span>
         </div>
-        <label for="signupProgram" class="form-label">Programa</label>
-        <input
-          type="text"
-          class="form-control"
-          [ngClass]="{'is-invalid': signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)}"
-          id="signupProgram"
-          placeholder="Escribe tu programa"
-          formControlName="program"
-          required>
+        
+        <label for="signupProgram" class="form-label mt-3">Programa</label>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            [ngClass]="{'is-invalid': signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)}"
+            id="signupProgram"
+            placeholder="Selecciona tu programa"
+            formControlName="program"
+            readonly
+            required>
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary" 
+            (click)="openProgramModal()">
+            Buscar
+          </button>
+        </div>
         <div
           *ngIf="signUpForm.get('program')?.invalid && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)"
           class="invalid-feedback d-block">
           El programa es obligatorio.
         </div>
-        <div *ngIf="signUpForm.get('program')?.hasError('dangerousContent') && (signUpForm.get('program')?.dirty || signUpForm.get('program')?.touched)" class="invalid-feedback d-block">
-          {{ signUpForm.get('program')?.errors?.['dangerousContent']?.message || 'El programa contiene caracteres no permitidos.' }}
-        </div>
       </div>
 
       <div class="mb-3" *ngIf="signUpForm.get('userType')?.value === 'Secretaria'">
         <label for="signupFaculty" class="form-label">Facultad</label>
-        <input
-          type="text"
-          class="form-control"
+        <select
+          class="form-select"
           [ngClass]="{'is-invalid': signUpForm.get('faculty')?.invalid && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)}"
           id="signupFaculty"
-          placeholder="Escribe tu facultad"
           formControlName="faculty"
           required>
+          <option value="" disabled>Selecciona tu facultad</option>
+          <option *ngFor="let facultad of facultades" [value]="facultad">{{ facultad }}</option>
+        </select>
         <div
           *ngIf="signUpForm.get('faculty')?.invalid && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)"
           class="invalid-feedback d-block">
           La facultad es obligatoria.
-        </div>
-        <div *ngIf="signUpForm.get('faculty')?.hasError('dangerousContent') && (signUpForm.get('faculty')?.dirty || signUpForm.get('faculty')?.touched)" class="invalid-feedback d-block">
-          {{ signUpForm.get('faculty')?.errors?.['dangerousContent']?.message || 'La facultad contiene caracteres no permitidos.' }}
         </div>
       </div>
 
@@ -213,3 +221,40 @@
     </a>
   </div>
 </div>
+
+<!-- Modal de selección de programa -->
+<div class="modal fade" [class.show]="showProgramModal" [style.display]="showProgramModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Selecciona tu programa académico</h5>
+        <button type="button" class="btn-close" (click)="closeProgramModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Buscar programa..."
+            [value]="searchProgram"
+            (input)="searchProgram = $any($event.target).value">
+        </div>
+        <div class="program-list" style="max-height: 400px; overflow-y: auto;">
+          <div *ngFor="let programa of programasFiltrados" 
+               class="program-item p-2 mb-2 border rounded program-hover" 
+               style="cursor: pointer;"
+               (click)="selectProgram(programa)">
+            {{ programa }}
+          </div>
+          <div *ngIf="programasFiltrados.length === 0" class="text-center text-muted py-3">
+            No se encontraron programas con ese nombre
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProgramModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showProgramModal" *ngIf="showProgramModal"></div>
