@@ -174,43 +174,6 @@ export class AprobEvent implements OnInit {
     this.router.navigate(['/eventos/editar', evento.idEvento]);
   }
 
-  approveEvent(evento: EventoDTO): void {
-    if (!evento.idEvento) return;
-    if (!confirm(`¿Deseas aprobar el evento "${evento.titulo}"?`)) return;
-    this.eventosApiService.approve(evento.idEvento).subscribe({
-      next: () => {
-        evento.estado = 'Aprobado';
-        this.filterEventsByStatus();
-        notyf.success('Evento aprobado correctamente.');
-      },
-      error: (err) => {
-        console.error('Error aprobando evento:', err);
-        if (!(err && (err as any)._notyfHandled)) {
-          notyf.error('No se pudo aprobar el evento. Revisa la consola.');
-        }
-      }
-    });
-  }
-
-  rejectEvent(evento: EventoDTO): void {
-    if (!evento.idEvento) return;
-    if (!confirm(`¿Deseas rechazar el evento "${evento.titulo}"?`)) return;
-    this.eventosApiService.reject(evento.idEvento).subscribe({
-      next: () => {
-        evento.estado = 'Rechazado';
-        this.filterEventsByStatus();
-        notyf.success('Evento rechazado correctamente.');
-      },
-      error: (err) => {
-        console.error('Error rechazando evento:', err);
-        if (!(err && (err as any)._notyfHandled)) {
-          notyf.error('No se pudo rechazar el evento. Revisa la consola.');
-        }
-      }
-    });
-  }
-
-
   deleteEvent(evento: EventoDTO): void {
     if (!evento.idEvento) return;
     

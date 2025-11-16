@@ -1,7 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { EventosApiService, EventoDTO, ParticipacionDetalleDTO, EventoOrganizadorResponse } from '../services/eventos.api.service';
+import { EvaluacionesApiService, EvaluacionRequest } from '../services/evaluaciones.api.service';
+import { AuthService } from '../services/auth.service';
 import { API_BASE_URL } from '../config/api.config';
 import { OrganizacionesApiService, OrganizacionExternaDTO } from '../services/organizaciones.api.service';
 import { InstalacionesApiService, InstalacionDTO } from '../services/instalaciones.api.service';
@@ -33,7 +36,7 @@ interface OrganizadorDetallado {
 @Component({
   selector: 'app-detalle-aprob-event',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './detalle-aprob-event.html',
   styleUrls: ['./detalle-aprob-event.css']
 })
@@ -46,10 +49,21 @@ export class DetalleAprobEvent implements OnInit {
   participacionesDetailed: Array<{ original: ParticipacionDetalleDTO; org?: OrganizacionExternaDTO | null }> = [];
   loading = false;
   error: string | null = null;
+  
+  // Evaluación
+  currentUser: any = null;
+  showApproveModal = false;
+  showRejectModal = false;
+  actaFile: File | null = null;
+  actaFileName: string = '';
+  justificacion: string = '';
+  submittingEvaluation = false;
 
   constructor(
     private route: ActivatedRoute,
     private eventosApi: EventosApiService,
+    private evaluacionesApi: EvaluacionesApiService,
+    private authService: AuthService,
     private instalacionesApi: InstalacionesApiService,
     private usuariosApi: UsuariosApiService,
     private router: Router,
@@ -58,6 +72,14 @@ export class DetalleAprobEvent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Cargar usuario actual
+    this.authService.getUserProfile().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => console.error('Error al obtener perfil:', err)
+    });
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (!idParam) {
       this.error = 'ID de evento no proporcionado';
@@ -185,5 +207,156 @@ export class DetalleAprobEvent implements OnInit {
     } catch (err) {
       console.error('No se pudo abrir el PDF:', err);
     }
+  }
+
+  // Métodos de evaluación
+  openApproveModal(): void {
+    if (!this.evento || this.evento.estado !== 'Pendiente') {
+      notyf.error('Solo se pueden aprobar eventos en estado Pendiente');
+      return;
+    }
+    this.showApproveModal = true;
+    this.actaFile = null;
+    this.actaFileName = '';
+  }
+
+  openRejectModal(): void {
+    if (!this.evento || this.evento.estado !== 'Pendiente') {
+      notyf.error('Solo se pueden rechazar eventos en estado Pendiente');
+      return;
+    }
+    this.showRejectModal = true;
+    this.justificacion = '';
+  }
+
+  closeApproveModal(): void {
+    this.showApproveModal = false;
+    this.actaFile = null;
+    this.actaFileName = '';
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.justificacion = '';
+  }
+
+  onActaFileSelected(event: any): void {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validar que sea PDF
+      if (file.type !== 'application/pdf') {
+        notyf.error('Solo se permiten archivos PDF');
+        event.target.value = '';
+        return;
+      }
+      // Validar tamaño (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        notyf.error('El archivo no debe superar 10MB');
+        event.target.value = '';
+        return;
+      }
+      this.actaFile = file;
+      this.actaFileName = file.name;
+    }
+  }
+
+  aprobarEvento(): void {
+    if (!this.actaFile) {
+      notyf.error('Debe adjuntar el acta del comité en formato PDF');
+      return;
+    }
+
+    if (!this.currentUser || !this.currentUser.idSecretaria) {
+      notyf.error('No se pudo identificar la secretaría');
+      return;
+    }
+
+    if (!this.evento || !this.evento.idEvento) {
+      notyf.error('No se pudo identificar el evento');
+      return;
+    }
+
+    this.submittingEvaluation = true;
+
+    // Primero subir el acta
+    this.evaluacionesApi.uploadActa(this.actaFile).subscribe({
+      next: (response) => {
+        // Crear la evaluación con el path del acta
+        const evaluacionRequest: EvaluacionRequest = {
+          estado: 'Aprobado',
+          actaPdf: response.path,
+          idEvento: this.evento!.idEvento!,
+          idSecretaria: this.currentUser.idSecretaria,
+          fecha: new Date().toISOString().split('T')[0]
+        };
+
+        this.evaluacionesApi.create(evaluacionRequest).subscribe({
+          next: () => {
+            notyf.success('Evento aprobado exitosamente');
+            this.submittingEvaluation = false;
+            this.closeApproveModal();
+            // Volver a la lista de eventos
+            this.router.navigate(['/aprobar-eventos']);
+          },
+          error: (err) => {
+            console.error('Error al crear evaluación:', err);
+            notyf.error('Error al aprobar el evento');
+            this.submittingEvaluation = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error al subir acta:', err);
+        notyf.error('Error al subir el acta. Intenta nuevamente.');
+        this.submittingEvaluation = false;
+      }
+    });
+  }
+
+  rechazarEvento(): void {
+    if (!this.justificacion || this.justificacion.trim() === '') {
+      notyf.error('Debe indicar una justificación para rechazar el evento');
+      return;
+    }
+
+    if (!this.currentUser || !this.currentUser.idSecretaria) {
+      notyf.error('No se pudo identificar la secretaría');
+      return;
+    }
+
+    if (!this.evento || !this.evento.idEvento) {
+      notyf.error('No se pudo identificar el evento');
+      return;
+    }
+
+    this.submittingEvaluation = true;
+
+    const evaluacionRequest: EvaluacionRequest = {
+      estado: 'Rechazado',
+      justificacion: this.justificacion.trim(),
+      idEvento: this.evento.idEvento,
+      idSecretaria: this.currentUser.idSecretaria,
+      fecha: new Date().toISOString().split('T')[0]
+    };
+
+    this.evaluacionesApi.create(evaluacionRequest).subscribe({
+      next: () => {
+        notyf.success('Evento rechazado');
+        this.submittingEvaluation = false;
+        this.closeRejectModal();
+        // Volver a la lista de eventos
+        this.router.navigate(['/aprobar-eventos']);
+      },
+      error: (err) => {
+        console.error('Error al crear evaluación:', err);
+        notyf.error('Error al rechazar el evento');
+        this.submittingEvaluation = false;
+      }
+    });
+  }
+
+  canEvaluate(): boolean {
+    return this.evento?.estado === 'Pendiente' && 
+           this.currentUser?.tipoUsuario === 'Secretaria';
   }
 }

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { EventosApiService, EventoDTO } from '../services/eventos.api.service';
 import { AuthService } from '../services/auth.service';
+import { EvaluacionesApiService, EvaluacionResponse } from '../services/evaluaciones.api.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { notyf } from '../app'; 
 
 
@@ -38,9 +40,21 @@ export class MyEventsComponent implements OnInit {
   showConfirmModal: boolean = false;
   eventToSend: EventoDTO | null = null;
 
+  // Modal para ver justificación de rechazo
+  showJustificacionModal: boolean = false;
+  justificacionTexto: string = '';
+
+  // Modal para ver acta de aprobación
+  showActaModal: boolean = false;
+  actaUrl: SafeResourceUrl | null = null;
+  actaUrlOriginal: string = ''; // Para descargas
+  loadingEvaluacion: boolean = false;
+
   constructor(
     private eventosApiService: EventosApiService,
     private authService: AuthService,
+    private evaluacionesApi: EvaluacionesApiService,
+    private sanitizer: DomSanitizer,
     private router: Router
   ) {}
   currentUser: any = null;
@@ -233,5 +247,83 @@ export class MyEventsComponent implements OnInit {
       case 'Rechazado': return 'event-card rejected';
       default: return 'event-card draft';
     }
+  }
+
+  verJustificacion(evento: EventoDTO): void {
+    if (!evento.idEvento) return;
+    
+    this.loadingEvaluacion = true;
+    this.evaluacionesApi.getByEvento(evento.idEvento).subscribe({
+      next: (evaluaciones) => {
+        this.loadingEvaluacion = false;
+        if (evaluaciones && evaluaciones.length > 0) {
+          // Tomar la primera evaluación (o la más reciente)
+          const evaluacion = evaluaciones[0];
+          this.justificacionTexto = evaluacion.justificacion || 'No se proporcionó justificación.';
+          this.showJustificacionModal = true;
+        } else {
+          notyf.error('No se encontró la evaluación para este evento.');
+        }
+      },
+      error: (err) => {
+        this.loadingEvaluacion = false;
+        console.error('Error al obtener evaluación:', err);
+        notyf.error('Error al cargar la justificación del rechazo.');
+      }
+    });
+  }
+
+  closeJustificacionModal(): void {
+    this.showJustificacionModal = false;
+    this.justificacionTexto = '';
+  }
+
+  verActa(evento: EventoDTO): void {
+    if (!evento.idEvento) return;
+    
+    this.loadingEvaluacion = true;
+    this.evaluacionesApi.getByEvento(evento.idEvento).subscribe({
+      next: (evaluaciones) => {
+        this.loadingEvaluacion = false;
+        if (evaluaciones && evaluaciones.length > 0) {
+          const evaluacion = evaluaciones[0];
+          if (evaluacion.actaPdf) {
+            // Guardar URL original para descargas
+            this.actaUrlOriginal = evaluacion.actaPdf;
+            // El actaPdf es el path del archivo, sanitizarlo para el iframe
+            this.actaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(evaluacion.actaPdf);
+            this.showActaModal = true;
+          } else {
+            notyf.error('No se encontró el acta para este evento.');
+          }
+        } else {
+          notyf.error('No se encontró la evaluación para este evento.');
+        }
+      },
+      error: (err) => {
+        this.loadingEvaluacion = false;
+        console.error('Error al obtener evaluación:', err);
+        notyf.error('Error al cargar el acta de aprobación.');
+      }
+    });
+  }
+
+  closeActaModal(): void {
+    this.showActaModal = false;
+    this.actaUrl = null;
+    this.actaUrlOriginal = '';
+  }
+
+  descargarActa(): void {
+    if (!this.actaUrlOriginal) return;
+    
+    // Crear un link temporal para descargar
+    const link = document.createElement('a');
+    link.href = this.actaUrlOriginal;
+    link.download = this.actaUrlOriginal.split('/').pop() || 'acta.pdf';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

@@ -98,6 +98,14 @@ public class EvaluacionService {
 
         Evaluacion savedEvaluacion = evaluacionRepository.save(evaluacion);
 
+        // Actualizar el estado del evento según la evaluación
+        if (evaluacion.getEstado() == Evaluacion.EstadoEvaluacion.Aprobado) {
+            evento.setEstado(Evento.EstadoEvento.Aprobado);
+        } else if (evaluacion.getEstado() == Evaluacion.EstadoEvaluacion.Rechazado) {
+            evento.setEstado(Evento.EstadoEvento.Rechazado);
+        }
+        eventoRepository.save(evento);
+
         crearNotificacionEvaluacion(savedEvaluacion);
 
         return evaluacionMapper.toResponse(savedEvaluacion);

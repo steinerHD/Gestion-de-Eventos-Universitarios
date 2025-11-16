@@ -16,22 +16,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/avales")
 @CrossOrigin(origins = "*")
 public class FileUploadController {
 
     // Path on the filesystem where files will be stored. Can be configured in application.properties
-    // Example values (absolute recommended):
-    // aval.upload.path=C:/Projects/planicash/.../frontend-Angular/AngularFrontEnd/src/assets/uploads/avales
-    // aval.upload.path=uploads/avales
     @Value("${aval.upload.path:uploads/avales}")
-    private String uploadDirProperty;
+    private String avalUploadDirProperty;
+
+    @Value("${acta.upload.path:uploads/actas}")
+    private String actaUploadDirProperty;
 
     // URL prefix stored in DB (keeps frontend expectations)
-    private static final String URL_PREFIX = "assets/uploads/avales";
+    private static final String AVAL_URL_PREFIX = "assets/uploads/avales";
+    private static final String ACTA_URL_PREFIX = "assets/uploads/actas";
 
-    @PostMapping(consumes = {"multipart/form-data"})
+    @PostMapping("/api/avales")
     public ResponseEntity<Map<String, String>> uploadAval(@RequestParam("file") MultipartFile file) {
+        return uploadFile(file, avalUploadDirProperty, AVAL_URL_PREFIX, "Aval");
+    }
+
+    @PostMapping("/api/actas")
+    public ResponseEntity<Map<String, String>> uploadActa(@RequestParam("file") MultipartFile file) {
+        return uploadFile(file, actaUploadDirProperty, ACTA_URL_PREFIX, "Acta");
+    }
+
+    private ResponseEntity<Map<String, String>> uploadFile(
+            MultipartFile file, 
+            String uploadDirProperty, 
+            String urlPrefix,
+            String fileType) {
         try {
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "No file provided"));
@@ -54,9 +67,9 @@ public class FileUploadController {
             Path target = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), target);
 
-            String storedPath = URL_PREFIX + "/" + filename; // e.g. assets/uploads/avales/123_file.pdf
+            String storedPath = urlPrefix + "/" + filename;
 
-            System.out.println("[DEBUG] Aval guardado en filesystem: " + target.toAbsolutePath());
+            System.out.println("[DEBUG] " + fileType + " guardado en filesystem: " + target.toAbsolutePath());
 
             Map<String, String> resp = new HashMap<>();
             resp.put("path", storedPath);

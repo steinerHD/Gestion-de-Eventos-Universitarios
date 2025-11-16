@@ -212,7 +212,7 @@ CREATE TABLE evaluacion (
   estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente')),
   fecha DATE NOT NULL,
   justificacion TEXT,
-  acta_pdf BYTEA
+  acta_pdf TEXT
 );
 
 CREATE TABLE notificacion (

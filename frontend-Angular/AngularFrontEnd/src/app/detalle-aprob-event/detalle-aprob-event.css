@@ -18,3 +18,32 @@
 .btn-outline-secondary i {
   margin-right: 6px;
 }
+
+/* Modales de evaluación */
+.modal.show {
+  display: block !important;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}

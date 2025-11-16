@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.Geventos.GestionDeEventos.serializer.TruncatedBase64Serializer;
 
 @Entity
 @Table(name = "evaluacion")
@@ -40,10 +38,8 @@ public class Evaluacion {
     @Column(name = "justificacion", columnDefinition = "TEXT")
     private String justificacion;
     
-    @Lob
-    @Column(name = "acta_pdf", columnDefinition = "bytea")
-    @JsonSerialize(using = TruncatedBase64Serializer.class)
-    private byte[] actaPdf;
+    @Column(name = "acta_pdf", columnDefinition = "TEXT")
+    private String actaPdf;
     
     @OneToMany(mappedBy = "evaluacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notificacion> notificaciones;

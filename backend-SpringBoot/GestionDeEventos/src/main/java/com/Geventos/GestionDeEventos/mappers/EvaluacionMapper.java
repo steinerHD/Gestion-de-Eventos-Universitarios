@@ -7,8 +7,6 @@ import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
-
 @Component
 public class EvaluacionMapper {
 
@@ -17,11 +15,7 @@ public class EvaluacionMapper {
         evaluacion.setFecha(request.getFecha());
         evaluacion.setEstado(request.getEstado());
         evaluacion.setJustificacion(request.getJustificacion());
-        if (request.getActaPdf() != null && !request.getActaPdf().isEmpty()) {
-            evaluacion.setActaPdf(Base64.getDecoder().decode(request.getActaPdf()));
-        } else {
-            evaluacion.setActaPdf(null);
-        }
+        evaluacion.setActaPdf(request.getActaPdf());
         evaluacion.setEvento(evento);
         evaluacion.setSecretaria(secretaria);
         return evaluacion;
@@ -33,8 +27,7 @@ public class EvaluacionMapper {
                 .fecha(evaluacion.getFecha())
                 .estado(evaluacion.getEstado())
                 .justificacion(evaluacion.getJustificacion())
-                .actaPdf(evaluacion.getActaPdf() != null ?
-                        Base64.getEncoder().encodeToString(evaluacion.getActaPdf()) : null)
+                .actaPdf(evaluacion.getActaPdf())
                 .idEvento(evaluacion.getEvento() != null ? evaluacion.getEvento().getIdEvento() : null)
                 .nombreEvento(evaluacion.getEvento() != null ? evaluacion.getEvento().getTitulo() : null)
                 .idSecretaria(evaluacion.getSecretaria() != null ? evaluacion.getSecretaria().getIdSecretaria() : null)

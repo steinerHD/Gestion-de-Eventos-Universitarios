@@ -45,12 +45,9 @@
         <p><strong>Hora fin:</strong> {{ event.horaFin }}</p>
 
         <div class="event-actions">
-          <button id='editarBtn' *ngIf="canEdit(event)" class="btn btn-secondary btn-sm" (click)="editEvent(event)">
-            Editar Evento
+          <button class="btn btn-info btn-sm" [routerLink]="['/eventos/detalle', event.idEvento]" aria-label="Ver detalles y evaluar">
+            <i class="ri-eye-line"></i> Ver y Evaluar
           </button>
-          <button class="btn btn-success btn-sm" (click)="approveEvent(event)">Aprobar</button>
-          <button class="btn btn-warning btn-sm" (click)="rejectEvent(event)">Rechazar</button>
-          <button class="btn btn-info btn-sm" [routerLink]="['/eventos/detalle', event.idEvento]" aria-label="Ver detalles">Ver</button>
         </div>
       </div>
     </div>

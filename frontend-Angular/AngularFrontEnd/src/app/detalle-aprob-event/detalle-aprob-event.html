@@ -137,8 +137,108 @@
               </div>
             </div>
           </div>
+
+          <!-- Botones de evaluación -->
+          <div *ngIf="canEvaluate()" class="mt-4 d-flex gap-3 justify-content-end">
+            <button class="btn btn-success" (click)="openApproveModal()">
+              <i class="ri-check-line"></i> Aprobar Evento
+            </button>
+            <button class="btn btn-danger" (click)="openRejectModal()">
+              <i class="ri-close-line"></i> Rechazar Evento
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal de Aprobación -->
+<div class="modal fade" [class.show]="showApproveModal" [style.display]="showApproveModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Aprobar Evento</h5>
+        <button type="button" class="btn-close" (click)="closeApproveModal()" [disabled]="submittingEvaluation"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>{{ evento?.titulo }}</strong></p>
+        <p class="text-muted">Para aprobar este evento, debe adjuntar el acta del comité en formato PDF.</p>
+        
+        <div class="mb-3">
+          <label for="actaFile" class="form-label">Acta del Comité (PDF) <span class="text-danger">*</span></label>
+          <input 
+            type="file" 
+            class="form-control" 
+            id="actaFile"
+            accept=".pdf"
+            (change)="onActaFileSelected($event)"
+            [disabled]="submittingEvaluation">
+          <small class="text-muted">Tamaño máximo: 10MB</small>
+          <div *ngIf="actaFileName" class="mt-2">
+            <span class="badge bg-success">
+              <i class="ri-file-pdf-line"></i> {{ actaFileName }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeApproveModal()" [disabled]="submittingEvaluation">
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-success" 
+          (click)="aprobarEvento()"
+          [disabled]="!actaFile || submittingEvaluation">
+          <span *ngIf="submittingEvaluation" class="spinner-border spinner-border-sm me-2"></span>
+          {{ submittingEvaluation ? 'Aprobando...' : 'Aprobar Evento' }}
+        </button>
+      </div>
+    </div>
   </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showApproveModal" *ngIf="showApproveModal"></div>
+
+<!-- Modal de Rechazo -->
+<div class="modal fade" [class.show]="showRejectModal" [style.display]="showRejectModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Rechazar Evento</h5>
+        <button type="button" class="btn-close" (click)="closeRejectModal()" [disabled]="submittingEvaluation"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>{{ evento?.titulo }}</strong></p>
+        <p class="text-muted">Indique una justificación clara para rechazar este evento.</p>
+        
+        <div class="mb-3">
+          <label for="justificacion" class="form-label">Justificación <span class="text-danger">*</span></label>
+          <textarea 
+            class="form-control" 
+            id="justificacion"
+            rows="5"
+            [(ngModel)]="justificacion"
+            placeholder="Escriba la justificación del rechazo..."
+            [disabled]="submittingEvaluation"
+            maxlength="500"></textarea>
+          <small class="text-muted">{{ justificacion.length }}/500 caracteres</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="submittingEvaluation">
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger" 
+          (click)="rechazarEvento()"
+          [disabled]="!justificacion || justificacion.trim() === '' || submittingEvaluation">
+          <span *ngIf="submittingEvaluation" class="spinner-border spinner-border-sm me-2"></span>
+          {{ submittingEvaluation ? 'Rechazando...' : 'Rechazar Evento' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showRejectModal" *ngIf="showRejectModal"></div>
