@@ -1,7 +1,7 @@
 <!-- Organizaciones seleccionadas -->
 <div class="selected-organizations" *ngIf="selectedOrganizations.length > 0">
   <div 
-    *ngFor="let org of selectedOrganizations" 
+    *ngFor="let org of selectedOrganizations; let i = index" 
     class="selected-org-item"
   >
     <div class="org-details">
@@ -12,20 +12,20 @@
       <div class="checkbox-group">
         <input 
           type="checkbox" 
-          id="participaRepresentante{{ org.idOrganizacion }}" 
+          id="participaRepresentante{{ i }}" 
           [checked]="getOrganizationData(org).participaRepresentante"
           (change)="onParticipationChange(org, $event)"
         >
-        <label>¿Participa el representante legal?</label>
+        <label for="participaRepresentante{{ i }}">¿Participa el representante legal?</label>
       </div>
       
       <!-- Campos del representante legal si no participa -->
       <div *ngIf="!getOrganizationData(org).participaRepresentante" class="representante-fields">
         <div class="field-group">
-          <label for="nombreRepresentante{{ org.idOrganizacion }}">Nombre del representante:</label>
+          <label for="nombreRepresentante{{ i }}">Nombre del representante:</label>
           <input 
             type="text" 
-            id="nombreRepresentante{{ org.idOrganizacion }}" 
+            id="nombreRepresentante{{ i }}" 
             [(ngModel)]="getOrganizationData(org).nombreRepresentante"
             placeholder="Nombre del representante..."
           >
@@ -40,7 +40,7 @@
             accept=".pdf" 
             (change)="onAvalFileSelected(org, $event)"
             #avalFileInput
-            id="avalFile{{ org.idOrganizacion }}"
+            id="avalFile{{ i }}"
             style="display: none;"
           >
           <button 

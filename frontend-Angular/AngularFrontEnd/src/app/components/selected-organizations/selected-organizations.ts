@@ -42,26 +42,48 @@ export class SelectedOrganizationsComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedOrganizations']) {
       console.log('🔄 SelectedOrganizationsComponent - selectedOrganizations changed:', this.selectedOrganizations);
+      
+      // Cuando se agregan nuevas organizaciones, aplicar datos iniciales si existen
+      if (this.initialOrganizationData && this.selectedOrganizations) {
+        this.selectedOrganizations.forEach(org => {
+          const orgId = String(org.idOrganizacion || (org as any).id);
+          const initialData = this.initialOrganizationData?.[orgId];
+          
+          if (initialData && !this.organizationData[orgId]) {
+            this.organizationData[orgId] = {
+              participaRepresentante: initialData.participaRepresentante ?? false,
+              nombreRepresentante: initialData.nombreRepresentante ?? '',
+              cedulaRepresentante: initialData.cedulaRepresentante ?? '',
+              avalFilePath: initialData.avalFilePath ?? '',
+              avalFileName: initialData.avalFileName ?? ''
+            };
+            console.log('✅ Datos iniciales aplicados para org', orgId, ':', this.organizationData[orgId]);
+          }
+        });
+      }
     }
-    // Merge any initial data into organizationData so UI shows pre-uploaded files
-    if (this.initialOrganizationData) {
+    
+    // También aplicar datos iniciales cuando initialOrganizationData cambia
+    if (changes['initialOrganizationData'] && this.initialOrganizationData) {
+      console.log('🔄 SelectedOrganizationsComponent - initialOrganizationData changed:', this.initialOrganizationData);
       for (const [orgId, data] of Object.entries(this.initialOrganizationData)) {
-        if (!this.organizationData[orgId]) this.organizationData[orgId] = {
-          participaRepresentante: false,
-          nombreRepresentante: '',
-          cedulaRepresentante: '',
-          avalFilePath: '',
-          avalFileName: ''
-        };
+        if (!this.organizationData[orgId]) {
+          this.organizationData[orgId] = {
+            participaRepresentante: false,
+            nombreRepresentante: '',
+            cedulaRepresentante: '',
+            avalFilePath: '',
+            avalFileName: ''
+          };
+        }
         // Only overwrite fields that are present in the provided initial data
         if (data.participaRepresentante !== undefined) this.organizationData[orgId].participaRepresentante = data.participaRepresentante;
         if (data.nombreRepresentante !== undefined) this.organizationData[orgId].nombreRepresentante = data.nombreRepresentante;
         if (data.cedulaRepresentante !== undefined) this.organizationData[orgId].cedulaRepresentante = data.cedulaRepresentante;
         if (data.avalFilePath !== undefined) this.organizationData[orgId].avalFilePath = data.avalFilePath;
         if (data.avalFileName !== undefined) this.organizationData[orgId].avalFileName = data.avalFileName;
+        console.log('✅ Datos iniciales aplicados para org', orgId, ':', this.organizationData[orgId]);
       }
-      // Clear initialOrganizationData after merge to avoid reapplying
-      this.initialOrganizationData = null;
     }
   }
 

@@ -84,9 +84,6 @@ export class AddEventComponent {
       next: (user) => {
         this.currentUser = user;
         console.log('?? Usuario logueado:', this.currentUser);
-        if (user) {
-          this.addOrganizerAsMain(user);
-        }
       },
       error: (error) => {
         console.error('? Error al obtener usuario:', error);
@@ -115,6 +112,21 @@ export class AddEventComponent {
         this.editingEventId = id;
         this.loadEventForEdit(id);
       }
+    } else {
+      // Solo en modo creación agregamos el currentUser como organizador principal
+      if (this.currentUser) {
+        this.addOrganizerAsMain(this.currentUser);
+      } else {
+        // Si currentUser aún no está disponible, esperar a que se cargue
+        const subscription = this.authService.getUserProfile().subscribe({
+          next: (user) => {
+            if (user && !this.isEdit) {
+              this.addOrganizerAsMain(user);
+            }
+            subscription.unsubscribe();
+          }
+        });
+      }
     }
   }
 
@@ -129,17 +141,139 @@ export class AddEventComponent {
         requiresAval: true
       });
       this.modalSelectedUsuarios.push(user);
-      console.log('? Organizador principal:', user.nombre);
+      console.log('✅ Organizador principal:', user.nombre);
     }
   }
 
-  private calculateRequiresAval(user: UsuarioDTO): boolean {
-    if (user.tipoUsuario === 'docente') return true;
-    const mainOrganizerIsStudent = this.organizadores[0]?.usuario.tipoUsuario === 'estudiante';
-    if (mainOrganizerIsStudent && user.tipoUsuario === 'estudiante') {
-      return this.organizadores[0]?.usuario.programa !== user.programa;
+  // Recalcula requiresAval para todos los organizadores (útil si cambia el principal)
+  private recalculateRequiresAvalForAll(): void {
+    this.organizadores = this.organizadores.map(org => ({
+      ...org,
+      requiresAval: this.calculateRequiresAval(org.usuario)
+    }));
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Normaliza cadenas: trim, lower-case y remueve diacríticos (tildes).
+   */
+  private normalizeString(s?: string): string {
+    if (!s) return '';
+    try {
+      return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    } catch (e) {
+      return s.toLowerCase().trim();
+    }
+  }
+
+  /**
+   * Intenta obtener el programa desde el objeto usuario.
+   * Soporta estructuras planas o anidadas (usuario.estudiante.programa, usuario.programa, etc.)
+   */
+  private getProgramFromUser(user: any): string {
+    if (!user) return '';
+    if (user.estudiante && user.estudiante.programa) return user.estudiante.programa;
+    if (user.programa) return user.programa;
+    if (user.program) return user.program;
+    return '';
+  }
+
+  /**
+   * Detecta si el usuario es estudiante.
+   */
+  private isStudent(user: any): boolean {
+    if (!user) return false;
+    if (user.estudiante) return true;
+    if (user.tipoUsuario && typeof user.tipoUsuario === 'string') {
+      return user.tipoUsuario.toLowerCase().includes('estudiante');
     }
     return false;
+  }
+
+  /**
+   * Detecta si el usuario es docente.
+   */
+  private isDocente(user: any): boolean {
+    if (!user) return false;
+    if (user.docente) return true;
+    if (user.tipoUsuario && typeof user.tipoUsuario === 'string') {
+      return user.tipoUsuario.toLowerCase().includes('docente');
+    }
+    return false;
+  }
+
+  /**
+   * Calcula si un organizador necesita aval comparándolo SIEMPRE con el currentUser (usuario logueado).
+   * Reglas aplicadas:
+   *  - Si el usuario evaluado ES el currentUser -> siempre requiere aval (es el organizador principal)
+   *  - Si es docente -> requiere aval
+   *  - Si el currentUser es docente -> todos los coorganizadores requieren aval
+   *  - Si ambos son estudiantes y sus programas (normalizados) coinciden -> NO requiere aval
+   *  - En cualquier otro caso -> requiere aval
+   */
+  private calculateRequiresAval(user: UsuarioDTO): boolean {
+    const anyU: any = user as any;
+
+    // Si el usuario evaluado ES el currentUser (organizador principal), siempre requiere aval
+    if (this.currentUser && user.idUsuario === this.currentUser.idUsuario) {
+      console.log('✅ calculateRequiresAval: es el organizador principal (currentUser) -> requiere aval', { usuario: user.nombre });
+      return true;
+    }
+
+    // Si es docente, siempre requiere aval
+    if (this.isDocente(anyU)) {
+      console.log('🔴 calculateRequiresAval: es docente -> requiere aval', { usuario: user.nombre });
+      return true;
+    }
+
+    // El principal SIEMPRE es el currentUser
+    const principal: any = this.currentUser;
+
+    if (!principal) {
+      console.log('🔴 calculateRequiresAval: no hay currentUser -> requiere aval por seguridad');
+      return true;
+    }
+
+    // Si el principal (currentUser) es docente, cualquier coorganizador requiere aval
+    if (this.isDocente(principal)) {
+      console.log('🔴 calculateRequiresAval: principal (currentUser) es docente -> coorganizador requiere aval');
+      return true;
+    }
+
+    // Si ambos son estudiantes, comparar programas
+    if (this.isStudent(anyU) && this.isStudent(principal)) {
+      const progPrincipalRaw = this.getProgramFromUser(principal);
+      const progUserRaw = this.getProgramFromUser(anyU);
+      
+      const progPrincipal = this.normalizeString(progPrincipalRaw);
+      const progUser = this.normalizeString(progUserRaw);
+
+      console.log('🔍 calculateRequiresAval:', {
+        principalId: principal.idUsuario,
+        principalNombre: principal.nombre,
+        progPrincipalRaw,
+        progUserRaw,
+        progPrincipalNorm: progPrincipal,
+        progUserNorm: progUser,
+        usuarioId: user.idUsuario,
+        usuarioNombre: user.nombre
+      });
+
+      // Si no conseguimos ambos programas -> exigir aval
+      if (!progPrincipal || !progUser) {
+        console.log('🔴 calculateRequiresAval: faltan programas -> requiere aval');
+        return true;
+      }
+
+      // Si programas normalizados coinciden -> NO requiere aval
+      const sameProgram = progPrincipal === progUser;
+      console.log(sameProgram ? '✅ calculateRequiresAval: mismo programa que currentUser -> NO requiere aval' : '🔴 calculateRequiresAval: programas diferentes -> requiere aval');
+      return !sameProgram;
+    }
+
+    // Por defecto, requiere aval
+    console.log('🔴 calculateRequiresAval: caso por defecto -> requiere aval');
+    return true;
   }
 
   addOrganizer(user: UsuarioDTO): void {
@@ -148,16 +282,18 @@ export class AddEventComponent {
       notyf.error('Este usuario ya es organizador');
       return;
     }
+    const requires = this.calculateRequiresAval(user);
     this.organizadores.push({
       usuario: user,
       rol: 'ORGANIZADOR',
       avalPdf: '',
       tipoAval: '',
-      requiresAval: this.calculateRequiresAval(user)
+      requiresAval: requires
     });
     this.modalSelectedUsuarios.push(user);
-    console.log('? Organizador agregado:', user.nombre);
-    this.cdr.detectChanges();
+    console.log('? Organizador agregado:', user.nombre, 'requiresAval=', requires);
+    // Recalcular para asegurar consistencia (p. ej. si el principal fue agregado recientemente)
+    this.recalculateRequiresAvalForAll();
   }
 
   removeOrganizer(user: UsuarioDTO): void {
@@ -182,6 +318,38 @@ export class AddEventComponent {
     console.log('Usuario seleccionado desde modal:', user);
     this.addOrganizer(user);
     this.closeOrganizerModal();
+  }
+
+  getUsuarioTypeLabel(usuario: UsuarioDTO | undefined): string {
+    if (!usuario) return '';
+    const anyU: any = usuario as any;
+    // Primero, detectar propiedades anidadas (p. ej. usuario.docente o usuario.estudiante)
+    if (anyU.docente) {
+      const unidad = anyU.docente.unidadAcademica || anyU.docente.unidad || '';
+      return `Docente${unidad ? ' - ' + unidad : ''}`;
+    }
+    if (anyU.estudiante) {
+      const programa = anyU.estudiante.programa || usuario.programa || '';
+      return `Estudiante${programa ? ' - ' + programa : ''}`;
+    }
+    // Caso normal cuando tipoUsuario está presente
+    switch (usuario.tipoUsuario) {
+      case 'estudiante':
+        return `Estudiante${usuario.programa ? ' - ' + usuario.programa : ''}`;
+      case 'docente':
+        return `Docente${usuario.unidadAcademica ? ' - ' + usuario.unidadAcademica : ''}`;
+      case 'secretaria':
+        return `Secretaría${usuario.facultad ? ' - ' + usuario.facultad : ''}`;
+      default:
+        if (anyU.tipo) return anyU.tipo;
+        return usuario.tipoUsuario || '';
+    }
+  }
+
+  getUsuarioProgramLabel(usuario: UsuarioDTO | undefined): string {
+    if (!usuario) return '';
+    const anyU: any = usuario as any;
+    return anyU.estudiante?.programa || usuario.programa || anyU.programa || '';
   }
 
   onOrganizerAvalChanged(organizador: Organizador, event: any): void {
@@ -219,6 +387,9 @@ export class AddEventComponent {
   private loadEventForEdit(id: number): void {
     this.eventosApiService.getById(id).subscribe({
       next: (event) => {
+        console.log('📦 Evento cargado para editar:', event);
+        console.log('📋 Participaciones organizaciones:', event.participacionesOrganizaciones);
+        
         this.eventForm.patchValue({
           eventName: event.titulo || '',
           eventType: event.tipoEvento && event.tipoEvento.toLowerCase().includes('acad') ? 'academico' : 'ludico',
@@ -226,17 +397,35 @@ export class AddEventComponent {
           externalOrgParticipation: (event.participacionesOrganizaciones || []).length > 0
         });
 
-        // Cargar coorganizadores del evento
-        if (event.coorganizadores && Array.isArray(event.coorganizadores)) {
-          event.coorganizadores.forEach((userId: any) => {
-            if (userId !== this.currentUser?.idUsuario) {
+        // Cargar organizadores del evento con sus avales desde organizadores
+        // Ordenar para que el currentUser (organizador principal) sea el primero
+        if (event.organizadores && Array.isArray(event.organizadores)) {
+          // Separar organizador principal de coorganizadores
+          const organizadorPrincipal = event.organizadores.find((eo: any) => {
+            const userId = eo.idUsuario || eo.usuario?.idUsuario;
+            return userId === this.currentUser?.idUsuario;
+          });
+          
+          const coorganizadores = event.organizadores.filter((eo: any) => {
+            const userId = eo.idUsuario || eo.usuario?.idUsuario;
+            return userId !== this.currentUser?.idUsuario;
+          });
+
+          // Crear array ordenado: principal primero, luego coorganizadores
+          const organizadoresOrdenados = organizadorPrincipal 
+            ? [organizadorPrincipal, ...coorganizadores] 
+            : event.organizadores;
+
+          organizadoresOrdenados.forEach((eo: any) => {
+            const userId = eo.idUsuario || eo.usuario?.idUsuario;
+            if (userId) {
               this.usuariosApiService.getById(userId).subscribe({
                 next: (user) => {
                   this.organizadores.push({
                     usuario: user,
                     rol: 'ORGANIZADOR',
-                    avalPdf: '',
-                    tipoAval: '',
+                    avalPdf: eo.avalPdf || '',
+                    tipoAval: eo.tipoAval || '',
                     requiresAval: this.calculateRequiresAval(user)
                   });
                   this.modalSelectedUsuarios.push(user);
@@ -249,24 +438,44 @@ export class AddEventComponent {
         }
 
         this.selectedOrganizations = [];
-        (event.participacionesOrganizaciones || []).forEach((p: any) => {
+        const participaciones = event.participacionesOrganizaciones || [];
+        console.log('🏢 Procesando participaciones:', participaciones);
+        
+        // Primero, cargar todos los datos iniciales de forma síncrona
+        participaciones.forEach((p: any) => {
           const orgId = p.idOrganizacion;
           if (orgId) {
+            const filename = p.certificadoPdf ? (String(p.certificadoPdf).split('/').pop() || '') : '';
+            this.initialOrgData[String(orgId)] = {
+              participaRepresentante: p.representanteDiferente !== undefined ? !p.representanteDiferente : undefined,
+              nombreRepresentante: p.nombreRepresentanteDiferente || '',
+              cedulaRepresentante: '',
+              avalFilePath: p.certificadoPdf || '',
+              avalFileName: filename
+            };
+          }
+        });
+        console.log('📋 initialOrgData preparado:', this.initialOrgData);
+        
+        // Luego, cargar las organizaciones de forma asíncrona
+        participaciones.forEach((p: any) => {
+          console.log('🔍 Procesando participación:', p);
+          const orgId = p.idOrganizacion;
+          if (orgId) {
+            console.log('📞 Cargando organización con ID:', orgId);
             this.organizacionesApiService.getById(orgId).subscribe({
               next: (org) => {
+                console.log('✅ Organización cargada:', org);
                 this.selectedOrganizations.push(org);
-                const filename = p.certificadoPdf ? (String(p.certificadoPdf).split('/').pop() || '') : '';
-                this.initialOrgData[String(orgId)] = {
-                  participaRepresentante: p.representanteDiferente !== undefined ? !p.representanteDiferente : undefined,
-                  nombreRepresentante: p.nombreRepresentanteDiferente || '',
-                  cedulaRepresentante: '',
-                  avalFilePath: p.certificadoPdf || '',
-                  avalFileName: filename
-                };
+                console.log('📊 selectedOrganizations ahora tiene:', this.selectedOrganizations.length, 'organizaciones');
                 this.cdr.detectChanges();
               },
-              error: (err) => console.warn('Error al cargar org id=', orgId, err)
+              error: (err) => {
+                console.error('❌ Error al cargar org id=', orgId, err);
+              }
             });
+          } else {
+            console.warn('⚠️ Participación sin idOrganizacion:', p);
           }
         });
 
@@ -310,6 +519,13 @@ export class AddEventComponent {
     if (orgsSinAval.length > 0) {
       const nombres = orgsSinAval.map(o => o.usuario.nombre).join(', ');
       notyf.error(`Organizadores sin aval: ${nombres}`);
+      return;
+    }
+
+    const orgsSinTipoAval = this.organizadores.filter(org => org.requiresAval && !org.tipoAval);
+    if (orgsSinTipoAval.length > 0) {
+      const nombres = orgsSinTipoAval.map(o => o.usuario.nombre).join(', ');
+      notyf.error(`Organizadores sin tipo de aval: ${nombres}`);
       return;
     }
 
@@ -402,16 +618,24 @@ export class AddEventComponent {
       .filter(enc => enc.location?.idInstalacion !== undefined)
       .map(enc => enc.location!.idInstalacion);
 
-    const organizadoresData = this.organizadores.map(org => ({
+    const organizadoresData = this.organizadores.map((org, index) => ({
       idUsuario: org.usuario.idUsuario,
       avalPdf: org.avalPdf || '',
       tipoAval: (org.tipoAval || 'Director_Programa') as 'Director_Programa' | 'Director_Docencia',
-      rol: org.rol
+      rol: org.usuario.idUsuario === this.currentUser?.idUsuario ? 'ORGANIZADOR' : 'COORGANIZADOR'
     }));
 
-    const organizacionesExternas = this.selectedOrganizations.filter(org => org.idOrganizacion !== undefined);
+    console.log('🏗️ [buildEventoDTO] selectedOrganizations:', this.selectedOrganizations);
+    console.log('🏗️ [buildEventoDTO] selectedOrganizationsComponent:', this.selectedOrganizationsComponent);
+    
+    const organizacionesExternas = this.selectedOrganizations.filter(org => 
+      (org.idOrganizacion !== undefined) || ((org as any).id !== undefined)
+    );
+    console.log('🏗️ [buildEventoDTO] organizacionesExternas after filter:', organizacionesExternas);
+    
     const participacionesOrganizaciones = (organizacionesExternas || []).map(org => {
-      const idOrg = org.idOrganizacion || (org as any).id;
+      const idOrg = (org as any).id || org.idOrganizacion;
+      console.log('🏗️ [buildEventoDTO] Processing org:', org, 'idOrg:', idOrg);
       let orgData = {
         participaRepresentante: false,
         nombreRepresentante: '',
@@ -421,15 +645,22 @@ export class AddEventComponent {
       };
       if (this.selectedOrganizationsComponent) {
         orgData = this.selectedOrganizationsComponent.getOrganizationDataById(idOrg);
+        console.log('🏗️ [buildEventoDTO] orgData from component:', orgData);
+      } else {
+        console.warn('⚠️ [buildEventoDTO] selectedOrganizationsComponent is null/undefined');
       }
-      return {
+      const result = {
         idOrganizacion: idOrg,
         nombreOrganizacion: org.nombre || '',
         certificadoPdf: orgData.avalFilePath || `certificado_org${idOrg}.pdf`,
         representanteDiferente: !orgData.participaRepresentante,
         nombreRepresentanteDiferente: orgData.participaRepresentante ? undefined : orgData.nombreRepresentante
       };
+      console.log('🏗️ [buildEventoDTO] participacion result:', result);
+      return result;
     });
+
+    console.log('🏗️ [buildEventoDTO] FINAL participacionesOrganizaciones:', participacionesOrganizaciones);
 
     return {
       titulo: form.get('eventName')?.value?.trim() || '',

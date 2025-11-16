@@ -35,6 +35,10 @@ public class EventoService {
 
     // ------------------------- CREATE / UPDATE -------------------------
     public EventoResponse createEvento(EventoRequest request) {
+        System.out.println("[DEBUG] createEvento iniciado");
+        System.out.println("[DEBUG] Participaciones en request: " + 
+            (request.getParticipacionesOrganizaciones() != null ? request.getParticipacionesOrganizaciones().size() : "null"));
+        
         Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
 
@@ -43,12 +47,18 @@ public class EventoService {
     Evento evento = EventoMapper.toEntity(request, organizador, instalaciones);
 
         Evento savedEvento = save(evento); // método privado con todas las validaciones
+        System.out.println("[DEBUG] Evento guardado con ID: " + savedEvento.getIdEvento());
+        
     // Crear relación usuario-evento (aval) para organizador y coorganizadores
     manejarOrganizadores(savedEvento.getIdEvento(), request.getOrganizadores(), request.getIdOrganizador());
         
         // Manejar organizaciones externas después de guardar el evento
         if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
+            System.out.println("[DEBUG] Llamando a manejarParticipacionesOrganizaciones con " + 
+                request.getParticipacionesOrganizaciones().size() + " participaciones");
             manejarParticipacionesOrganizaciones(savedEvento.getIdEvento(), request.getParticipacionesOrganizaciones());
+        } else {
+            System.out.println("[DEBUG] NO hay participaciones para procesar en CREATE (null o vacío)");
         }
         
         // Recargar el evento con las participaciones para devolver la respuesta completa
@@ -64,6 +74,10 @@ public class EventoService {
     }
 
     public EventoResponse updateEvento(Long id, EventoRequest request) {
+        System.out.println("[DEBUG] updateEvento - ID: " + id);
+        System.out.println("[DEBUG] Participaciones en request: " + 
+            (request.getParticipacionesOrganizaciones() != null ? request.getParticipacionesOrganizaciones().size() : "null"));
+        
         Evento existingEvento = eventoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
 
@@ -84,8 +98,12 @@ public class EventoService {
         Evento updatedEvento = save(existingEvento);
         
         // Manejar organizaciones externas después de actualizar el evento
-        if (request.getParticipacionesOrganizaciones() != null) {
+        if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
+            System.out.println("[DEBUG] Llamando a manejarParticipacionesOrganizaciones con " + 
+                request.getParticipacionesOrganizaciones().size() + " participaciones");
             manejarParticipacionesOrganizaciones(id, request.getParticipacionesOrganizaciones());
+        } else {
+            System.out.println("[DEBUG] NO hay participaciones para procesar (null o vacío)");
         }
     // Actualizar relaciones usuario-evento (borrar y recrear según request.organizadores)
     manejarOrganizadores(id, request.getOrganizadores(), request.getIdOrganizador());
@@ -241,8 +259,9 @@ public class EventoService {
 
     @Transactional
     private void manejarOrganizadores(Long idEvento, java.util.List<com.Geventos.GestionDeEventos.DTOs.Requests.EventoOrganizadorRequest> organizadores, Long idOrganizadorPrincipal) {
-        // Eliminar registros previos
+        // Eliminar registros previos y hacer flush para asegurar que se ejecute antes de insertar
         eventoOrganizadorRepository.deleteByEvento_IdEvento(idEvento);
+        eventoOrganizadorRepository.flush();
 
         if (organizadores == null || organizadores.isEmpty()) {
             throw new IllegalArgumentException("Debe enviar al menos el organizador principal en 'organizadores'");

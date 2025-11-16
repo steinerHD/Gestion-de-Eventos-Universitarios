@@ -55,23 +55,23 @@
             <span *ngIf="org.requiresAval" class="badge badge-warning">Requiere Aval</span>
             <button *ngIf="i > 0" type="button" class="btn-remove" (click)="removeOrganizer(org.usuario)" 
                     title="Remover organizador">
-              ?
+              ✕
             </button>
           </div>
           <div class="organizador-details">
-            <p><small>Tipo: {{ org.usuario.tipoUsuario }}</small></p>
-            <p *ngIf="org.usuario.programa"><small>Programa: {{ org.usuario.programa }}</small></p>
+            <p><small>Tipo: {{ getUsuarioTypeLabel(org.usuario) }}</small></p>
+            <p *ngIf="getUsuarioProgramLabel(org.usuario)"><small>Programa: {{ getUsuarioProgramLabel(org.usuario) }}</small></p>
           </div>
           <div *ngIf="org.requiresAval" class="aval-section">
             <label>Aval PDF</label>
             <div class="file-input-wrapper">
               <input type="file" accept=".pdf" (change)="onOrganizerAvalChanged(org, $event)"
                      [ngClass]="{'is-invalid': org.errorMessage}">
-              <span *ngIf="!org.selectedFile && org.avalPdf" class="file-name">
-                {{ getDisplayedAvalName(org) }}
+              <span *ngIf="org.avalPdf && !org.selectedFile" class="file-name selected">
+                ✓ {{ getDisplayedAvalName(org) }}
               </span>
               <span *ngIf="org.selectedFile" class="file-name selected">
-                {{ org.selectedFile.name }}
+                ✓ {{ org.selectedFile.name }}
               </span>
             </div>
             <div *ngIf="org.errorMessage" class="error-message">{{ org.errorMessage }}</div>
@@ -83,6 +83,10 @@
               <option value="Director_Programa">Director de Programa</option>
               <option value="Director_Docencia">Director de Docencia</option>
             </select>
+          </div>
+          <div *ngIf="!org.requiresAval && i > 0" class="info-message">
+            <i class="ri-information-line"></i>
+            <span>Este coorganizador utiliza el mismo aval del organizador principal por ser del mismo programa académico.</span>
           </div>
         </div>
       </div>
