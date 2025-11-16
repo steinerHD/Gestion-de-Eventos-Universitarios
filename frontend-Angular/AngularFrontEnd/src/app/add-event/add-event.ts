@@ -55,6 +55,8 @@ export class AddEventComponent {
   get selectedUsers(): UsuarioDTO[] {
     return this.organizadores.map(org => org.usuario);
   }
+  // Lista que se pasa al modal para que mantenga estado por referencia
+  modalSelectedUsuarios: UsuarioDTO[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -126,6 +128,7 @@ export class AddEventComponent {
         tipoAval: '',
         requiresAval: true
       });
+      this.modalSelectedUsuarios.push(user);
       console.log('? Organizador principal:', user.nombre);
     }
   }
@@ -152,6 +155,7 @@ export class AddEventComponent {
       tipoAval: '',
       requiresAval: this.calculateRequiresAval(user)
     });
+    this.modalSelectedUsuarios.push(user);
     console.log('? Organizador agregado:', user.nombre);
     this.cdr.detectChanges();
   }
@@ -162,6 +166,7 @@ export class AddEventComponent {
       return;
     }
     this.organizadores = this.organizadores.filter(org => org.usuario.idUsuario !== user.idUsuario);
+    this.modalSelectedUsuarios = this.modalSelectedUsuarios.filter(u => u.idUsuario !== user.idUsuario);
     console.log('? Organizador removido:', user.nombre);
   }
 
@@ -174,6 +179,7 @@ export class AddEventComponent {
   }
 
   onOrganizerSelected(user: UsuarioDTO): void {
+    console.log('Usuario seleccionado desde modal:', user);
     this.addOrganizer(user);
     this.closeOrganizerModal();
   }
@@ -233,6 +239,7 @@ export class AddEventComponent {
                     tipoAval: '',
                     requiresAval: this.calculateRequiresAval(user)
                   });
+                  this.modalSelectedUsuarios.push(user);
                   this.cdr.detectChanges();
                 },
                 error: (err) => console.warn('Error al cargar usuario:', userId, err)
@@ -291,7 +298,7 @@ export class AddEventComponent {
 
   submitEvent(): void {
     if (!this.validateInstallations()) {
-      notyf.error('Cada encuentro debe tener una instalaci�n seleccionada');
+      notyf.error('Cada encuentro debe tener una instalación seleccionada');
       return;
     }
     if (!this.validateTimes()) {
@@ -380,7 +387,7 @@ export class AddEventComponent {
   private validateForm(): string[] {
     const errors: string[] = [];
     const form = this.eventForm;
-    if (!form.get('eventName')?.value?.trim()) errors.push('T�tulo requerido');
+    if (!form.get('eventName')?.value?.trim()) errors.push('Título requerido');
     if (!form.get('eventType')?.value) errors.push('Tipo requerido');
     if (this.encounters.length === 0) errors.push('Al menos un encuentro');
     return errors;
@@ -528,7 +535,7 @@ export class AddEventComponent {
     const dangerousFields: string[] = [];
     const fieldNames: { [key: string]: string } = {
       'eventName': 'Nombre',
-      'eventLocation': 'Ubicaci�n',
+      'eventLocation': 'Ubicación',
       'externalOrgName': 'Org Externa',
       'externalOrgNit': 'NIT'
     };

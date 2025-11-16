@@ -8,7 +8,7 @@
 
 <form [formGroup]="eventForm" class="container" novalidate (ngSubmit)="submitEvent()">
   <fieldset class="form-row">
-    <legend class="sr-only">Informaci�n b�sica del evento</legend>
+    <legend class="sr-only">Información básica del evento</legend>
     <div class="input-group">
       <label for="eventName">Nombre del evento</label>
       <input type="text" id="eventName" formControlName="eventName" placeholder="Nombre..." required
@@ -31,8 +31,8 @@
       <select id="eventType" formControlName="eventType" required
               [ngClass]="{'is-invalid': eventForm.get('eventType')?.invalid && eventForm.get('eventType')?.touched}">
         <option value="" disabled>Seleccione un tipo</option>
-        <option value="academico">Acad�mico</option>
-        <option value="ludico">L�dico</option>
+        <option value="academico">Académico</option>
+        <option value="ludico">Lúdico</option>
       </select>
       <div *ngIf="eventForm.get('eventType')?.hasError('required') && eventForm.get('eventType')?.touched"
            class="invalid-feedback">
@@ -92,7 +92,7 @@
     </div>
   </fieldset>
 
-  <!-- M�dulo de Encuentros -->
+  <!-- Módulo de Encuentros -->
   <app-encounters 
     [encounters]="encounters"
     (encountersChanged)="onEncountersChanged($event)">
@@ -113,14 +113,14 @@
 
   <section class="form-grid">
     <fieldset class="external-org">
-      <legend>M�dulo de organizaci�n externa</legend>
+      <legend>Módulo de organización externa</legend>
       <div class="checkbox-group">
         <input type="checkbox" id="externalOrgParticipation" formControlName="externalOrgParticipation" (change)="onParticipationChange()">
-        <label for="externalOrgParticipation">�Participa una organizaci�n externa?</label>
+        <label for="externalOrgParticipation">¿Participa una organización externa?</label>
       </div>
       <div class="icon-buttons" *ngIf="eventForm.get('externalOrgParticipation')?.value">
         <button type="button" (click)="openModal()" class="icon-button" aria-label="Abrir listado de organizaciones externas">
-          <img src="assets/images/copy.png" alt="Listado de organizaci�n externa">
+          <img src="assets/images/copy.png" alt="Listado de organización externa">
         </button>
       </div>
     </fieldset>
@@ -135,7 +135,7 @@
     
     <!-- Mensaje cuando no hay organizaciones seleccionadas -->
     <div *ngIf="eventForm.get('externalOrgParticipation')?.value && selectedOrganizations.length === 0" class="no-organizations-selected">
-      <p>No hay organizaciones seleccionadas. Haz clic en el bot�n de arriba para seleccionar organizaciones.</p>
+      <p>No hay organizaciones seleccionadas. Haz clic en el botón de arriba para seleccionar organizaciones.</p>
     </div>
   </section>
 
@@ -159,7 +159,7 @@
 <app-usuario-selection 
   [showModal]="showOrganizerModal"
   [currentUserId]="currentUser?.idUsuario"
-  [selectedUsuarios]="selectedUsers"
+  [selectedUsuarios]="modalSelectedUsuarios"
   (modalClosed)="closeOrganizerModal()"
   (usuarioSelected)="onOrganizerSelected($event)">
 </app-usuario-selection>
