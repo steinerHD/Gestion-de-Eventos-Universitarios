@@ -22,6 +22,8 @@ public class SecretariaMapper {
         return SecretariaResponse.builder()
                 .idSecretaria(secretaria.getIdSecretaria())
                 .facultad(secretaria.getFacultad())
+                .activa(secretaria.getActiva())
+                .fechaActivacion(secretaria.getFechaActivacion())
                 .nombreUsuario(secretaria.getUsuario() != null ? secretaria.getUsuario().getNombre() : null)
                 .correoUsuario(secretaria.getUsuario() != null ? secretaria.getUsuario().getCorreo() : null)
                 .build();

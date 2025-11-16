@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -47,6 +48,9 @@ public class Evento {
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime horaFin;
 
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
     @ManyToMany
     @JoinTable(name = "evento_instalacion", joinColumns = @JoinColumn(name = "id_evento"), inverseJoinColumns = @JoinColumn(name = "id_instalacion"))
     private List<Instalacion> instalaciones;
@@ -73,6 +77,13 @@ public class Evento {
     @JsonManagedReference(value = "evento-organizadores")
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EventoOrganizador> organizadores;
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+    }
 
     public enum TipoEvento {
         Académico, Lúdico

@@ -117,6 +117,15 @@ public class EventoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         return ResponseEntity.ok(eventoService.findEventosFuturos(fecha));
     }
+    
+    @GetMapping("/secretaria/{idSecretaria}/periodos")
+    public ResponseEntity<List<EventoResponse>> getEventosPorPeriodosActivacion(@PathVariable Long idSecretaria) {
+        try {
+            return ResponseEntity.ok(eventoService.findEventosPorPeriodosActivacion(idSecretaria));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     // ------------------------- PDFs -------------------------
     @GetMapping("/{id}/aval/{idUsuario}")

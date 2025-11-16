@@ -36,6 +36,7 @@ public class EventoMapper {
         response.setFecha(evento.getFecha());
         response.setHoraInicio(evento.getHoraInicio());
         response.setHoraFin(evento.getHoraFin());
+        response.setFechaCreacion(evento.getFechaCreacion());
         response.setIdOrganizador(evento.getOrganizador() != null ? evento.getOrganizador().getIdUsuario() : null);
         response.setInstalaciones(evento.getInstalaciones() != null ?
             evento.getInstalaciones().stream().map(Instalacion::getIdInstalacion).toList() : List.of());

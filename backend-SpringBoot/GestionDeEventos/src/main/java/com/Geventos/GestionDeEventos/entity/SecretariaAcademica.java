@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -25,6 +26,12 @@ public class SecretariaAcademica {
     
     @Column(name = "facultad", nullable = false, length = 100)
     private String facultad;
+    
+    @Column(name = "activa", nullable = false)
+    private Boolean activa = true;
+    
+    @Column(name = "fecha_activacion")
+    private LocalDateTime fechaActivacion;
     
     @JsonBackReference
     @OneToOne(fetch = FetchType.LAZY)

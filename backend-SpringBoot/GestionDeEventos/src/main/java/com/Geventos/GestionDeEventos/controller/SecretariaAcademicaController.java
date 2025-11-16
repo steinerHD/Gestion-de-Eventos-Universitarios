@@ -2,9 +2,11 @@ package com.Geventos.GestionDeEventos.controller;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.SecretariaRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.SecretariaResponse;
+import com.Geventos.GestionDeEventos.entity.PeriodoActivacion;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.mappers.SecretariaMapper;
+import com.Geventos.GestionDeEventos.repository.PeriodoActivacionRepository;
 import com.Geventos.GestionDeEventos.service.SecretariaAcademicaService;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
 
@@ -24,6 +26,7 @@ public class SecretariaAcademicaController {
 
     private final SecretariaAcademicaService secretariaAcademicaService;
     private final UsuarioService usuarioService;
+    private final PeriodoActivacionRepository periodoActivacionRepository;
 
  
     @PostMapping
@@ -109,5 +112,39 @@ public class SecretariaAcademicaController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Verificar si la secretaria está activa
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<Boolean> verificarEstadoActivo(@PathVariable Long id) {
+        Optional<SecretariaAcademica> secretaria = secretariaAcademicaService.findById(id);
+        if (secretaria.isPresent()) {
+            return ResponseEntity.ok(secretaria.get().getActiva());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Activar una secretaria (desactiva las demás de la misma facultad)
+    @PostMapping("/{id}/activar")
+    public ResponseEntity<SecretariaResponse> activarSecretaria(@PathVariable Long id) {
+        try {
+            SecretariaAcademica secretaria = secretariaAcademicaService.activar(id);
+            SecretariaResponse response = SecretariaMapper.toResponse(secretaria);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    // Obtener períodos de activación de una secretaria
+    @GetMapping("/{id}/periodos")
+    public ResponseEntity<List<PeriodoActivacion>> getPeriodosActivacion(@PathVariable Long id) {
+        Optional<SecretariaAcademica> secretaria = secretariaAcademicaService.findById(id);
+        if (secretaria.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<PeriodoActivacion> periodos = periodoActivacionRepository
+                .findBySecretariaOrderByFechaInicioDesc(secretaria.get());
+        return ResponseEntity.ok(periodos);
     }
 }

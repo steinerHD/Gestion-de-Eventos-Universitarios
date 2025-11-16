@@ -4,7 +4,10 @@ import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
 import com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionDetalleRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
+import com.Geventos.GestionDeEventos.entity.EventoSecretaria;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
+import com.Geventos.GestionDeEventos.entity.PeriodoActivacion;
+import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.entity.Estudiante;
@@ -32,6 +35,9 @@ public class EventoService {
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final EventoOrganizadorRepository eventoOrganizadorRepository;
     private final UsuarioService usuarioService;
+    private final PeriodoActivacionRepository periodoActivacionRepository;
+    private final SecretariaAcademicaRepository secretariaAcademicaRepository;
+    private final EventoSecretariaRepository eventoSecretariaRepository;
 
     // ------------------------- CREATE / UPDATE -------------------------
     public EventoResponse createEvento(EventoRequest request) {
@@ -163,6 +169,20 @@ public class EventoService {
     public List<EventoResponse> findEventosFuturos(LocalDate fecha) {
         return eventoRepository.findEventosFuturos(fecha)
                 .stream().map(EventoMapper::toResponse).toList();
+    }
+    
+    // Filtrar eventos por períodos de activación de secretaria
+    // Ahora también considera eventos explícitamente asignados a la secretaria
+    public List<EventoResponse> findEventosPorPeriodosActivacion(Long idSecretaria) {
+        SecretariaAcademica secretaria = secretariaAcademicaRepository.findById(idSecretaria)
+                .orElseThrow(() -> new IllegalArgumentException("Secretaria académica no encontrada"));
+        
+        // Obtener eventos asignados directamente a esta secretaria
+        List<Evento> eventosAsignados = eventoSecretariaRepository.findEventosBySecretariaId(idSecretaria);
+        
+        return eventosAsignados.stream()
+                .map(EventoMapper::toResponse)
+                .toList();
     }
 
     // ------------------------- DELETE -------------------------
@@ -333,6 +353,7 @@ public class EventoService {
 
     /**
      * Cambia el estado de un evento a Pendiente para enviarlo a validación.
+     * Asigna el evento a TODAS las secretarias académicas activas en ese momento.
      * Lanza IllegalArgumentException si no existe el evento o si el organizador no es válido.
      */
     public void enviarAValidacion(Long idEvento) {
@@ -345,8 +366,26 @@ public class EventoService {
             return;
         }
 
+        // Cambiar estado del evento
         evento.setEstado(Evento.EstadoEvento.Pendiente);
         eventoRepository.save(evento);
+        
+        // Obtener todas las secretarias activas
+        List<SecretariaAcademica> secretariasActivas = secretariaAcademicaRepository.findAll()
+                .stream()
+                .filter(SecretariaAcademica::getActiva)
+                .toList();
+        
+        // Asignar el evento a cada secretaria activa
+        for (SecretariaAcademica secretaria : secretariasActivas) {
+            // Verificar si ya está asignado
+            if (!eventoSecretariaRepository.existsByEventoAndSecretaria(evento, secretaria)) {
+                EventoSecretaria eventoSecretaria = new EventoSecretaria();
+                eventoSecretaria.setEvento(evento);
+                eventoSecretaria.setSecretaria(secretaria);
+                eventoSecretariaRepository.save(eventoSecretaria);
+            }
+        }
     }
 
     public void aprobarEvento(Long idEvento) {

@@ -16,4 +16,8 @@ public interface SecretariaAcademicaRepository extends JpaRepository<SecretariaA
     Optional<SecretariaAcademica> findByUsuarioId(@Param("idUsuario") Long idUsuario);
     
     List<SecretariaAcademica> findByFacultad(String facultad);
+    
+    List<SecretariaAcademica> findByFacultadAndActiva(String facultad, Boolean activa);
+    
+    Optional<SecretariaAcademica> findByFacultadAndActivaTrue(String facultad);
 }

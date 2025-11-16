@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class SecretariaResponse {
     private Long idSecretaria;
     private String facultad;
+    private Boolean activa;
+    private LocalDateTime fechaActivacion;
     private String nombreUsuario;
     private String correoUsuario;
 }

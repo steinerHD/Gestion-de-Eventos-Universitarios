@@ -26,7 +26,17 @@ CREATE TABLE docente (
 CREATE TABLE secretaria_academica (
   id_secretaria INT PRIMARY KEY,
   facultad VARCHAR(100) NOT NULL,
+  activa BOOLEAN DEFAULT TRUE NOT NULL,
+  fecha_activacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_secretaria) REFERENCES usuario(id_usuario)
+);
+
+CREATE TABLE periodo_activacion (
+  id_periodo SERIAL PRIMARY KEY,
+  id_secretaria INT NOT NULL,
+  fecha_inicio TIMESTAMP NOT NULL,
+  fecha_fin TIMESTAMP,
+  FOREIGN KEY (id_secretaria) REFERENCES secretaria_academica(id_secretaria) ON DELETE CASCADE
 );
 
 CREATE TABLE instalacion (
@@ -165,6 +175,7 @@ CREATE TABLE evento (
   fecha DATE NOT NULL,
   hora_inicio TIME NOT NULL,
   hora_fin TIME NOT NULL,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
   id_usuario_organizador INT REFERENCES usuario(id_usuario)
 );
@@ -231,6 +242,17 @@ CREATE TABLE evento_organizador (
   UNIQUE (id_evento, id_usuario),
   FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
   FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+
+-- Tabla para asignación de eventos a secretarias académicas para evaluación
+CREATE TABLE evento_secretaria (
+  id_evento_secretaria SERIAL PRIMARY KEY,
+  id_evento INT NOT NULL,
+  id_secretaria INT NOT NULL,
+  fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
+  FOREIGN KEY (id_secretaria) REFERENCES secretaria_academica(id_secretaria) ON DELETE CASCADE,
+  UNIQUE (id_evento, id_secretaria)
 );
 
 -- =======================

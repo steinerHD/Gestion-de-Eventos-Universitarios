@@ -6,6 +6,7 @@ import com.Geventos.GestionDeEventos.entity.Evento.EstadoEvento;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class EventoResponse {
     private LocalDate fecha;
     private LocalTime horaInicio;
     private LocalTime horaFin;
+    private LocalDateTime fechaCreacion;
     private Long idOrganizador;
     private List<Long> instalaciones; // ids
     // Lista de organizadores y coorganizadores con su aval (usuario-evento)
