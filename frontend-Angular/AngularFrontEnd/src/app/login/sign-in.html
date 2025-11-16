@@ -57,3 +57,27 @@
     ¿Se te olvidó tu contraseña?
   </a>
 </div>
+</div>
+</div>
+
+<!-- Modal de activación para secretarias inactivas -->
+<div class="modal fade" [class.show]="showActivationModal" [style.display]="showActivationModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cuenta Inactiva</h5>
+      </div>
+      <div class="modal-body">
+        <p>Tu cuenta de secretaría se encuentra inactiva.</p>
+        <p>Esto puede ocurrir porque se registró otra secretaria en tu facultad.</p>
+        <p><strong>¿Deseas activar tu cuenta?</strong></p>
+        <p class="text-muted small">Nota: Al activar tu cuenta, cualquier otra secretaria de tu facultad será desactivada automáticamente.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="activarSecretaria()">Activar Mi Cuenta</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showActivationModal" *ngIf="showActivationModal"></div>

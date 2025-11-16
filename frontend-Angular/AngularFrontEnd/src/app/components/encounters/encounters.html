@@ -20,17 +20,6 @@
 
       <!-- Campos del encuentro -->
       <div class="encounter-fields">
-        <div class="field-group">
-          <label for="date-{{encounter.id}}">Fecha</label>
-          <input 
-            type="date" 
-            id="date-{{encounter.id}}" 
-            [(ngModel)]="encounter.date"
-            (change)="onEncounterChange()"
-            class="encounter-input"
-          >
-        </div>
-
         <div class="time-fields">
           <div class="field-group">
             <label for="startTime-{{encounter.id}}">Hora Inicio</label>

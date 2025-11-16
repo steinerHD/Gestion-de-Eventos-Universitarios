@@ -111,6 +111,9 @@ export class AuthService {
             } else if (secretaria) {
               tipoUsuario = 'Secretaria';
               perfil.facultad = secretaria.facultad;
+              perfil.idSecretaria = secretaria.idSecretaria;
+              perfil.activa = secretaria.activa;
+              perfil.fechaActivacion = secretaria.fechaActivacion;
             }
 
             return {
@@ -134,5 +137,15 @@ export class AuthService {
   resetPassword(email: string): Observable<{ success: boolean }> {
     // Placeholder to keep existing flows working; integrate backend if needed
     return of({ success: true });
+  }
+
+  // Verificar si una secretaria está activa
+  verificarSecretariaActiva(idSecretaria: number): Observable<boolean> {
+    return this.authApi.verificarSecretariaActiva(idSecretaria);
+  }
+
+  // Activar una secretaria
+  activarSecretaria(idSecretaria: number): Observable<any> {
+    return this.authApi.activarSecretaria(idSecretaria);
   }
 }

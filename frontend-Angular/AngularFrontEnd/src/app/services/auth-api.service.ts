@@ -95,6 +95,18 @@ export class AuthApiService {
   getSecretariaPorUsuario(idUsuario: number): Observable<any> {
     return this.http.get<any>(`${this.secretariasUrl}/usuario/${idUsuario}`);
   }
+
+  // Verificar si una secretaria está activa
+  verificarSecretariaActiva(idSecretaria: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.secretariasUrl}/${idSecretaria}/estado`);
+  }
+
+  // Activar una secretaria
+  activarSecretaria(idSecretaria: number): Observable<any> {
+    return this.http.post<any>(`${this.secretariasUrl}/${idSecretaria}/activar`, {});
+  }
 }
+
+
 
 

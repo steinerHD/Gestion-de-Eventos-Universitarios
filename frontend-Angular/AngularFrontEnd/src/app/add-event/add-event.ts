@@ -72,6 +72,7 @@ export class AddEventComponent {
   ) {
     this.eventForm = this.fb.group({
       eventName: ['', [Validators.required, forbidDangerousContent(this.inputValidation)]],
+      eventDate: ['', Validators.required],
       eventLocation: ['', [forbidDangerousContent(this.inputValidation)]],
       eventType: ['', Validators.required],
       eventStatus: ['Borrador', Validators.required],
@@ -392,6 +393,7 @@ export class AddEventComponent {
         
         this.eventForm.patchValue({
           eventName: event.titulo || '',
+          eventDate: event.fecha || '',
           eventType: event.tipoEvento && event.tipoEvento.toLowerCase().includes('acad') ? 'academico' : 'ludico',
           eventStatus: event.estado || 'Pendiente',
           externalOrgParticipation: (event.participacionesOrganizaciones || []).length > 0
@@ -487,11 +489,11 @@ export class AddEventComponent {
         (event.instalaciones || []).forEach((idInst: any) => {
           this.instalacionesApiService.getById(idInst).subscribe({
             next: (inst) => {
-              this.encounters.push({ id: Date.now().toString() + '_' + idInst, date: fecha, startTime: horaInicio, endTime: horaFin, location: inst });
+              this.encounters.push({ id: Date.now().toString() + '_' + idInst, startTime: horaInicio, endTime: horaFin, location: inst });
               this.cdr.detectChanges();
             },
             error: (err) => {
-              this.encounters.push({ id: Date.now().toString() + '_fallback', date: fecha, startTime: horaInicio, endTime: horaFin, location: null });
+              this.encounters.push({ id: Date.now().toString() + '_fallback', startTime: horaInicio, endTime: horaFin, location: null });
               this.cdr.detectChanges();
             }
           });
@@ -590,7 +592,7 @@ export class AddEventComponent {
       this.eventosApiService.create(payload).subscribe({
         next: (createdEvent) => {
           notyf.success('Evento creado exitosamente.');
-          this.router.navigate(['/home']);
+          this.router.navigate(['/my-events']);
         },
         error: (error) => {
           console.error('Error al crear:', error);
@@ -665,7 +667,7 @@ export class AddEventComponent {
     return {
       titulo: form.get('eventName')?.value?.trim() || '',
       tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
-      fecha: primerEncuentro.date,
+      fecha: form.get('eventDate')?.value || '',
       horaInicio: formatHora(primerEncuentro.startTime),
       horaFin: formatHora(primerEncuentro.endTime),
       instalaciones: instalaciones,
@@ -731,7 +733,7 @@ export class AddEventComponent {
   isFormValid(): boolean {
     const formValid = this.eventForm.valid;
     const hasEncounters = this.encounters && this.encounters.length > 0;
-    const encountersValid = this.encounters.every(e => e.date && e.startTime && e.endTime && e.location);
+    const encountersValid = this.encounters.every(e => e.startTime && e.endTime && e.location);
     const timesValid = this.validateTimes();
     const orgsSinAval = this.organizadores.filter(org => org.requiresAval && !org.avalPdf).length === 0;
     return formValid && hasEncounters && encountersValid && timesValid && orgsSinAval;

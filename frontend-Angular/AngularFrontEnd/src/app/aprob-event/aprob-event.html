@@ -24,6 +24,11 @@
     <p>No hay eventos a evaluar</p>
   </div>
 
+  <!-- No Pending Events State (hay eventos pero ninguno pendiente) -->
+  <div *ngIf="!loading && !error && events.length > 0 && pendingEvents.length === 0 && rejectedEvents.length === 0 && approvedEvents.length === 0" class="no-events-message">
+    <p>No hay eventos a evaluar</p>
+  </div>
+
   <!-- Events Content -->
   <div *ngIf="!loading && !error && events.length > 0">
 

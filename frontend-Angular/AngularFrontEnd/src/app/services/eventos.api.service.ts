@@ -57,6 +57,9 @@ export interface EventoDTO {
 
   // Estado del evento
   estado: 'Aprobado' | 'Rechazado' | 'Pendiente' | 'Borrador';
+  
+  // Fecha de creación del evento (para filtrado de secretarias)
+  fechaCreacion?: string;
 }
 
 
@@ -124,6 +127,10 @@ export class EventosApiService {
 
   reject(idEvento: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${idEvento}/rechazar`, {});
+  }
+  
+  getEventosPorPeriodosActivacion(idSecretaria: number): Observable<EventoDTO[]> {
+    return this.http.get<EventoDTO[]>(`${this.baseUrl}/secretaria/${idSecretaria}/periodos`);
   }
 }
 

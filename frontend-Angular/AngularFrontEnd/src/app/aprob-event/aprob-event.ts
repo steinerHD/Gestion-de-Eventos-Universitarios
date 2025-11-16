@@ -42,7 +42,6 @@ export class AprobEvent implements OnInit {
   currentUser: any = null;
   
   ngOnInit(): void {
-    this.loadEvents(),
     // Lógica de seguridad para esta vista
     this.authService.getUserProfile().subscribe({
       next: (user) => {
@@ -51,37 +50,51 @@ export class AprobEvent implements OnInit {
             notyf.error('Acceso denegado. Esta página es solo para secretaría.');
           }
           this.router.navigate(['/signin']);
+          return;
         }
+        
+        // Verificar si la secretaria está activa
+        if (!user.activa) {
+          notyf.error('Tu cuenta está inactiva. No puedes acceder a esta página.');
+          this.router.navigate(['/home']);
+          return;
+        }
+        
         // Guardamos el usuario para usarlo en la plantilla si es necesario
         this.currentUser = user;
+        // Cargar eventos después de verificar el usuario
+        this.loadEvents();
       },
       error: (err) => console.error('Error al obtener el perfil del usuario', err)
     });
   }
+  
   get isSecretaria(): boolean { return this.currentUser?.tipoUsuario === 'Secretaria'; }
 
   loadEvents(): void {
     this.loading = true;
     this.error = null;
 
-    // <<solo para el evento de ejemplo>>
-    // Para la vista de secretaría, deberíamos cargar todos los eventos, no solo los de un organizador.
-    this.eventosApiService.getAll().subscribe({
-      next: (eventos) => {
-        // Aquí deberías tener una lógica para mapear el estado real de los eventos
-        this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
-        this.filteredEvents = [...this.events];
-        this.filterEventsByStatus();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error cargando eventos para secretaría:', error);
-        this.error = 'Error al cargar los eventos a evaluar';
-        this.loading = false;
-      }
-    });
-
-    // <<solo para el evento de ejemplo>>
+    // Usar el nuevo endpoint que filtra por períodos de activación
+    if (this.currentUser && this.currentUser.idSecretaria) {
+      this.eventosApiService.getEventosPorPeriodosActivacion(this.currentUser.idSecretaria).subscribe({
+        next: (eventos) => {
+          // Mapear el estado de los eventos
+          this.events = eventos.map(evento => this.mapEventoWithEstado(evento));
+          this.filteredEvents = [...this.events];
+          this.filterEventsByStatus();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error cargando eventos para secretaría:', error);
+          this.error = 'Error al cargar los eventos a evaluar';
+          this.loading = false;
+        }
+      });
+    } else {
+      this.error = 'No se pudo identificar la secretaria';
+      this.loading = false;
+    }
   }
 
   private mapEventoWithEstado(evento: EventoDTO): EventoDTO {

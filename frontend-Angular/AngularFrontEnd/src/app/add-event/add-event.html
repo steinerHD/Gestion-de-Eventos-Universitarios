@@ -25,6 +25,19 @@
   </fieldset>
 
   <fieldset class="form-row">
+    <legend class="sr-only">Fecha del evento</legend>
+    <div class="input-group">
+      <label for="eventDate">Fecha del evento</label>
+      <input type="date" id="eventDate" formControlName="eventDate" required
+             [ngClass]="{'is-invalid': eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched}">
+      <div *ngIf="eventForm.get('eventDate')?.hasError('required') && eventForm.get('eventDate')?.touched"
+           class="invalid-feedback">
+        La fecha del evento es obligatoria.
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-row">
     <legend class="sr-only">Tipo de evento</legend>
     <div class="input-group">
       <label for="eventType">Tipo de evento</label>

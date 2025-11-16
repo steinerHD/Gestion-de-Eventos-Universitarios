@@ -7,7 +7,6 @@ import { notyf } from '../../app';
 
 export interface Encounter {
   id: string;
-  date: string;
   startTime: string;
   endTime: string;
   location: InstalacionDTO | null;
@@ -53,7 +52,6 @@ export class EncountersComponent implements OnInit {
   addEncounter(): void {
     const newEncounter: Encounter = {
       id: Date.now().toString(),
-      date: '',
       startTime: '',
       endTime: '',
       location: null
@@ -131,7 +129,6 @@ export class EncountersComponent implements OnInit {
   validateEncounters(): boolean {
     return this.encounters.length > 0 && 
            this.encounters.every(encounter => 
-             encounter.date && 
              encounter.startTime && 
              encounter.endTime && 
              encounter.location
