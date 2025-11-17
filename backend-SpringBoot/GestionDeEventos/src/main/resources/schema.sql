@@ -173,8 +173,7 @@ CREATE TABLE evento (
   titulo VARCHAR(150) NOT NULL,
   tipo_evento VARCHAR(20) NOT NULL CHECK (tipo_evento IN ('Académico','Lúdico')),
   fecha DATE NOT NULL,
-  hora_inicio TIME NOT NULL,
-  hora_fin TIME NOT NULL,
+  capacidad INT,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   estado VARCHAR(20) NOT NULL CHECK (estado IN ('Aprobado','Rechazado','Pendiente', 'Borrador')),
   id_usuario_organizador INT REFERENCES usuario(id_usuario)
@@ -225,10 +224,12 @@ CREATE TABLE notificacion (
   fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla intermedia para relación ManyToMany entre Evento e Instalacion
+-- Tabla intermedia para relación ManyToMany entre Evento e Instalacion con horarios
 CREATE TABLE evento_instalacion (
   id_evento INT NOT NULL,
   id_instalacion INT NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fin TIME NOT NULL,
   PRIMARY KEY (id_evento, id_instalacion),
   FOREIGN KEY (id_evento) REFERENCES evento(id_evento) ON DELETE CASCADE,
   FOREIGN KEY (id_instalacion) REFERENCES instalacion(id_instalacion) ON DELETE CASCADE

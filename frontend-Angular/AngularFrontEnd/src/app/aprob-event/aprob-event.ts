@@ -41,6 +41,21 @@ export class AprobEvent implements OnInit {
   ) {}
   currentUser: any = null;
   
+  // Formatea horarios de instalaciones para mostrar
+  formatTimeSlots(evento: EventoDTO): string {
+    if (!evento.instalaciones || evento.instalaciones.length === 0) {
+      return 'Sin horarios';
+    }
+    return evento.instalaciones
+      .map(inst => {
+        const horaInicio = inst.horaInicio?.substring(0, 5) || '--:--';
+        const horaFin = inst.horaFin?.substring(0, 5) || '--:--';
+        const nombre = inst.nombreInstalacion || `Instalación ${inst.idInstalacion}`;
+        return `${horaInicio}-${horaFin} (${nombre})`;
+      })
+      .join(', ');
+  }
+  
   ngOnInit(): void {
     // Lógica de seguridad para esta vista
     this.authService.getUserProfile().subscribe({

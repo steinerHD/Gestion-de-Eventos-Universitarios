@@ -109,6 +109,18 @@
     </div>
   </fieldset>
 
+  <!-- Capacidad del evento -->
+  <fieldset class="form-row">
+    <legend class="sr-only">Capacidad del evento</legend>
+    <div class="input-group">
+      <label for="eventCapacity">Capacidad esperada del evento</label>
+      <input type="number" id="eventCapacity" [(ngModel)]="eventCapacity" [ngModelOptions]="{standalone: true}" 
+             placeholder="Número de personas" min="1" required
+             (ngModelChange)="onCapacityChange()">
+      <small class="form-text">Ingrese el número esperado de asistentes. Las instalaciones seleccionadas deben cubrir esta capacidad.</small>
+    </div>
+  </fieldset>
+
   <!-- Módulo de Encuentros -->
   <app-encounters 
     [encounters]="encounters"

@@ -33,8 +33,8 @@ public class Instalacion {
     @Column(name = "capacidad", nullable = false)
     private Integer capacidad;
 
-
+    // Relación OneToMany con EventoInstalacion (inversa)
     @JsonIgnore
-    @ManyToMany(mappedBy = "instalaciones")
-    private List<Evento> eventos;
+    @OneToMany(mappedBy = "instalacion")
+    private List<EventoInstalacion> eventoInstalaciones;
 }

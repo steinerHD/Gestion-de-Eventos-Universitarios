@@ -25,6 +25,15 @@ export interface ParticipacionDetalleDTO {
   nombreRepresentanteDiferente?: string; // Solo si representanteDiferente = true
 }
 
+export interface EventoInstalacionDTO {
+  idInstalacion: number;
+  nombreInstalacion?: string;
+  tipoInstalacion?: string;
+  capacidadInstalacion?: number;
+  horaInicio: string; // formato HH:mm:ss
+  horaFin: string; // formato HH:mm:ss
+}
+
 export interface EventoOrganizadorRequest {
   idUsuario: number;
   avalPdf: string;
@@ -46,21 +55,16 @@ export interface EventoDTO {
   titulo: string;
   tipoEvento: 'Académico' | 'Lúdico';
   fecha: string; // formato yyyy-MM-dd
-  horaInicio: string; // formato HH:mm:ss
-  horaFin: string; // formato HH:mm:ss
+  capacidad?: number; // capacidad del evento
 
   // Relaciones
   idOrganizador: number; // ID del usuario organizador
-  instalaciones: number[]; // IDs de instalaciones
+  instalaciones: EventoInstalacionDTO[]; // Instalaciones con horarios
   coorganizadores?: number[]; // IDs de coorganizadores
   organizadores?: EventoOrganizadorResponse[]; // Organizadores con aval individual (respuesta del backend)
 
   // Participaciones con organizaciones externas
   participacionesOrganizaciones?: ParticipacionDetalleDTO[];
-
-  // Aval
-  avalPdf?: string; // PDF del aval
-  tipoAval?: 'Director_Programa' | 'Director_Docencia';
 
   // Estado del evento
   estado: 'Aprobado' | 'Rechazado' | 'Pendiente' | 'Borrador';

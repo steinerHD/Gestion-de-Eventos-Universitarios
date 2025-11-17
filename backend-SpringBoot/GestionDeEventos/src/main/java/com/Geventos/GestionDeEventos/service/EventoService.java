@@ -1,9 +1,11 @@
 package com.Geventos.GestionDeEventos.service;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
+import com.Geventos.GestionDeEventos.DTOs.Requests.EventoInstalacionRequest;
 import com.Geventos.GestionDeEventos.DTOs.Requests.ParticipacionDetalleRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
+import com.Geventos.GestionDeEventos.entity.EventoInstalacion;
 import com.Geventos.GestionDeEventos.entity.EventoSecretaria;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Notificacion;
@@ -18,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class EventoService {
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final InstalacionRepository instalacionRepository;
+    private final EventoInstalacionRepository eventoInstalacionRepository;
     private final OrganizacionExternaRepository organizacionExternaRepository;
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final EventoOrganizadorRepository eventoOrganizadorRepository;
@@ -49,15 +51,16 @@ public class EventoService {
         Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
 
-    List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
-
-    Evento evento = EventoMapper.toEntity(request, organizador, instalaciones);
+        Evento evento = EventoMapper.toEntity(request, organizador);
 
         Evento savedEvento = save(evento); // método privado con todas las validaciones
         System.out.println("[DEBUG] Evento guardado con ID: " + savedEvento.getIdEvento());
         
-    // Crear relación usuario-evento (aval) para organizador y coorganizadores
-    manejarOrganizadores(savedEvento.getIdEvento(), request.getOrganizadores(), request.getIdOrganizador());
+        // Manejar instalaciones con horarios
+        manejarEventoInstalaciones(savedEvento.getIdEvento(), request.getInstalaciones(), savedEvento.getFecha());
+        
+        // Crear relación usuario-evento (aval) para organizador y coorganizadores
+        manejarOrganizadores(savedEvento.getIdEvento(), request.getOrganizadores(), request.getIdOrganizador());
         
         // Manejar organizaciones externas después de guardar el evento
         if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
@@ -91,8 +94,6 @@ public class EventoService {
         Usuario organizador = usuarioService.findEntityById(request.getIdOrganizador())
                 .orElseThrow(() -> new IllegalArgumentException("Organizador no encontrado"));
 
-        List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
-
         // Si el evento estaba Rechazado, al editarlo se vuelve a Borrador
         if (existingEvento.getEstado() == Evento.EstadoEvento.Rechazado) {
             existingEvento.setEstado(Evento.EstadoEvento.Borrador);
@@ -102,13 +103,14 @@ public class EventoService {
         existingEvento.setTitulo(request.getTitulo());
         existingEvento.setTipoEvento(request.getTipoEvento());
         existingEvento.setFecha(request.getFecha());
-        existingEvento.setHoraInicio(request.getHoraInicio());
-        existingEvento.setHoraFin(request.getHoraFin());
-        existingEvento.setInstalaciones(instalaciones);
+        existingEvento.setCapacidad(request.getCapacidad());
         // organizadores (aval por usuario) se manejan separadamente abajo
         existingEvento.setOrganizador(organizador);
 
         Evento updatedEvento = save(existingEvento);
+        
+        // Manejar instalaciones con horarios
+        manejarEventoInstalaciones(id, request.getInstalaciones(), updatedEvento.getFecha());
         
         // Manejar organizaciones externas después de actualizar el evento
         if (request.getParticipacionesOrganizaciones() != null && !request.getParticipacionesOrganizaciones().isEmpty()) {
@@ -118,8 +120,8 @@ public class EventoService {
         } else {
             System.out.println("[DEBUG] NO hay participaciones para procesar (null o vacío)");
         }
-    // Actualizar relaciones usuario-evento (borrar y recrear según request.organizadores)
-    manejarOrganizadores(id, request.getOrganizadores(), request.getIdOrganizador());
+        // Actualizar relaciones usuario-evento (borrar y recrear según request.organizadores)
+        manejarOrganizadores(id, request.getOrganizadores(), request.getIdOrganizador());
         // Recargar el evento con las participaciones para devolver la respuesta completa
         return eventoRepository.findByIdWithParticipaciones(id)
                 .map(EventoMapper::toResponse)
@@ -202,21 +204,7 @@ public class EventoService {
         eventoRepository.deleteById(id);
     }
 
-    // ------------------------- MÉTODOS AUXILIARES PRIVADOS
-    // -------------------------
-    private List<Instalacion> getInstalacionesByIds(List<Long> ids) {
-        if (ids == null)
-            return List.of();
-        List<Instalacion> lista = new ArrayList<>();
-        for (Long id : ids) {
-            Instalacion inst = instalacionRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada: id=" + id));
-            lista.add(inst);
-        }
-        return lista;
-    }
-
-
+    // ------------------------- MÉTODOS AUXILIARES PRIVADOS -------------------------
 
     private Evento save(Evento evento) {
         // ---------------- VALIDACIONES ----------------
@@ -226,10 +214,6 @@ public class EventoService {
             throw new IllegalArgumentException("El tipo de evento es obligatorio");
         if (evento.getFecha() == null)
             throw new IllegalArgumentException("La fecha es obligatoria (yyyy-MM-dd)");
-        if (evento.getHoraInicio() == null)
-            throw new IllegalArgumentException("La horaInicio es obligatoria (HH:mm:ss)");
-        if (evento.getHoraFin() == null)
-            throw new IllegalArgumentException("La horaFin es obligatoria (HH:mm:ss)");
         // avalPdf es opcional, se puede crear evento sin aval inicialmente
         // tipoAval es opcional, se puede crear evento sin tipo de aval inicialmente
         if (evento.getOrganizador() == null || evento.getOrganizador().getIdUsuario() == null)
@@ -242,11 +226,53 @@ public class EventoService {
         if (!esEstudiante && !esDocente)
             throw new IllegalArgumentException("Solo estudiantes o docentes pueden organizar eventos");
 
-        // Fecha no puede ser en el pasado
-        if (evento.getFecha().isBefore(LocalDate.now()))
-            throw new IllegalArgumentException("La fecha del evento no puede ser en el pasado");
+        // Fecha debe ser futura (no hoy ni en el pasado)
+        if (!evento.getFecha().isAfter(LocalDate.now()))
+            throw new IllegalArgumentException("La fecha del evento debe ser posterior a hoy");
 
         return eventoRepository.save(evento);
+    }
+
+    @Transactional
+    private void manejarEventoInstalaciones(Long idEvento, List<EventoInstalacionRequest> instalaciones, LocalDate fechaEvento) {
+        if (instalaciones == null || instalaciones.isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar al menos una instalación con horarios");
+        }
+
+        // Eliminar instalaciones previas
+        eventoInstalacionRepository.deleteByIdIdEvento(idEvento);
+        eventoInstalacionRepository.flush();
+
+        // Validar y crear nuevas instalaciones con horarios
+        Evento evento = eventoRepository.findById(idEvento)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+
+        for (EventoInstalacionRequest request : instalaciones) {
+            // Validar que la instalación existe
+            Instalacion instalacion = instalacionRepository.findById(request.getIdInstalacion())
+                    .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada: id=" + request.getIdInstalacion()));
+
+            // Verificar conflictos de horario
+            java.time.LocalTime horaInicio = java.time.LocalTime.parse(request.getHoraInicio());
+            java.time.LocalTime horaFin = java.time.LocalTime.parse(request.getHoraFin());
+            
+            boolean existeConflicto = eventoInstalacionRepository.existeConflictoHorario(
+                request.getIdInstalacion(), 
+                fechaEvento, 
+                horaInicio, 
+                horaFin, 
+                idEvento
+            );
+            
+            if (existeConflicto) {
+                throw new IllegalArgumentException("La instalación '" + instalacion.getNombre() + 
+                    "' ya está reservada en este horario (" + request.getHoraInicio() + " - " + request.getHoraFin() + ")");
+            }
+
+            // Crear la relación evento-instalacion con horarios
+            EventoInstalacion ei = EventoMapper.toEventoInstalacion(evento, instalacion, request);
+            eventoInstalacionRepository.save(ei);
+        }
     }
 
     @Transactional

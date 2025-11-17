@@ -37,36 +37,17 @@ public class EventoController {
     @PostMapping
     public ResponseEntity<EventoResponse> createEvento(@RequestBody EventoRequest request) {
         System.out.println("[DEBUG] POST /api/eventos - Request recibido");
-        try {
-            EventoResponse response = eventoService.createEvento(request);
-            System.out.println("[DEBUG] Evento creado exitosamente con ID: " + response.getIdEvento());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
-            System.out.println("[DEBUG] Error en validación: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            System.out.println("[DEBUG] Error inesperado: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        EventoResponse response = eventoService.createEvento(request);
+        System.out.println("[DEBUG] Evento creado exitosamente con ID: " + response.getIdEvento());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponse> updateEvento(@PathVariable Long id, @RequestBody EventoRequest request) {
-        try {
-            System.out.println("[DEBUG] PUT /api/eventos/" + id + " - Request recibido");
-            EventoResponse response = eventoService.updateEvento(id, request);
-            System.out.println("[DEBUG] Evento actualizado con ID: " + response.getIdEvento());
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            System.out.println("[DEBUG] Error en validación (update): " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            System.out.println("[DEBUG] Error inesperado (update): " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        System.out.println("[DEBUG] PUT /api/eventos/" + id + " - Request recibido");
+        EventoResponse response = eventoService.updateEvento(id, request);
+        System.out.println("[DEBUG] Evento actualizado con ID: " + response.getIdEvento());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

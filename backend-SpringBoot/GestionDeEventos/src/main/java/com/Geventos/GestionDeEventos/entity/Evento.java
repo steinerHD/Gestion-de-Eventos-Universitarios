@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -19,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 @Table(name = "evento")
 @Data
-@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "organizadores", "instalaciones" })
+@EqualsAndHashCode(exclude = { "participacionesOrganizaciones", "evaluaciones", "organizadores", "eventoInstalaciones" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evento {
@@ -40,20 +39,15 @@ public class Evento {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha;
 
-    @Column(name = "hora_inicio", nullable = false)
-    @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime horaInicio;
-
-    @Column(name = "hora_fin", nullable = false)
-    @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime horaFin;
+    @Column(name = "capacidad")
+    private Integer capacidad;
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    @ManyToMany
-    @JoinTable(name = "evento_instalacion", joinColumns = @JoinColumn(name = "id_evento"), inverseJoinColumns = @JoinColumn(name = "id_instalacion"))
-    private List<Instalacion> instalaciones;
+    // Relación con instalaciones a través de EventoInstalacion (incluye horarios)
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<EventoInstalacion> eventoInstalaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_organizador")

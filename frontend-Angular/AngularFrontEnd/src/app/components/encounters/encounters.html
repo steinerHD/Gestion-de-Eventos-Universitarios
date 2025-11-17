@@ -57,7 +57,7 @@
           
           <div *ngIf="encounter.location" class="selected-location">
             <span class="location-label">Lugar:</span>
-            <span class="location-name">{{ encounter.location.nombre }}</span>
+            <span class="location-name">{{ encounter.location.nombre }} ({{ encounter.location.capacidad }} personas)</span>
             <button 
               type="button" 
               class="remove-location-btn" 

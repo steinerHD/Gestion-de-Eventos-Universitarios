@@ -71,6 +71,21 @@ export class DetalleAprobEvent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  // Formatea horarios de instalaciones para mostrar
+  formatTimeSlots(evento: EventoDTO): string {
+    if (!evento.instalaciones || evento.instalaciones.length === 0) {
+      return 'Sin horarios';
+    }
+    return evento.instalaciones
+      .map(inst => {
+        const horaInicio = inst.horaInicio?.substring(0, 5) || '--:--';
+        const horaFin = inst.horaFin?.substring(0, 5) || '--:--';
+        const nombre = inst.nombreInstalacion || `Instalación ${inst.idInstalacion}`;
+        return `${horaInicio}-${horaFin} (${nombre})`;
+      })
+      .join(', ');
+  }
+
   ngOnInit(): void {
     // Cargar usuario actual
     this.authService.getUserProfile().subscribe({
@@ -99,20 +114,9 @@ export class DetalleAprobEvent implements OnInit {
     this.eventosApi.getById(id).subscribe({
       next: (e) => {
         this.evento = e;
-        // Cargar instalaciones completas
+        // Las instalaciones ya vienen completas en el evento, no necesitamos cargarlas
         this.instalacionesList = [];
-        (e.instalaciones || []).forEach((idInst) => {
-          this.instalacionesApi.getById(idInst).subscribe({
-            next: (inst) => {
-              this.instalacionesList.push(inst);
-              this.cdr.detectChanges();
-            },
-            error: (err) => {
-              console.warn('No se pudo cargar instalación id=', idInst, err);
-            }
-          });
-        });
-
+        
         // Cargar nombres de coorganizadores
         this.coorganizadoresList = [];
         (e.coorganizadores || []).forEach((uId) => {

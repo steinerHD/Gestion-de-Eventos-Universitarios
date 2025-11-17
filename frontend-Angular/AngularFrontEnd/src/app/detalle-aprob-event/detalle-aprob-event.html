@@ -50,8 +50,7 @@
               <ul class="list-group list-group-flush mb-3">
                 <li class="list-group-item"><strong>Tipo:</strong> {{ evento.tipoEvento }}</li>
                 <li class="list-group-item"><strong>Fecha:</strong> {{ evento.fecha }}</li>
-                <li class="list-group-item"><strong>Hora inicio:</strong> {{ evento.horaInicio }}</li>
-                <li class="list-group-item"><strong>Hora fin:</strong> {{ evento.horaFin }}</li>
+                <li class="list-group-item"><strong>Horarios:</strong> {{ formatTimeSlots(evento) }}</li>
               </ul>
             </div>
             <div class="col-md-6">
@@ -59,10 +58,13 @@
                 <li class="list-group-item">
                   <strong>Instalaciones:</strong>
                   <ul class="mb-0">
-                    <li *ngFor="let inst of instalacionesList">
-                      <strong>{{ inst.nombre }}</strong> — {{ inst.tipo }} • {{ inst.ubicacion }} • Capacidad: {{ inst.capacidad }}
+                    <li *ngFor="let inst of evento.instalaciones">
+                      <strong>{{ inst.nombreInstalacion || 'Instalación ' + inst.idInstalacion }}</strong> — 
+                      {{ inst.tipoInstalacion || 'Sin tipo' }} • 
+                      Capacidad: {{ inst.capacidadInstalacion || '—' }} • 
+                      {{ (inst.horaInicio ? inst.horaInicio.substring(0,5) : '--:--') }} - {{ (inst.horaFin ? inst.horaFin.substring(0,5) : '--:--') }}
                     </li>
-                    <li *ngIf="(instalacionesList || []).length === 0" class="text-muted">No hay instalaciones cargadas</li>
+                    <li *ngIf="!evento.instalaciones || evento.instalaciones.length === 0" class="text-muted">No hay instalaciones</li>
                   </ul>
                 </li>
               </ul>

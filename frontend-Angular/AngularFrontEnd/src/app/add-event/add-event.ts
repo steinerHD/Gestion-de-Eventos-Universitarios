@@ -51,6 +51,7 @@ export class AddEventComponent {
   isEdit: boolean = false;
   editingEventId?: number;
   timeError: string = '';
+  eventCapacity: number = 0;
 
   get selectedUsers(): UsuarioDTO[] {
     return this.organizadores.map(org => org.usuario);
@@ -391,6 +392,9 @@ export class AddEventComponent {
         console.log('📦 Evento cargado para editar:', event);
         console.log('📋 Participaciones organizaciones:', event.participacionesOrganizaciones);
         
+        // Cargar capacidad del evento
+        this.eventCapacity = event.capacidad || 0;
+        
         this.eventForm.patchValue({
           eventName: event.titulo || '',
           eventDate: event.fecha || '',
@@ -481,19 +485,30 @@ export class AddEventComponent {
           }
         });
 
+        // Cargar encounters desde instalaciones con horarios individuales
         this.encounters = [];
-        const fecha = event.fecha;
-        const horaInicio = event.horaInicio ? event.horaInicio.substring(0,5) : '';
-        const horaFin = event.horaFin ? event.horaFin.substring(0,5) : '';
+        (event.instalaciones || []).forEach((instData: any) => {
+          const idInst = instData.idInstalacion;
+          const horaInicio = instData.horaInicio ? instData.horaInicio.substring(0,5) : '';
+          const horaFin = instData.horaFin ? instData.horaFin.substring(0,5) : '';
 
-        (event.instalaciones || []).forEach((idInst: any) => {
           this.instalacionesApiService.getById(idInst).subscribe({
             next: (inst) => {
-              this.encounters.push({ id: Date.now().toString() + '_' + idInst, startTime: horaInicio, endTime: horaFin, location: inst });
+              this.encounters.push({ 
+                id: Date.now().toString() + '_' + idInst, 
+                startTime: horaInicio, 
+                endTime: horaFin, 
+                location: inst 
+              });
               this.cdr.detectChanges();
             },
             error: (err) => {
-              this.encounters.push({ id: Date.now().toString() + '_fallback', startTime: horaInicio, endTime: horaFin, location: null });
+              this.encounters.push({ 
+                id: Date.now().toString() + '_fallback', 
+                startTime: horaInicio, 
+                endTime: horaFin, 
+                location: null 
+              });
               this.cdr.detectChanges();
             }
           });
@@ -512,9 +527,26 @@ export class AddEventComponent {
       notyf.error('Cada encuentro debe tener una instalación seleccionada');
       return;
     }
+    if (!this.validateCapacity()) {
+      return; // El método validateCapacity ya muestra el error
+    }
     if (!this.validateTimes()) {
       notyf.error('La hora de inicio debe ser menor que la hora de fin');
       return;
+    }
+    
+    // Validar que la fecha del evento sea futura (no hoy ni en el pasado)
+    const eventDate = this.eventForm.get('fecha')?.value;
+    if (eventDate) {
+      const selectedDate = new Date(eventDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetear las horas para comparar solo fechas
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate <= today) {
+        notyf.error('La fecha del evento debe ser posterior a hoy. No se permiten eventos para hoy o fechas pasadas.');
+        return;
+      }
     }
 
     const orgsSinAval = this.organizadores.filter(org => org.requiresAval && !org.avalPdf);
@@ -585,7 +617,22 @@ export class AddEventComponent {
         },
         error: (err) => {
           console.error('Error al actualizar:', err);
-          notyf.error('Error al actualizar el evento.');
+          // Solo mostrar error si el interceptor no lo ha manejado
+          if (!(err && (err as any)._notyfHandled)) {
+            let errorMessage = 'Error al actualizar el evento.';
+            if (err.error) {
+              if (typeof err.error === 'string') {
+                errorMessage = err.error;
+              } else if (err.error.error) {
+                errorMessage = err.error.error;
+              } else if (err.error.message) {
+                errorMessage = err.error.message;
+              }
+            } else if (err.message) {
+              errorMessage = err.message;
+            }
+            notyf.error(errorMessage);
+          }
         }
       });
     } else {
@@ -596,7 +643,29 @@ export class AddEventComponent {
         },
         error: (error) => {
           console.error('Error al crear:', error);
-          notyf.error('Error al crear el evento.');
+          console.log('error.error:', error.error);
+          console.log('typeof error.error:', typeof error.error);
+          console.log('error._notyfHandled:', (error as any)._notyfHandled);
+          
+          // Solo mostrar error si el interceptor no lo ha manejado
+          if (!(error && (error as any)._notyfHandled)) {
+            let errorMessage = 'Error al crear el evento.';
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                errorMessage = error.error;
+              } else if (error.error.error) {
+                errorMessage = error.error.error;
+              } else if (error.error.message) {
+                errorMessage = error.error.message;
+              }
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            console.log('Mostrando error message:', errorMessage);
+            notyf.error(errorMessage);
+          } else {
+            console.log('Error ya manejado por interceptor, no se muestra notyf');
+          }
         }
       });
     }
@@ -613,12 +682,15 @@ export class AddEventComponent {
 
   private buildEventoDTO(): EventoDTO {
     const form = this.eventForm;
-    const primerEncuentro = this.encounters[0];
     const formatHora = (hora: string) => hora && hora.length === 5 ? hora + ':00' : hora;
 
     const instalaciones = this.encounters
       .filter(enc => enc.location?.idInstalacion !== undefined)
-      .map(enc => enc.location!.idInstalacion);
+      .map(enc => ({
+        idInstalacion: enc.location!.idInstalacion,
+        horaInicio: formatHora(enc.startTime),
+        horaFin: formatHora(enc.endTime)
+      }));
 
     const organizadoresData = this.organizadores.map((org, index) => ({
       idUsuario: org.usuario.idUsuario,
@@ -668,9 +740,8 @@ export class AddEventComponent {
       titulo: form.get('eventName')?.value?.trim() || '',
       tipoEvento: form.get('eventType')?.value === 'academico' ? 'Académico' : 'Lúdico',
       fecha: form.get('eventDate')?.value || '',
-      horaInicio: formatHora(primerEncuentro.startTime),
-      horaFin: formatHora(primerEncuentro.endTime),
       instalaciones: instalaciones,
+      capacidad: this.eventCapacity,
       participacionesOrganizaciones: participacionesOrganizaciones,
       organizadores: organizadoresData,
       idOrganizador: this.currentUser?.idUsuario || 0,
@@ -762,6 +833,43 @@ export class AddEventComponent {
       }
     }
     return true;
+  }
+
+  validateCapacity(): boolean {
+    // Si no se especificó capacidad, permitir continuar (campo opcional)
+    if (!this.eventCapacity || this.eventCapacity <= 0) {
+      return true;
+    }
+
+    // Obtener instalaciones únicas seleccionadas
+    const selectedLocations = this.encounters
+      .filter(e => e.location !== null)
+      .map(e => e.location);
+    
+    // Usar un Set para obtener instalaciones únicas por ID
+    const uniqueLocations = Array.from(
+      new Map(selectedLocations.map(loc => [loc!.idInstalacion, loc])).values()
+    );
+
+    // Calcular capacidad total
+    const totalCapacity = uniqueLocations.reduce((sum, loc) => sum + (loc?.capacidad || 0), 0);
+
+    // Validar que la capacidad total sea suficiente
+    if (totalCapacity < this.eventCapacity) {
+      notyf.error(
+        `Capacidad insuficiente: ${totalCapacity}/${this.eventCapacity} personas. Seleccione más instalaciones.`
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  onCapacityChange(): void {
+    // Validar automáticamente cuando cambia la capacidad
+    if (this.eventCapacity && this.eventCapacity > 0 && this.encounters.some(e => e.location !== null)) {
+      this.validateCapacity();
+    }
   }
 
   private getDangerousFields(): string[] {
