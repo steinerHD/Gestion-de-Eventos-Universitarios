@@ -226,7 +226,9 @@ export class MyEventsComponent implements OnInit {
   }
 
   canSendToValidation(evento: EventoDTO): boolean {
-    return evento.estado === 'Borrador' || evento.estado === 'Rechazado';
+    // Solo eventos en Borrador pueden enviarse a validación
+    // Los eventos Rechazados deben editarse primero (lo cual los convierte a Borrador)
+    return evento.estado === 'Borrador';
   }
 
   getEstadoBadgeClass(estado: string): string {

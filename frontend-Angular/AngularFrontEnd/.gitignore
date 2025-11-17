@@ -41,6 +41,10 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Ignore uploaded files (avales) placed under src/assets/uploads
+# Ignore uploaded files (avales and actas) placed under src/assets/uploads
 # We keep a .gitkeep so the folder exists in the repo but uploaded files are not tracked.
 /src/assets/uploads/avales/*
+/src/assets/uploads/actas/*
+# But keep the .gitkeep files
+!/src/assets/uploads/avales/.gitkeep
+!/src/assets/uploads/actas/.gitkeep

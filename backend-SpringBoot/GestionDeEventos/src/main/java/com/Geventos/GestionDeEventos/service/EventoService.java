@@ -93,6 +93,12 @@ public class EventoService {
 
         List<Instalacion> instalaciones = getInstalacionesByIds(request.getInstalaciones());
 
+        // Si el evento estaba Rechazado, al editarlo se vuelve a Borrador
+        if (existingEvento.getEstado() == Evento.EstadoEvento.Rechazado) {
+            existingEvento.setEstado(Evento.EstadoEvento.Borrador);
+            System.out.println("[DEBUG] Evento rechazado convertido a Borrador al editarlo");
+        }
+
         existingEvento.setTitulo(request.getTitulo());
         existingEvento.setTipoEvento(request.getTipoEvento());
         existingEvento.setFecha(request.getFecha());
@@ -356,7 +362,8 @@ public class EventoService {
 
     /**
      * Cambia el estado de un evento a Pendiente para enviarlo a validación.
-     * Asigna el evento a TODAS las secretarias académicas activas en ese momento.
+     * Asigna el evento solo a las secretarias activas de la facultad correspondiente
+     * al programa del estudiante o unidad académica del docente organizador.
      * Lanza IllegalArgumentException si no existe el evento o si el organizador no es válido.
      */
     public void enviarAValidacion(Long idEvento) {
@@ -373,11 +380,39 @@ public class EventoService {
         evento.setEstado(Evento.EstadoEvento.Pendiente);
         eventoRepository.save(evento);
         
-        // Obtener todas las secretarias activas
+        // Obtener la facultad del organizador
+        Usuario organizador = evento.getOrganizador();
+        String facultadOrganizador = obtenerFacultadOrganizador(organizador);
+        
+        if (facultadOrganizador == null) {
+            throw new IllegalArgumentException("No se pudo determinar la facultad del organizador");
+        }
+        
+        // Normalizar la facultad para comparación (sin acentos, minúsculas)
+        String facultadNormalizada = normalizarTexto(facultadOrganizador);
+        
+        System.out.println("[DEBUG] Facultad del organizador: " + facultadOrganizador);
+        System.out.println("[DEBUG] Facultad normalizada: " + facultadNormalizada);
+        
+        // Obtener solo las secretarias activas de la facultad correspondiente
         List<SecretariaAcademica> secretariasActivas = secretariaAcademicaRepository.findAll()
                 .stream()
                 .filter(SecretariaAcademica::getActiva)
+                .filter(s -> {
+                    String facultadSecretaria = normalizarTexto(s.getFacultad());
+                    System.out.println("[DEBUG] Comparando con secretaria facultad: " + s.getFacultad() + " -> normalizado: " + facultadSecretaria);
+                    // Buscar coincidencia exacta o que contenga la palabra clave
+                    return facultadSecretaria.equals(facultadNormalizada) || 
+                           facultadSecretaria.contains(facultadNormalizada) ||
+                           facultadNormalizada.contains(facultadSecretaria);
+                })
                 .toList();
+        
+        System.out.println("[DEBUG] Secretarias encontradas: " + secretariasActivas.size());
+        
+        if (secretariasActivas.isEmpty()) {
+            throw new IllegalArgumentException("No hay secretarias activas en la facultad: " + facultadOrganizador);
+        }
         
         // Asignar el evento a cada secretaria activa y crear notificación
         for (SecretariaAcademica secretaria : secretariasActivas) {
@@ -397,6 +432,165 @@ public class EventoService {
             notificacion.setTipoNotificacion(Notificacion.TipoNotificacion.EVENTO_CREADO);
             notificacionRepository.save(notificacion);
         }
+    }
+    
+    /**
+     * Obtiene la facultad correspondiente al organizador del evento.
+     * Para estudiantes, mapea el programa a facultad.
+     * Para docentes, mapea la unidad académica a facultad.
+     */
+    private String obtenerFacultadOrganizador(Usuario organizador) {
+        if (organizador == null) {
+            return null;
+        }
+        
+        // Si es estudiante, obtener facultad desde su programa
+        if (organizador.getEstudiante() != null) {
+            String programa = organizador.getEstudiante().getPrograma();
+            return mapearProgramaAFacultad(programa);
+        }
+        
+        // Si es docente, obtener facultad desde su unidad académica
+        if (organizador.getDocente() != null) {
+            String unidadAcademica = organizador.getDocente().getUnidadAcademica();
+            return mapearUnidadAcademicaAFacultad(unidadAcademica);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Mapea un programa académico a su facultad correspondiente.
+     */
+    private String mapearProgramaAFacultad(String programa) {
+        if (programa == null) return null;
+        
+        String programaLower = programa.toLowerCase();
+        
+        // Facultad de Ingeniería
+        if (programaLower.contains("ingeniería") || programaLower.contains("ingenieria") ||
+            programaLower.contains("sistemas") || programaLower.contains("software") ||
+            programaLower.contains("electrónica") || programaLower.contains("electronica") ||
+            programaLower.contains("mecánica") || programaLower.contains("mecanica") ||
+            programaLower.contains("civil") || programaLower.contains("industrial")) {
+            return "Ingeniería";
+        }
+        
+        // Facultad de Ciencias
+        if (programaLower.contains("matemáticas") || programaLower.contains("matematicas") ||
+            programaLower.contains("física") || programaLower.contains("fisica") ||
+            programaLower.contains("química") || programaLower.contains("quimica") ||
+            programaLower.contains("biología") || programaLower.contains("biologia")) {
+            return "Ciencias";
+        }
+        
+        // Facultad de Ciencias Económicas
+        if (programaLower.contains("economía") || programaLower.contains("economia") ||
+            programaLower.contains("administración") || programaLower.contains("administracion") ||
+            programaLower.contains("contaduría") || programaLower.contains("contaduria") ||
+            programaLower.contains("negocios")) {
+            return "Ciencias Económicas";
+        }
+        
+        // Facultad de Ciencias Humanas
+        if (programaLower.contains("psicología") || programaLower.contains("psicologia") ||
+            programaLower.contains("sociología") || programaLower.contains("sociologia") ||
+            programaLower.contains("antropología") || programaLower.contains("antropologia") ||
+            programaLower.contains("trabajo social") || programaLower.contains("filosofía") ||
+            programaLower.contains("filosofia")) {
+            return "Ciencias Humanas";
+        }
+        
+        // Facultad de Artes
+        if (programaLower.contains("música") || programaLower.contains("musica") ||
+            programaLower.contains("artes") || programaLower.contains("diseño") ||
+            programaLower.contains("diseno") || programaLower.contains("teatro")) {
+            return "Artes";
+        }
+        
+        // Facultad de Derecho
+        if (programaLower.contains("derecho") || programaLower.contains("ciencias políticas") ||
+            programaLower.contains("ciencias politicas")) {
+            return "Derecho";
+        }
+        
+        // Facultad de Medicina
+        if (programaLower.contains("medicina") || programaLower.contains("enfermería") ||
+            programaLower.contains("enfermeria") || programaLower.contains("odontología") ||
+            programaLower.contains("odontologia")) {
+            return "Medicina";
+        }
+        
+        // Por defecto, retornar el programa como facultad
+        return programa;
+    }
+    
+    /**
+     * Mapea una unidad académica a su facultad correspondiente.
+     */
+    private String mapearUnidadAcademicaAFacultad(String unidadAcademica) {
+        if (unidadAcademica == null) return null;
+        
+        String unidadLower = unidadAcademica.toLowerCase();
+        
+        // Mapeo similar al de programas
+        if (unidadLower.contains("ingeniería") || unidadLower.contains("ingenieria")) {
+            return "Ingeniería";
+        }
+        
+        if (unidadLower.contains("ciencias exactas") || unidadLower.contains("ciencias naturales") ||
+            unidadLower.contains("matemáticas") || unidadLower.contains("matematicas") ||
+            unidadLower.contains("física") || unidadLower.contains("fisica")) {
+            return "Ciencias";
+        }
+        
+        if (unidadLower.contains("económicas") || unidadLower.contains("economicas") ||
+            unidadLower.contains("administración") || unidadLower.contains("administracion") ||
+            unidadLower.contains("contaduría") || unidadLower.contains("contaduria")) {
+            return "Ciencias Económicas";
+        }
+        
+        if (unidadLower.contains("humanas") || unidadLower.contains("sociales") ||
+            unidadLower.contains("psicología") || unidadLower.contains("psicologia")) {
+            return "Ciencias Humanas";
+        }
+        
+        if (unidadLower.contains("artes") || unidadLower.contains("música") ||
+            unidadLower.contains("musica") || unidadLower.contains("diseño") ||
+            unidadLower.contains("diseno")) {
+            return "Artes";
+        }
+        
+        if (unidadLower.contains("derecho") || unidadLower.contains("jurídica") ||
+            unidadLower.contains("juridica")) {
+            return "Derecho";
+        }
+        
+        if (unidadLower.contains("medicina") || unidadLower.contains("salud") ||
+            unidadLower.contains("ciencias médicas") || unidadLower.contains("ciencias medicas")) {
+            return "Medicina";
+        }
+        
+        // Por defecto, retornar la unidad como facultad
+        return unidadAcademica;
+    }
+    
+    /**
+     * Normaliza un texto para comparación: elimina acentos, convierte a minúsculas y elimina espacios extra.
+     */
+    private String normalizarTexto(String texto) {
+        if (texto == null) return "";
+        
+        // Convertir a minúsculas
+        String normalizado = texto.toLowerCase().trim();
+        
+        // Eliminar acentos
+        normalizado = normalizado
+            .replace("á", "a").replace("é", "e").replace("í", "i")
+            .replace("ó", "o").replace("ú", "u").replace("ñ", "n")
+            .replace("ü", "u");
+        
+        return normalizado;
     }
 
     public void aprobarEvento(Long idEvento) {
