@@ -1,56 +1,93 @@
 package com.Geventos.GestionDeEventos.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
 /**
- * Servicio para manejar la encriptación y verificación de contraseñas usando BCrypt.
- * BCrypt es un algoritmo de hash seguro que incluye salt automático y es resistente a ataques de fuerza bruta.
+ * Servicio para manejar la encriptación y desencriptación de contraseñas usando AES.
+ * Permite encriptar para guardar en BD y desencriptar para recuperación de contraseña.
  */
 @Service
 public class PasswordService {
 
-    private final BCryptPasswordEncoder passwordEncoder;
+    private static final String ALGORITHM = "AES";
+    private final SecretKey secretKey;
 
-    public PasswordService() {
-        // Strength 12 ofrece un buen balance entre seguridad y rendimiento
-        this.passwordEncoder = new BCryptPasswordEncoder(12);
+    public PasswordService(@Value("${password.encryption.key:MySecretKey12345}") String encryptionKey) {
+        // Asegurar que la clave tenga exactamente 16 bytes (128 bits)
+        String key = encryptionKey;
+        if (key.length() < 16) {
+            key = String.format("%-16s", key).replace(' ', '0');
+        } else if (key.length() > 16) {
+            key = key.substring(0, 16);
+        }
+        this.secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
     }
 
     /**
-     * Encripta una contraseña en texto plano usando BCrypt.
+     * Encripta una contraseña en texto plano usando AES.
      * 
      * @param rawPassword La contraseña en texto plano
-     * @return La contraseña encriptada (hash)
+     * @return La contraseña encriptada en Base64
      */
     public String encryptPassword(String rawPassword) {
         if (rawPassword == null || rawPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("La contraseña no puede estar vacía");
         }
-        return passwordEncoder.encode(rawPassword);
+        
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedBytes = cipher.doFinal(rawPassword.getBytes());
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
+        }
     }
 
     /**
-     * Verifica si una contraseña en texto plano coincide con un hash BCrypt.
+     * Desencripta una contraseña encriptada a texto plano.
+     * 
+     * @param encryptedPassword La contraseña encriptada en Base64
+     * @return La contraseña en texto plano
+     */
+    public String decryptPassword(String encryptedPassword) {
+        if (encryptedPassword == null || encryptedPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña encriptada no puede estar vacía");
+        }
+        
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
+            return new String(decryptedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al desencriptar la contraseña", e);
+        }
+    }
+
+    /**
+     * Verifica si una contraseña en texto plano coincide con una contraseña encriptada.
      * 
      * @param rawPassword La contraseña en texto plano a verificar
-     * @param encodedPassword El hash de la contraseña almacenado
+     * @param encryptedPassword La contraseña encriptada almacenada
      * @return true si la contraseña coincide, false en caso contrario
      */
-    public boolean verifyPassword(String rawPassword, String encodedPassword) {
-        if (rawPassword == null || encodedPassword == null) {
+    public boolean verifyPassword(String rawPassword, String encryptedPassword) {
+        if (rawPassword == null || encryptedPassword == null) {
             return false;
         }
-        return passwordEncoder.matches(rawPassword, encodedPassword);
-    }
-
-    /**
-     * Verifica si un hash necesita ser actualizado (por ejemplo, si se cambió el strength).
-     * 
-     * @param encodedPassword El hash a verificar
-     * @return true si el hash necesita ser re-encriptado
-     */
-    public boolean needsUpgrade(String encodedPassword) {
-        return passwordEncoder.upgradeEncoding(encodedPassword);
+        
+        try {
+            String decrypted = decryptPassword(encryptedPassword);
+            return rawPassword.equals(decrypted);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

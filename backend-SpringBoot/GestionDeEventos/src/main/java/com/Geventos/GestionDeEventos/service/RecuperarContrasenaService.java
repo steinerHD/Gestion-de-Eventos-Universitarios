@@ -1,6 +1,5 @@
 package com.Geventos.GestionDeEventos.service;
 
-import com.Geventos.GestionDeEventos.entity.PasswordResetToken;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.repository.PasswordResetTokenRepository;
 import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
@@ -9,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -18,51 +17,47 @@ public class RecuperarContrasenaService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final MailService mailService;
+    private final PasswordService passwordService;
     
     @Value("${app.frontend.url:http://localhost:4200}")
     private String frontendUrl;
 
     /**
-     * Genera un token de recuperación y envía el correo con el enlace
+     * Desencripta y envía la contraseña por correo
      */
     @Transactional
     public String enviarTokenRecuperacion(String correo) {
         return usuarioRepository.findByCorreo(correo)
                 .map(usuario -> {
-                    System.out.println("Generando token de recuperación para: " + correo);
+                    System.out.println("Recuperando contraseña para: " + correo);
                     
-                    // Eliminar tokens anteriores del usuario
-                    tokenRepository.deleteByUsuario(usuario);
-                    
-                    // Generar nuevo token
-                    String token = UUID.randomUUID().toString();
-                    PasswordResetToken resetToken = new PasswordResetToken(token, usuario);
-                    tokenRepository.save(resetToken);
-                    
-                    // Construir enlace de recuperación
-                    String resetLink = frontendUrl + "/reset-password?token=" + token;
-                    
-                    // Enviar correo con el enlace
-                    String mensaje = String.format(
-                        "Hola %s,\n\n" +
-                        "Has solicitado recuperar tu contraseña.\n\n" +
-                        "Haz clic en el siguiente enlace para restablecer tu contraseña:\n" +
-                        "%s\n\n" +
-                        "Este enlace es válido por 1 hora.\n\n" +
-                        "Si no solicitaste este cambio, ignora este correo.\n\n" +
-                        "Saludos,\n" +
-                        "Sistema de Gestión de Eventos UAO",
-                        usuario.getNombre(),
-                        resetLink
-                    );
-                    
-                    mailService.enviarCorreo(
-                            correo,
-                            "Recuperación de contraseña - Gestión de Eventos UAO",
-                            mensaje
-                    );
-                    
-                    return "Correo de recuperación enviado correctamente a " + correo;
+                    try {
+                        // Desencriptar la contraseña
+                        String contrasenaDesencriptada = passwordService.decryptPassword(usuario.getContrasenaHash());
+                        
+                        // Enviar correo con la contraseña
+                        String mensaje = String.format(
+                            "Hola %s,\n\n" +
+                            "Has solicitado recuperar tu contraseña.\n\n" +
+                            "Tu contraseña es: %s\n\n" +
+                            "Por seguridad, te recomendamos cambiarla después de iniciar sesión.\n\n" +
+                            "Saludos,\n" +
+                            "Sistema de Gestión de Eventos UAO",
+                            usuario.getNombre(),
+                            contrasenaDesencriptada
+                        );
+                        
+                        mailService.enviarCorreo(
+                                correo,
+                                "Recuperación de contraseña - Gestión de Eventos UAO",
+                                mensaje
+                        );
+                        
+                        return "Contraseña enviada correctamente a " + correo;
+                    } catch (Exception e) {
+                        System.err.println("Error al desencriptar contraseña: " + e.getMessage());
+                        return "Error al recuperar la contraseña";
+                    }
                 })
                 .orElse("El correo no existe en la base de datos");
     }

@@ -5,7 +5,6 @@ import com.Geventos.GestionDeEventos.mappers.DocenteMapper;
 import com.Geventos.GestionDeEventos.mappers.EstudianteMapper;
 import com.Geventos.GestionDeEventos.mappers.SecretariaMapper;
 import com.Geventos.GestionDeEventos.mappers.UsuarioMapper;
-import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import com.Geventos.GestionDeEventos.service.JwtService;
 import com.Geventos.GestionDeEventos.service.RecuperarContrasenaService;
 import com.Geventos.GestionDeEventos.service.UsuarioService;
@@ -46,7 +45,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    private final UsuarioRepository usuarioRepository;
     private final JwtService jwtService;
     private final UsuarioService usuarioService;
 
