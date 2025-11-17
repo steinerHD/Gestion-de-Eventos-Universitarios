@@ -31,6 +31,7 @@ public class UsuarioService {
     private final EstudianteRepository estudianteRepository;
     private final DocenteRepository docenteRepository;
     private final SecretariaAcademicaRepository secretariaAcademicaRepository;
+    private final PasswordService passwordService;
 
     public List<UsuarioResponse> findAll() {
         return usuarioRepository.findAll()
@@ -57,6 +58,13 @@ public class UsuarioService {
         }
 
         Usuario usuario = usuarioMapper.toEntity(request);
+        
+        // Encriptar la contraseña antes de guardar
+        if (request.getContrasenaHash() != null && !request.getContrasenaHash().isEmpty()) {
+            String encryptedPassword = passwordService.encryptPassword(request.getContrasenaHash());
+            usuario.setContrasenaHash(encryptedPassword);
+        }
+        
         return usuarioMapper.toResponse(usuarioRepository.save(usuario));
     }
 
@@ -71,7 +79,12 @@ public class UsuarioService {
 
         if (request.getNombre() != null) existingUsuario.setNombre(request.getNombre());
         if (request.getCorreo() != null) existingUsuario.setCorreo(request.getCorreo());
-        if (request.getContrasenaHash() != null) existingUsuario.setContrasenaHash(request.getContrasenaHash());
+        
+        // Encriptar la contraseña si se está actualizando
+        if (request.getContrasenaHash() != null && !request.getContrasenaHash().isEmpty()) {
+            String encryptedPassword = passwordService.encryptPassword(request.getContrasenaHash());
+            existingUsuario.setContrasenaHash(encryptedPassword);
+        }
 
         return usuarioMapper.toResponse(usuarioRepository.save(existingUsuario));
     }
@@ -126,8 +139,51 @@ public class UsuarioService {
         return usuarioRepository.existsByCorreo(correo);
     }
 
-    public Optional<UsuarioResponse> authenticate(String correo, String contrasenaHash) {
-        return usuarioRepository.findByCorreoAndContrasenaHash(correo, contrasenaHash)
-                .map(usuarioMapper::toResponse);
+    public Optional<UsuarioResponse> authenticate(String correo, String rawPassword) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+        
+        if (usuarioOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        
+        // Verificar la contraseña usando BCrypt
+        if (passwordService.verifyPassword(rawPassword, usuario.getContrasenaHash())) {
+            return Optional.of(usuarioMapper.toResponse(usuario));
+        }
+        
+        return Optional.empty();
+    }
+    
+    /**
+     * Actualiza la contraseña de un usuario (para recuperación de contraseña)
+     */
+    public void updatePassword(Long userId, String newRawPassword) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        
+        String encryptedPassword = passwordService.encryptPassword(newRawPassword);
+        usuario.setContrasenaHash(encryptedPassword);
+        usuarioRepository.save(usuario);
+    }
+    
+    /**
+     * Actualiza la contraseña verificando la contraseña anterior
+     */
+    public boolean changePassword(Long userId, String oldRawPassword, String newRawPassword) {
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        
+        // Verificar que la contraseña anterior sea correcta
+        if (!passwordService.verifyPassword(oldRawPassword, usuario.getContrasenaHash())) {
+            return false;
+        }
+        
+        // Actualizar a la nueva contraseña
+        String encryptedPassword = passwordService.encryptPassword(newRawPassword);
+        usuario.setContrasenaHash(encryptedPassword);
+        usuarioRepository.save(usuario);
+        return true;
     }
 }

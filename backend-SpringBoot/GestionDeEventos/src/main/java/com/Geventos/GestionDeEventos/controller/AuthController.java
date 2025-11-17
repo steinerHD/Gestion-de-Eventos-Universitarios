@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,9 +61,9 @@ public class AuthController {
     @PostMapping("/recuperar")
     public ResponseEntity<Map<String, String>> recuperarContrasena(@RequestBody Map<String, String> body) {
         String correo = body.get("correo");
-        System.out.println("Correo recibido: " + correo);
+        System.out.println("Solicitud de recuperación de contraseña para: " + correo);
 
-        String resultado = recuperarContrasenaService.enviarContrasena(correo);
+        String resultado = recuperarContrasenaService.enviarTokenRecuperacion(correo);
 
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", resultado);
@@ -70,17 +71,50 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
-                .orElse(null);
+    @PostMapping("/restablecer-contrasena")
+    public ResponseEntity<Map<String, String>> restablecerContrasena(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        String nuevaContrasena = body.get("nuevaContrasena");
 
-        if (usuario == null || !usuario.getContrasenaHash().equals(request.getContrasenaHash())) {
-            return ResponseEntity.status(401).body("Credenciales inválidas");
+        if (token == null || nuevaContrasena == null || nuevaContrasena.trim().isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "Token y nueva contraseña son requeridos");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        String token = jwtService.generateToken(usuario.getCorreo());
-        return ResponseEntity.ok(new JwtResponse(token));
+        boolean exitoso = recuperarContrasenaService.restablecerContrasena(token, nuevaContrasena);
+
+        Map<String, String> response = new HashMap<>();
+        if (exitoso) {
+            response.put("mensaje", "Contraseña restablecida correctamente");
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("mensaje", "Token inválido, expirado o ya utilizado");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/validar-token")
+    public ResponseEntity<Map<String, Boolean>> validarToken(@RequestParam String token) {
+        boolean valido = recuperarContrasenaService.validarToken(token);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("valido", valido);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+        // Usar el método authenticate del UsuarioService que verifica con BCrypt
+        Optional<UsuarioResponse> usuarioOpt = usuarioService.authenticate(request.getCorreo(), request.getContrasenaHash());
+        
+        if (usuarioOpt.isPresent()) {
+            String token = jwtService.generateToken(usuarioOpt.get().getCorreo());
+            return ResponseEntity.ok(new JwtResponse(token));
+        } else {
+            return ResponseEntity.status(401).body("Credenciales inválidas");
+        }
     }
 
     // Registro de secretaria académica
