@@ -6,7 +6,7 @@ import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.EventoSecretaria;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
-import com.Geventos.GestionDeEventos.entity.PeriodoActivacion;
+import com.Geventos.GestionDeEventos.entity.Notificacion;
 import com.Geventos.GestionDeEventos.entity.SecretariaAcademica;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
@@ -38,6 +38,7 @@ public class EventoService {
     private final PeriodoActivacionRepository periodoActivacionRepository;
     private final SecretariaAcademicaRepository secretariaAcademicaRepository;
     private final EventoSecretariaRepository eventoSecretariaRepository;
+    private final NotificacionRepository notificacionRepository;
 
     // ------------------------- CREATE / UPDATE -------------------------
     public EventoResponse createEvento(EventoRequest request) {
@@ -376,7 +377,7 @@ public class EventoService {
                 .filter(SecretariaAcademica::getActiva)
                 .toList();
         
-        // Asignar el evento a cada secretaria activa
+        // Asignar el evento a cada secretaria activa y crear notificación
         for (SecretariaAcademica secretaria : secretariasActivas) {
             // Verificar si ya está asignado
             if (!eventoSecretariaRepository.existsByEventoAndSecretaria(evento, secretaria)) {
@@ -385,6 +386,14 @@ public class EventoService {
                 eventoSecretaria.setSecretaria(secretaria);
                 eventoSecretariaRepository.save(eventoSecretaria);
             }
+            
+            // Crear notificación para la secretaria
+            Notificacion notificacion = new Notificacion();
+            notificacion.setUsuario(secretaria.getUsuario());
+            notificacion.setMensaje("Nuevo evento pendiente de validación: " + evento.getTitulo());
+            notificacion.setLeida(false);
+            notificacion.setTipoNotificacion(Notificacion.TipoNotificacion.EVENTO_CREADO);
+            notificacionRepository.save(notificacion);
         }
     }
 

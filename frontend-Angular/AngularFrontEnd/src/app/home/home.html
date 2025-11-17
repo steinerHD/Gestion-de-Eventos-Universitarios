@@ -12,9 +12,47 @@
     <div class="navbar-icons">
       <button class="btn btn-light btn-create" *ngIf="isSecretaria" routerLink="/aprobar-eventos"><i class="ri-todo-line"></i> Califica los eventos</button>
       <button class="btn btn-light btn-create" *ngIf="!isSecretaria" routerLink="/add-event">+ Crear evento</button>
+      
+      <!-- Campana de notificaciones -->
+      <div class="notification-bell" (click)="toggleNotificaciones($event)">
+        <i class="ri-notification-3-line"></i>
+        <span class="notification-badge" *ngIf="notificacionesNoLeidas > 0">{{ notificacionesNoLeidas }}</span>
+      </div>
+      
       <i class="ri-account-circle-fill" id="perfilBtn" routerLink="/profile-menu"></i>
     </div>
   </nav>
+  
+  <!-- Dropdown de notificaciones -->
+  <div class="notifications-dropdown" *ngIf="showNotificaciones">
+    <div class="notifications-header">
+      <h3>Notificaciones</h3>
+      <button class="btn-close-notifications" (click)="cerrarNotificaciones()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    
+    <div class="notifications-body">
+      <div *ngIf="notificaciones.length === 0" class="no-notifications">
+        <p>No tienes notificaciones nuevas</p>
+      </div>
+      
+      <div *ngFor="let notif of notificaciones" 
+           class="notification-item" 
+           [class.unread]="!notif.leida"
+           (click)="marcarComoLeida(notif)">
+        <div class="notification-icon">
+          <i class="ri-notification-3-fill" *ngIf="notif.tipoNotificacion === 'EVENTO_CREADO'"></i>
+          <i class="ri-checkbox-circle-fill" *ngIf="notif.tipoNotificacion === 'EVENTO_APROBADO'"></i>
+          <i class="ri-close-circle-fill" *ngIf="notif.tipoNotificacion === 'EVENTO_RECHAZADO'"></i>
+        </div>
+        <div class="notification-content">
+          <p class="notification-message">{{ notif.mensaje }}</p>
+          <span class="notification-time">{{ notif.fechaEnvio | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div>

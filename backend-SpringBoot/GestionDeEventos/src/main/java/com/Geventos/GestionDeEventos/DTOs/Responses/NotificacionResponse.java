@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 public class NotificacionResponse {
     private Long idNotificacion;
     private Long idEvaluacion;
+    private Long idUsuario;
+    private String nombreUsuario;
     private String mensaje;
+    private Boolean leida;
+    private String tipoNotificacion;
     private LocalDateTime fechaEnvio;
 }

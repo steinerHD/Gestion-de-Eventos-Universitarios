@@ -52,6 +52,25 @@ public class NotificacionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fecha) {
         return ResponseEntity.ok(notificacionService.findNotificacionesRecientes(fecha));
     }
+    
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<NotificacionResponse>> getNotificacionesByUsuario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(notificacionService.findByUsuarioId(idUsuario));
+    }
+    
+    @GetMapping("/usuario/{idUsuario}/no-leidas")
+    public ResponseEntity<List<NotificacionResponse>> getNotificacionesNoLeidasByUsuario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(notificacionService.findByUsuarioIdAndNoLeidas(idUsuario));
+    }
+    
+    @PutMapping("/{id}/marcar-leida")
+    public ResponseEntity<?> marcarComoLeida(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(notificacionService.marcarComoLeida(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PostMapping
     public ResponseEntity<?> createNotificacion(@Valid @RequestBody NotificacionRequest request) {

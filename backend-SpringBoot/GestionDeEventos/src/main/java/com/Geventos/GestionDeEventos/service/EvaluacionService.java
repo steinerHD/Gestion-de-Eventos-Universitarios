@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
@@ -88,8 +87,13 @@ public class EvaluacionService {
         SecretariaAcademica secretaria = secretariaAcademicaRepository.findById(request.getIdSecretaria())
                 .orElseThrow(() -> new IllegalArgumentException("Secretaria académica no encontrada"));
 
-        // Validar fecha
-        if (request.getFecha().isAfter(LocalDate.now())) {
+        // Si no se proporciona fecha, usar la fecha actual
+        if (request.getFecha() == null) {
+            request.setFecha(LocalDate.now());
+        }
+
+        // Validar fecha - permitir hasta el día siguiente para evitar problemas de zona horaria
+        if (request.getFecha().isAfter(LocalDate.now().plusDays(1))) {
             throw new IllegalArgumentException("La fecha de evaluación no puede ser en el futuro");
         }
 
@@ -115,15 +119,21 @@ public class EvaluacionService {
         Evaluacion existingEvaluacion = evaluacionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Evaluación no encontrada"));
 
-        if (request.getFecha().isAfter(LocalDate.now())) {
+        // Si no se proporciona fecha, mantener la existente
+        if (request.getFecha() == null) {
+            request.setFecha(existingEvaluacion.getFecha());
+        }
+
+        // Validar fecha - permitir hasta el día siguiente para evitar problemas de zona horaria
+        if (request.getFecha().isAfter(LocalDate.now().plusDays(1))) {
             throw new IllegalArgumentException("La fecha de evaluación no puede ser en el futuro");
         }
 
         existingEvaluacion.setEstado(request.getEstado());
         existingEvaluacion.setFecha(request.getFecha());
         existingEvaluacion.setJustificacion(request.getJustificacion());
-        if (existingEvaluacion.getActaPdf() != null) {
-            request.setActaPdf(Base64.getEncoder().encodeToString(existingEvaluacion.getActaPdf()));
+        if (request.getActaPdf() != null) {
+            existingEvaluacion.setActaPdf(request.getActaPdf());
         }
 
         Evaluacion updated = evaluacionRepository.save(existingEvaluacion);
@@ -138,10 +148,24 @@ public class EvaluacionService {
     }
 
     private void crearNotificacionEvaluacion(Evaluacion evaluacion) {
-        Notificacion notificacion = new Notificacion();
-        notificacion.setEvaluacion(evaluacion);
-        notificacion.setMensaje("El evento ha sido " + evaluacion.getEstado().toString() + " por la Secretaría Académica.");
-
-        notificacionRepository.save(notificacion);
+        // Obtener el organizador principal del evento
+        Usuario organizador = evaluacion.getEvento().getOrganizador();
+        
+        if (organizador != null) {
+            Notificacion notificacion = new Notificacion();
+            notificacion.setEvaluacion(evaluacion);
+            notificacion.setUsuario(organizador);
+            notificacion.setLeida(false);
+            
+            if (evaluacion.getEstado() == Evaluacion.EstadoEvaluacion.Aprobado) {
+                notificacion.setMensaje("Tu evento '" + evaluacion.getEvento().getTitulo() + "' ha sido aprobado por la Secretaría Académica.");
+                notificacion.setTipoNotificacion(Notificacion.TipoNotificacion.EVENTO_APROBADO);
+            } else if (evaluacion.getEstado() == Evaluacion.EstadoEvaluacion.Rechazado) {
+                notificacion.setMensaje("Tu evento '" + evaluacion.getEvento().getTitulo() + "' ha sido rechazado por la Secretaría Académica.");
+                notificacion.setTipoNotificacion(Notificacion.TipoNotificacion.EVENTO_RECHAZADO);
+            }
+            
+            notificacionRepository.save(notificacion);
+        }
     }
 }

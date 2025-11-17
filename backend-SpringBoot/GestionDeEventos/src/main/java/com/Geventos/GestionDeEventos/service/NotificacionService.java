@@ -4,9 +4,11 @@ import com.Geventos.GestionDeEventos.DTOs.Requests.NotificacionRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.NotificacionResponse;
 import com.Geventos.GestionDeEventos.entity.Evaluacion;
 import com.Geventos.GestionDeEventos.entity.Notificacion;
+import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.mappers.NotificacionMapper;
 import com.Geventos.GestionDeEventos.repository.EvaluacionRepository;
 import com.Geventos.GestionDeEventos.repository.NotificacionRepository;
+import com.Geventos.GestionDeEventos.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class NotificacionService {
 
     private final NotificacionRepository notificacionRepository;
     private final EvaluacionRepository evaluacionRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public List<NotificacionResponse> findAll() {
         return notificacionRepository.findAll()
@@ -41,6 +44,20 @@ public class NotificacionService {
                 .map(NotificacionMapper::toResponse)
                 .toList();
     }
+    
+    public List<NotificacionResponse> findByUsuarioId(Long idUsuario) {
+        return notificacionRepository.findByUsuarioId(idUsuario)
+                .stream()
+                .map(NotificacionMapper::toResponse)
+                .toList();
+    }
+    
+    public List<NotificacionResponse> findByUsuarioIdAndNoLeidas(Long idUsuario) {
+        return notificacionRepository.findByUsuarioIdAndNoLeidas(idUsuario)
+                .stream()
+                .map(NotificacionMapper::toResponse)
+                .toList();
+    }
 
     public List<NotificacionResponse> findByFechaEnvioBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         return notificacionRepository.findByFechaEnvioBetween(fechaInicio, fechaFin)
@@ -57,10 +74,16 @@ public class NotificacionService {
     }
 
     public NotificacionResponse save(NotificacionRequest request) {
-        Evaluacion evaluacion = evaluacionRepository.findById(request.getIdEvaluacion())
-                .orElseThrow(() -> new IllegalArgumentException("Evaluación no encontrada"));
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        
+        Evaluacion evaluacion = null;
+        if (request.getIdEvaluacion() != null) {
+            evaluacion = evaluacionRepository.findById(request.getIdEvaluacion())
+                    .orElseThrow(() -> new IllegalArgumentException("Evaluación no encontrada"));
+        }
 
-        Notificacion notificacion = NotificacionMapper.toEntity(request, evaluacion);
+        Notificacion notificacion = NotificacionMapper.toEntity(request, usuario, evaluacion);
         Notificacion saved = notificacionRepository.save(notificacion);
         return NotificacionMapper.toResponse(saved);
     }
@@ -70,8 +93,19 @@ public class NotificacionService {
                 .orElseThrow(() -> new IllegalArgumentException("Notificación no encontrada"));
 
         existing.setMensaje(request.getMensaje());
+        if (request.getLeida() != null) {
+            existing.setLeida(request.getLeida());
+        }
         Notificacion updated = notificacionRepository.save(existing);
 
+        return NotificacionMapper.toResponse(updated);
+    }
+    
+    public NotificacionResponse marcarComoLeida(Long id) {
+        Notificacion notificacion = notificacionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Notificación no encontrada"));
+        notificacion.setLeida(true);
+        Notificacion updated = notificacionRepository.save(notificacion);
         return NotificacionMapper.toResponse(updated);
     }
 

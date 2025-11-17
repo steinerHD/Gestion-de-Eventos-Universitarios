@@ -217,8 +217,11 @@ CREATE TABLE evaluacion (
 
 CREATE TABLE notificacion (
   id_notificacion SERIAL PRIMARY KEY,
-  id_evaluacion INT NOT NULL REFERENCES evaluacion(id_evaluacion),
+  id_evaluacion INT REFERENCES evaluacion(id_evaluacion),
+  id_usuario INT NOT NULL REFERENCES usuario(id_usuario),
   mensaje TEXT NOT NULL,
+  leida BOOLEAN DEFAULT FALSE,
+  tipo_notificacion VARCHAR(50) CHECK (tipo_notificacion IN ('EVENTO_CREADO','EVENTO_APROBADO','EVENTO_RECHAZADO')),
   fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

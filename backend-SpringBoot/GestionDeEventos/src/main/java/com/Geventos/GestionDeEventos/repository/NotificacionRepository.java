@@ -15,6 +15,12 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
     @Query("SELECT n FROM Notificacion n WHERE n.evaluacion.idEvaluacion = :idEvaluacion")
     List<Notificacion> findByEvaluacionId(@Param("idEvaluacion") Long idEvaluacion);
     
+    @Query("SELECT n FROM Notificacion n WHERE n.usuario.idUsuario = :idUsuario ORDER BY n.fechaEnvio DESC")
+    List<Notificacion> findByUsuarioId(@Param("idUsuario") Long idUsuario);
+    
+    @Query("SELECT n FROM Notificacion n WHERE n.usuario.idUsuario = :idUsuario AND n.leida = false ORDER BY n.fechaEnvio DESC")
+    List<Notificacion> findByUsuarioIdAndNoLeidas(@Param("idUsuario") Long idUsuario);
+    
     List<Notificacion> findByFechaEnvioBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
     @Query("SELECT n FROM Notificacion n WHERE n.fechaEnvio >= :fecha")
