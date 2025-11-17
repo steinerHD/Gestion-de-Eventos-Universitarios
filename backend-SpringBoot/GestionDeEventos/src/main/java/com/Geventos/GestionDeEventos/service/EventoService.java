@@ -25,6 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class EventoService {
 
     private final EventoRepository eventoRepository;
@@ -35,7 +36,6 @@ public class EventoService {
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;
     private final EventoOrganizadorRepository eventoOrganizadorRepository;
     private final UsuarioService usuarioService;
-    private final PeriodoActivacionRepository periodoActivacionRepository;
     private final SecretariaAcademicaRepository secretariaAcademicaRepository;
     private final EventoSecretariaRepository eventoSecretariaRepository;
     private final NotificacionRepository notificacionRepository;
@@ -175,8 +175,10 @@ public class EventoService {
     // Filtrar eventos por períodos de activación de secretaria
     // Ahora también considera eventos explícitamente asignados a la secretaria
     public List<EventoResponse> findEventosPorPeriodosActivacion(Long idSecretaria) {
-        SecretariaAcademica secretaria = secretariaAcademicaRepository.findById(idSecretaria)
-                .orElseThrow(() -> new IllegalArgumentException("Secretaria académica no encontrada"));
+        // Validar que la secretaria existe
+        if (!secretariaAcademicaRepository.existsById(idSecretaria)) {
+            throw new IllegalArgumentException("Secretaria académica no encontrada");
+        }
         
         // Obtener eventos asignados directamente a esta secretaria
         List<Evento> eventosAsignados = eventoSecretariaRepository.findEventosBySecretariaId(idSecretaria);

@@ -18,6 +18,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class SecretariaAcademicaService {
 
     private final SecretariaAcademicaRepository secretariaAcademicaRepository;

@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

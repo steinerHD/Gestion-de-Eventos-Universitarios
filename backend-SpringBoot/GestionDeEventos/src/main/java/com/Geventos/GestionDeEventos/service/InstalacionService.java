@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class InstalacionService {
 
     private final InstalacionRepository instalacionRepository;

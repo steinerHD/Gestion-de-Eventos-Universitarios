@@ -2,7 +2,6 @@ package com.Geventos.GestionDeEventos.mappers;
 
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
-import com.Geventos.GestionDeEventos.DTOs.Responses.ParticipacionDetalleResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
@@ -50,19 +49,6 @@ public class EventoMapper {
                 r.setRol(eo.getRol() != null ? eo.getRol().name() : null);
                 return r;
             }).toList() : List.of());
-        response.setParticipacionesOrganizaciones(evento.getParticipacionesOrganizaciones() != null ?
-            evento.getParticipacionesOrganizaciones().stream()
-                .map(participacion -> {
-                    ParticipacionDetalleResponse participacionResponse = new ParticipacionDetalleResponse();
-                    participacionResponse.setIdOrganizacion(participacion.getIdOrganizacion());
-                    participacionResponse.setNombreOrganizacion(participacion.getOrganizacion() != null ? 
-                        participacion.getOrganizacion().getNombre() : null);
-                    participacionResponse.setCertificadoPdf(participacion.getCertificadoPdf());
-                    participacionResponse.setRepresentanteDiferente(participacion.getRepresentanteDiferente());
-                    participacionResponse.setNombreRepresentanteDiferente(participacion.getNombreRepresentanteDiferente());
-                    return participacionResponse;
-                })
-                .toList() : List.of());
         // tipoAval y avalPdf ahora están por usuario-evento en organizadores
         response.setEstado(evento.getEstado());
         return response;

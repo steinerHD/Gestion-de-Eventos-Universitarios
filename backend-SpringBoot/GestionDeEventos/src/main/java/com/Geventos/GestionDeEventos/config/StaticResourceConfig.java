@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
+@SuppressWarnings("null")
 public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Value("${aval.upload.path:uploads/avales}")

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class ParticipacionOrganizacionService {
 
     private final ParticipacionOrganizacionRepository participacionOrganizacionRepository;

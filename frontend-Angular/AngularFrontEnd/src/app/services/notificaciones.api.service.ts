@@ -20,9 +20,7 @@ export interface NotificacionResponse {
 export class NotificacionesApiService {
   private baseUrl = `${API_BASE_URL}/api/notificaciones`;
 
-  constructor(private http: HttpClient) {
-    console.log('NotificacionesApiService baseUrl:', this.baseUrl);
-  }
+  constructor(private http: HttpClient) {}
 
   getAll(): Observable<NotificacionResponse[]> {
     return this.http.get<NotificacionResponse[]>(this.baseUrl);

@@ -19,6 +19,7 @@ import java.io.IOException;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
+@SuppressWarnings("null")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired

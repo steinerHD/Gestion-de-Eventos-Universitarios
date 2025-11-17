@@ -17,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/evaluaciones")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class EvaluacionController {
 
     private final EvaluacionService evaluacionService;
@@ -69,24 +70,13 @@ public class EvaluacionController {
     @PostMapping
     public ResponseEntity<EvaluacionResponse> createEvaluacion(@RequestBody EvaluacionRequest request) {
         try {
-            System.out.println("=== DEBUG EVALUACION ===");
-            System.out.println("Request recibido: " + request);
-            System.out.println("Fecha: " + request.getFecha());
-            System.out.println("Estado: " + request.getEstado());
-            System.out.println("IdEvento: " + request.getIdEvento());
-            System.out.println("IdSecretaria: " + request.getIdSecretaria());
-            System.out.println("Justificacion: " + request.getJustificacion());
-            System.out.println("ActaPdf: " + request.getActaPdf());
-            
             EvaluacionResponse response = evaluacionService.save(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            System.err.println("Error IllegalArgumentException: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error al crear evaluación: " + e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            System.err.println("Error inesperado: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error inesperado al crear evaluación: " + e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

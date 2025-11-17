@@ -19,6 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class NotificacionService {
 
     private final NotificacionRepository notificacionRepository;

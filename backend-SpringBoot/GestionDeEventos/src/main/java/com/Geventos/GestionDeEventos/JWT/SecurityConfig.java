@@ -16,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@SuppressWarnings("null")
 public class SecurityConfig {
 
     @Autowired

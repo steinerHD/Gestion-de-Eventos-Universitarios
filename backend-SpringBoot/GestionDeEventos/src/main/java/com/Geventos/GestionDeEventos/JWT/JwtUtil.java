@@ -8,6 +8,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
+@SuppressWarnings("null")
 public class JwtUtil {
     private final String jwtSecret = "9f8d7s6a5f4g3h2j1k0l9m8n7b6v5c4x"; 
     private final long jwtExpirationMs = 3600000; // 1 hora

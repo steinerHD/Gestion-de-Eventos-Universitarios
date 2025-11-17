@@ -17,6 +17,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@SuppressWarnings("null")
 public class OrganizacionExternaService {
 
     private final OrganizacionExternaRepository organizacionExternaRepository;
