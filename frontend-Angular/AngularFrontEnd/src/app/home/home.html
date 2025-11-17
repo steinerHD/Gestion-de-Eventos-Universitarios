@@ -55,11 +55,124 @@
   </div>
 </div>
 
-<div>
-  <div class="events-container">
-    <h2>Eventos</h2>
-    <div *ngIf="events.length === 0">
-      <p>No hay eventos disponibles.</p>
+<div class="events-section">
+  <div class="events-header">
+    <h1 class="events-title">
+      <i class="ri-calendar-event-fill"></i>
+      Eventos Universitarios UAO
+    </h1>
+    <p class="events-subtitle">Descubre todos los eventos universitarios disponibles</p>
+  </div>
+
+  <div *ngIf="events.length === 0" class="no-events">
+    <i class="ri-calendar-close-line"></i>
+    <p>No hay eventos aprobados en este momento</p>
+  </div>
+
+  <div class="events-grid">
+    <div *ngFor="let event of events" class="event-card">
+      <!-- Header de la tarjeta -->
+      <div class="event-card-header">
+        <h3 class="event-title">{{ event.titulo }}</h3>
+        <span class="event-capacity">
+          <i class="ri-group-line"></i>
+          {{ event.capacidad }} personas
+        </span>
+      </div>
+
+      <!-- Información principal -->
+      <div class="event-info">
+        <div class="info-row">
+          <i class="ri-calendar-line"></i>
+          <span class="info-label">Fecha:</span>
+          <span class="info-value">{{ event.fecha | date:'EEEE, d \'de\' MMMM \'de\' y' }}</span>
+        </div>
+
+        <div class="info-row">
+          <i class="ri-time-line"></i>
+          <span class="info-label">Horarios:</span>
+          <div class="time-slots">
+            <div *ngFor="let instalacion of event.instalaciones; let i = index" class="time-slot">
+              <span class="slot-number">{{ i + 1 }}.</span>
+              <span class="slot-time">{{ instalacion.horaInicio }} - {{ instalacion.horaFin }}</span>
+              <span class="slot-location">{{ instalacion.nombreInstalacion }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row" *ngIf="event.instalaciones && event.instalaciones.length > 0">
+          <i class="ri-map-pin-line"></i>
+          <span class="info-label">Instalaciones:</span>
+          <div class="installations-list">
+            <span *ngFor="let inst of event.instalaciones" class="installation-badge">
+              {{ inst.nombreInstalacion }} ({{ inst.tipoInstalacion }})
+            </span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <i class="ri-book-open-line"></i>
+          <span class="info-label">Tipo:</span>
+          <span class="info-value event-type">{{ event.tipoEvento }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="event.organizadores && event.organizadores.length > 0 && getUsuarioPrograma(event.organizadores[0].idUsuario)">
+          <i class="ri-graduation-cap-line"></i>
+          <span class="info-label">Programa:</span>
+          <span class="info-value">{{ getUsuarioPrograma(event.organizadores[0].idUsuario) }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="event.organizadores && event.organizadores.length > 0 && getUsuarioUnidadAcademica(event.organizadores[0].idUsuario)">
+          <i class="ri-building-line"></i>
+          <span class="info-label">Unidad Académica:</span>
+          <span class="info-value">{{ getUsuarioUnidadAcademica(event.organizadores[0].idUsuario) }}</span>
+        </div>
+      </div>
+
+      <!-- Organizadores -->
+      <div class="event-organizers" *ngIf="event.organizadores && event.organizadores.length > 0">
+        <div class="organizers-header">
+          <i class="ri-team-line"></i>
+          <span>Organizadores</span>
+        </div>
+        <div class="organizers-list">
+          <div *ngFor="let org of event.organizadores" class="organizer-item">
+            <i class="ri-user-line"></i>
+            <span class="organizer-name">{{ getUsuarioNombre(org.idUsuario) }}</span>
+            <span class="organizer-email">{{ getUsuarioCorreo(org.idUsuario) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Organizaciones Externas -->
+      <div class="event-external-orgs" *ngIf="event.participacionesOrganizaciones && event.participacionesOrganizaciones.length > 0">
+        <div class="external-orgs-header">
+          <i class="ri-building-2-line"></i>
+          <span>Organizaciones Externas</span>
+        </div>
+        <div class="external-orgs-list">
+          <div *ngFor="let participacion of event.participacionesOrganizaciones" class="external-org-item">
+            <div class="org-name">
+              <i class="ri-briefcase-line"></i>
+              <span>{{ participacion.nombreOrganizacion || getOrganizacionNombre(participacion.idOrganizacion) }}</span>
+            </div>
+            <div class="org-details">
+              <span class="org-nit">NIT: {{ getOrganizacionNit(participacion.idOrganizacion) }}</span>
+              <span class="org-representative">
+                Representante: {{ participacion.representanteDiferente ? participacion.nombreRepresentanteDiferente : getOrganizacionRepresentante(participacion.idOrganizacion) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer con fecha de aprobación -->
+      <div class="event-card-footer">
+        <span class="approval-badge">
+          <i class="ri-checkbox-circle-fill"></i>
+          Evento Aprobado
+        </span>
+      </div>
     </div>
   </div>
 </div>

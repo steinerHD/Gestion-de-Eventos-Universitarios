@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { buildApiUrl, API_PATHS } from '../config/api.config';
 
 export interface OrganizacionExternaDTO {
-  idOrganizacion?: number;
+  id?: number; // El backend devuelve "id", no "idOrganizacion"
+  idOrganizacion?: number; // Alias para compatibilidad
   nit: string;
   nombre: string;
   representanteLegal: string;

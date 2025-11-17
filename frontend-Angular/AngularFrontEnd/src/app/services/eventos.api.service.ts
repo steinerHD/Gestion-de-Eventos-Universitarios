@@ -19,7 +19,7 @@ export interface OrganizacionExternaRef {
 
 export interface ParticipacionDetalleDTO {
   idOrganizacion: number;
-  nombreOrganizacion?: string; // Nombre de la organización
+  nombreOrganizacion?: string; // Nombre de la organización (viene del backend)
   certificadoPdf: string; 
   representanteDiferente?: boolean; // Por defecto false
   nombreRepresentanteDiferente?: string; // Solo si representanteDiferente = true

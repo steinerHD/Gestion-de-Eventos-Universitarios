@@ -4,12 +4,14 @@ import com.Geventos.GestionDeEventos.DTOs.Requests.EventoRequest;
 import com.Geventos.GestionDeEventos.DTOs.Requests.EventoInstalacionRequest;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoResponse;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoInstalacionResponse;
+import com.Geventos.GestionDeEventos.DTOs.Responses.ParticipacionDetalleResponse;
 import com.Geventos.GestionDeEventos.entity.Evento;
 import com.Geventos.GestionDeEventos.entity.EventoInstalacion;
 import com.Geventos.GestionDeEventos.entity.EventoInstalacionId;
 import com.Geventos.GestionDeEventos.entity.Instalacion;
 import com.Geventos.GestionDeEventos.entity.Usuario;
 import com.Geventos.GestionDeEventos.entity.EventoOrganizador;
+import com.Geventos.GestionDeEventos.entity.ParticipacionOrganizacion;
 import com.Geventos.GestionDeEventos.DTOs.Responses.EventoOrganizadorResponse;
 
 import java.time.LocalTime;
@@ -75,6 +77,19 @@ public class EventoMapper {
                 r.setRol(eo.getRol() != null ? eo.getRol().name() : null);
                 return r;
             }).toList() : List.of());
+        
+        // Mapear participaciones de organizaciones externas
+        response.setParticipacionesOrganizaciones(evento.getParticipacionesOrganizaciones() != null ?
+            evento.getParticipacionesOrganizaciones().stream().map((ParticipacionOrganizacion po) -> {
+                ParticipacionDetalleResponse pdr = new ParticipacionDetalleResponse();
+                pdr.setIdOrganizacion(po.getIdOrganizacion());
+                pdr.setNombreOrganizacion(po.getOrganizacion() != null ? po.getOrganizacion().getNombre() : null);
+                pdr.setCertificadoPdf(po.getCertificadoPdf());
+                pdr.setRepresentanteDiferente(po.getRepresentanteDiferente());
+                pdr.setNombreRepresentanteDiferente(po.getNombreRepresentanteDiferente());
+                return pdr;
+            }).toList() : List.of());
+        
         // tipoAval y avalPdf ahora están por usuario-evento en organizadores
         response.setEstado(evento.getEstado());
         return response;
