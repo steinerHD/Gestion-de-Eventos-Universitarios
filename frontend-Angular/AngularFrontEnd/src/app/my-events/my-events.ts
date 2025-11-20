@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { notyf } from '../app'; 
+import { API_BASE_URL } from '../config/api.config';
 
 
 
@@ -306,9 +307,12 @@ export class MyEventsComponent implements OnInit {
           const evaluacion = evaluaciones[0];
           if (evaluacion.actaPdf) {
             // Guardar URL original para descargas
-            this.actaUrlOriginal = evaluacion.actaPdf;
+            const finalUrl = evaluacion.actaPdf.startsWith('http')
+              ? evaluacion.actaPdf
+              : `${API_BASE_URL}/${evaluacion.actaPdf}`;
+            this.actaUrlOriginal = finalUrl;
             // El actaPdf es el path del archivo, sanitizarlo para el iframe
-            this.actaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(evaluacion.actaPdf);
+            this.actaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(finalUrl);
             this.showActaModal = true;
           } else {
             notyf.error('No se encontró el acta para este evento.');

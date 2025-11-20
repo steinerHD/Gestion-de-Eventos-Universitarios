@@ -413,13 +413,16 @@ background: linear-gradient(90deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 255, 25
 }
 
 .modal.show {
-  display: block !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .modal-dialog {
   position: relative;
   width: auto;
-  margin: 0.5rem;
+  margin: 0;
   pointer-events: none;
 }
 
@@ -431,6 +434,21 @@ background: linear-gradient(90deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 255, 25
 
 .modal-lg {
   max-width: 800px;
+}
+
+.modal-acta .modal-dialog {
+  width: 80vw;
+  max-width: 80vw;
+}
+
+.modal-acta .modal-content {
+  height: 70vh;
+  display: flex;
+}
+
+.modal-acta .modal-body {
+  height: 100%;
+  max-height: none;
 }
 
 .modal-content {

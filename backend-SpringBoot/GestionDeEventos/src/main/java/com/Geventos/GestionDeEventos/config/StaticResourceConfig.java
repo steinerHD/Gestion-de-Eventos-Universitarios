@@ -13,14 +13,23 @@ import java.nio.file.Paths;
 public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Value("${aval.upload.path:uploads/avales}")
-    private String uploadDirProperty;
+    private String avalUploadDirProperty;
+
+    @Value("${acta.upload.path:uploads/actas}")
+    private String actaUploadDirProperty;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadDir = Paths.get(uploadDirProperty);
-        String uploadPath = uploadDir.toFile().getAbsolutePath() + "/";
+        Path avalDir = Paths.get(avalUploadDirProperty);
+        String avalPath = avalDir.toFile().getAbsolutePath() + "/";
         registry.addResourceHandler("/assets/uploads/avales/**")
-                .addResourceLocations("file:" + uploadPath)
+                .addResourceLocations("file:" + avalPath)
+                .setCachePeriod(3600);
+
+        Path actaDir = Paths.get(actaUploadDirProperty);
+        String actaPath = actaDir.toFile().getAbsolutePath() + "/";
+        registry.addResourceHandler("/assets/uploads/actas/**")
+                .addResourceLocations("file:" + actaPath)
                 .setCachePeriod(3600);
     }
 }

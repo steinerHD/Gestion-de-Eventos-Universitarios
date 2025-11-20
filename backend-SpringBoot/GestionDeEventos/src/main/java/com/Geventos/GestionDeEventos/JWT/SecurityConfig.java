@@ -32,8 +32,10 @@ public class SecurityConfig {
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/api/eventos/test-auth").permitAll()
             // Allow public access to uploaded aval assets
-            .requestMatchers("/assets/uploads/avales/**").permitAll()
+            .requestMatchers("/assets/uploads/avales/**", "/assets/uploads/actas/**").permitAll()
             .anyRequest().authenticated())
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.disable()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling(e -> e

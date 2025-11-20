@@ -52,6 +52,8 @@ export class DetalleAprobEvent implements OnInit {
   
   // Evaluación
   currentUser: any = null;
+  userProfileLoaded = false;
+  eventoLoaded = false;
   showApproveModal = false;
   showRejectModal = false;
   actaFile: File | null = null;
@@ -91,8 +93,13 @@ export class DetalleAprobEvent implements OnInit {
     this.authService.getUserProfile().subscribe({
       next: (user) => {
         this.currentUser = user;
+        this.userProfileLoaded = true;
       },
-      error: (err) => console.error('Error al obtener perfil:', err)
+      error: (err) => {
+        console.error('Error al obtener perfil:', err);
+        notyf.error('No se pudo cargar la información de la secretaría.');
+        this.userProfileLoaded = true;
+      }
     });
 
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -114,6 +121,7 @@ export class DetalleAprobEvent implements OnInit {
     this.eventosApi.getById(id).subscribe({
       next: (e) => {
         this.evento = e;
+        this.eventoLoaded = true;
         // Las instalaciones ya vienen completas en el evento, no necesitamos cargarlas
         this.instalacionesList = [];
         
@@ -193,6 +201,7 @@ export class DetalleAprobEvent implements OnInit {
       error: (err) => {
         console.error('Error cargando evento detalle:', err);
         this.error = 'No se pudo cargar el evento.';
+        this.eventoLoaded = true;
         this.loading = false;
       }
     });
@@ -215,8 +224,7 @@ export class DetalleAprobEvent implements OnInit {
 
   // Métodos de evaluación
   openApproveModal(): void {
-    if (!this.evento || this.evento.estado !== 'Pendiente') {
-      notyf.error('Solo se pueden aprobar eventos en estado Pendiente');
+    if (!this.ensureEvaluationContext('aprobar')) {
       return;
     }
     this.showApproveModal = true;
@@ -225,8 +233,7 @@ export class DetalleAprobEvent implements OnInit {
   }
 
   openRejectModal(): void {
-    if (!this.evento || this.evento.estado !== 'Pendiente') {
-      notyf.error('Solo se pueden rechazar eventos en estado Pendiente');
+    if (!this.ensureEvaluationContext('rechazar')) {
       return;
     }
     this.showRejectModal = true;
@@ -264,19 +271,44 @@ export class DetalleAprobEvent implements OnInit {
     }
   }
 
+  private ensureEvaluationContext(action: 'aprobar' | 'rechazar'): boolean {
+    if (!this.userProfileLoaded) {
+      notyf.error('Aún se está cargando la información de la secretaría.');
+      return false;
+    }
+    if (!this.currentUser || !this.currentUser.idSecretaria) {
+      notyf.error('No se pudo identificar la secretaría.');
+      return false;
+    }
+    if (!this.eventoLoaded) {
+      notyf.error('El evento todavía se está cargando. Intenta nuevamente.');
+      return false;
+    }
+    if (!this.evento || !this.evento.idEvento) {
+      notyf.error('No se pudo identificar el evento.');
+      return false;
+    }
+    if (this.evento.estado !== 'Pendiente') {
+      const actionText = action === 'aprobar' ? 'aprobar' : 'rechazar';
+      notyf.error(`Solo se pueden ${actionText} eventos en estado Pendiente`);
+      return false;
+    }
+    return true;
+  }
+
+  private resolveEvaluationContext(): { eventId: number; secretariaId: number } {
+    return {
+      eventId: this.evento!.idEvento!,
+      secretariaId: this.currentUser!.idSecretaria
+    };
+  }
+
   aprobarEvento(): void {
+    if (!this.ensureEvaluationContext('aprobar')) {
+      return;
+    }
     if (!this.actaFile) {
       notyf.error('Debe adjuntar el acta del comité en formato PDF');
-      return;
-    }
-
-    if (!this.currentUser || !this.currentUser.idSecretaria) {
-      notyf.error('No se pudo identificar la secretaría');
-      return;
-    }
-
-    if (!this.evento || !this.evento.idEvento) {
-      notyf.error('No se pudo identificar el evento');
       return;
     }
 
@@ -286,12 +318,12 @@ export class DetalleAprobEvent implements OnInit {
     this.evaluacionesApi.uploadActa(this.actaFile).subscribe({
       next: (response) => {
         // Crear la evaluación con el path del acta
+        const { eventId, secretariaId } = this.resolveEvaluationContext();
         const evaluacionRequest: EvaluacionRequest = {
           estado: 'Aprobado',
           actaPdf: response.path,
-          idEvento: this.evento!.idEvento!,
-          idSecretaria: this.currentUser.idSecretaria,
-          fecha: new Date().toISOString().split('T')[0]
+          idEvento: eventId,
+          idSecretaria: secretariaId
         };
 
         this.evaluacionesApi.create(evaluacionRequest).subscribe({
@@ -318,29 +350,22 @@ export class DetalleAprobEvent implements OnInit {
   }
 
   rechazarEvento(): void {
+    if (!this.ensureEvaluationContext('rechazar')) {
+      return;
+    }
     if (!this.justificacion || this.justificacion.trim() === '') {
       notyf.error('Debe indicar una justificación para rechazar el evento');
       return;
     }
 
-    if (!this.currentUser || !this.currentUser.idSecretaria) {
-      notyf.error('No se pudo identificar la secretaría');
-      return;
-    }
-
-    if (!this.evento || !this.evento.idEvento) {
-      notyf.error('No se pudo identificar el evento');
-      return;
-    }
-
     this.submittingEvaluation = true;
 
+    const { eventId, secretariaId } = this.resolveEvaluationContext();
     const evaluacionRequest: EvaluacionRequest = {
       estado: 'Rechazado',
       justificacion: this.justificacion.trim(),
-      idEvento: this.evento.idEvento,
-      idSecretaria: this.currentUser.idSecretaria,
-      fecha: new Date().toISOString().split('T')[0]
+      idEvento: eventId,
+      idSecretaria: secretariaId
     };
 
     this.evaluacionesApi.create(evaluacionRequest).subscribe({
@@ -361,6 +386,8 @@ export class DetalleAprobEvent implements OnInit {
 
   canEvaluate(): boolean {
     return this.evento?.estado === 'Pendiente' && 
-           this.currentUser?.tipoUsuario === 'Secretaria';
+           this.currentUser?.tipoUsuario === 'Secretaria' &&
+           !!this.currentUser?.idSecretaria;
   }
 }
+

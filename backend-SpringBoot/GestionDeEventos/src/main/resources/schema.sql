@@ -326,15 +326,30 @@ RETURNS TRIGGER AS $$
 DECLARE
   v_id_usuario INT;
   v_estado TEXT;
+  v_tipo_notificacion VARCHAR(50);
 BEGIN
   SELECT id_usuario_organizador INTO v_id_usuario FROM evento WHERE id_evento = NEW.id_evento;
   
+  IF v_id_usuario IS NULL THEN
+    RETURN NEW;
+  END IF;
+  
   v_estado := NEW.estado;
+  
+  IF v_estado = 'Aprobado' THEN
+    v_tipo_notificacion := 'EVENTO_APROBADO';
+  ELSIF v_estado = 'Rechazado' THEN
+    v_tipo_notificacion := 'EVENTO_RECHAZADO';
+  ELSE
+    v_tipo_notificacion := 'EVENTO_CREADO';
+  END IF;
 
-  INSERT INTO notificacion (id_evaluacion, mensaje)
+  INSERT INTO notificacion (id_evaluacion, id_usuario, mensaje, tipo_notificacion)
   VALUES (
       NEW.id_evaluacion,
-      'El evento ha sido ' || v_estado || ' por la Secretaría Académica.'
+      v_id_usuario,
+      'El evento ha sido ' || v_estado || ' por la Secretaría Académica.',
+      v_tipo_notificacion
   );
 
   RETURN NEW;
