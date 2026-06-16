@@ -2,6 +2,29 @@
 
 Sistema completo full-stack para la gestión de eventos universitarios, desarrollado con Spring Boot (backend) y Angular (frontend).
 
+## Vista previa
+
+Login & Registro
+<img width="1919" height="888" alt="image" src="https://github.com/user-attachments/assets/ed1bf8f1-740f-4553-a340-7dd8d98a900c" />
+<img width="1919" height="885" alt="image" src="https://github.com/user-attachments/assets/4757250b-4c2a-4d1b-8574-0ee8f3e4c7e7" />
+
+Registro Estudiante
+<img width="1919" height="887" alt="image" src="https://github.com/user-attachments/assets/b287e1e2-6a0f-479f-b2ad-720435a983c4" />
+<img width="1919" height="888" alt="image" src="https://github.com/user-attachments/assets/24499de4-5f60-42cd-b693-cc38922f7063" />
+
+
+Registro Docente
+<img width="1919" height="883" alt="image" src="https://github.com/user-attachments/assets/16f9e53e-d628-4a96-91e7-c7b0b4e707e1" />
+
+Registro Secretaria
+<img width="1919" height="882" alt="image" src="https://github.com/user-attachments/assets/dc7b098e-ee71-4649-9883-b59123cd7430" />
+
+Pagina principal
+<img width="1919" height="888" alt="image" src="https://github.com/user-attachments/assets/5d08e972-f863-4387-ba9b-e1425e5be477" />
+
+
+
+
 ## 🎯 Características
 
 - **Gestión de Eventos**: Crear, editar, eliminar y consultar eventos
